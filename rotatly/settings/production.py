@@ -15,7 +15,10 @@ DATABASES = {
         "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT", "5432"),
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
 }
 
-STATIC_ROOT = BASE_DIR.parent.parent / 'static'
+STATIC_ROOT = BASE_DIR / 'static_production'
