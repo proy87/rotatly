@@ -42,7 +42,7 @@
 
   hold_timer = null;
 
-  hold_duration = 200;
+  hold_duration = 500;
 
   is_sliding = false;
 

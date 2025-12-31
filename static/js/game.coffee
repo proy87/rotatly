@@ -23,7 +23,7 @@ active_nodes_dom = [...document.querySelectorAll('.node.active')]
 
 
 hold_timer = null
-hold_duration = 200
+hold_duration = 500
 
 is_sliding = false
 slided_cells = []
