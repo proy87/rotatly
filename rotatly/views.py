@@ -1,3 +1,4 @@
+import math
 import re
 import json
 import datetime
@@ -30,13 +31,14 @@ def rotatly(request, date=None):
     moves_re = re.findall(fr'([1-9])\s*([{CW_SYMBOLS}{CCW_SYMBOLS}])', request.GET.get('moves', ''))
     pre_moves = [(int(k), v in CW_SYMBOLS) for k, v in moves_re]
     game = Game.objects.select_related('outline').get(index=game_index)
+    size = int(math.sqrt(len(game.board)))
     outline = game.outline
     if settings.DEBUG:
         solution = solve(board=game.board, outline=outline.board, disabled_nodes=game.disabled_nodes)
         print(solution)
 
     bordered_board = init_borders(outline=outline.board, css_variable='cell-width', board=game.board)
-    bordered_outline = init_borders(outline=outline.board, css_variable='cell-width-outline')
+    bordered_outline = init_borders(outline=outline.board, css_variable='outline-cell-width')
     if date is None:
         next_puzzle_url = None
     else:
@@ -46,15 +48,16 @@ def rotatly(request, date=None):
             kwargs['date'] = current_date + datetime.timedelta(days=1)
         next_puzzle_url = None if days_to_today < 1 else reverse('rotatly', kwargs=kwargs)
     return render(request, 'game.html',
-                  dict(game=game,
+                  dict(size=size,
+                       game=game,
                        board=bordered_board,
                        outline=bordered_outline,
                        outline_dumped=json.dumps(outline.board),
                        pre_moves=pre_moves,
                        pre_moves_dumped=json.dumps(pre_moves),
                        is_solved=is_solved(game.board, outline.board, pre_moves, game.disabled_nodes),
-                       nodes=[[(e, game.disabled_nodes.get(str(e), dict())) for e in range(i, i + 3)] for i in
-                              range(1, 9, 3)],
+                       nodes=[[(e, game.disabled_nodes.get(str(e), dict())) for e in range(i, i + size - 1)] for i in
+                              range(1, (size - 1) ** 2, size - 1)],
                        moves_max_num=game.moves_min_num * 10,
                        cw_symbol=CW_SYMBOLS[0],
                        ccw_symbol=CCW_SYMBOLS[0],
@@ -68,7 +71,7 @@ def rotatly(request, date=None):
                        next_puzzle_url=next_puzzle_url))
 
 
-def track_rotatly(request):
+def track(request):
     if not settings.DEBUG:
         from django.core.mail import send_mail
         send_mail('Rotatly',

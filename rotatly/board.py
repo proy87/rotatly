@@ -9,7 +9,7 @@ class Cell:
         self.row = row
         self.col = col
         self.name = name
-        self.display_name = {1: 'A', 2: 'B', 3: 'C', 4: 'D', '': ''}[name]
+        self.display_name = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', '': ''}[name]
         self.border_dict = border_dict
         self.cell_width = f'var(--{css_variable})'
         self.thickness = f'{self.cell_width} / 12' if name else '5px'
@@ -17,7 +17,7 @@ class Cell:
 
     @property
     def color_class(self) -> str:
-        return {1: 'red', 2: 'green', 3: 'blue', 4: 'purple'}[self.name]
+        return {1: 'red', 2: 'green', 3: 'blue', 4: 'purple', 5: 'magenta'}[self.name]
 
     @property
     def border_styles(self) -> Sequence[str]:

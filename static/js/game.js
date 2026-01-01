@@ -101,7 +101,7 @@
           title = "Rotatly";
           url = today_url;
         }
-        get_request("/rotatly/track/",
+        get_request(track_url,
     {
           game_index: game_index,
           init_time: (start_time - visit_time) / 1000,
@@ -226,7 +226,7 @@
             }
             show_element(block);
             document.getElementById("share-container").style.display = 'flex';
-            get_request("/rotatly/track/", {
+            get_request(track_url, {
               game_index: game_index,
               init_time: (start_time - visit_time) / 1000,
               game_time: (end_time - start_time) / 1000,

@@ -1,13 +1,14 @@
 import math
+import heapq
 from collections import deque
 
 from collections.abc import Sequence, Iterable
-from typing import Any
+from typing import Any, Self
 from .utils import encode
 
 
 class Block:
-    def __init__(self, index: int, indices: tuple[int, int, int, int], allow_cw:bool=True, allow_ccw:bool=True):
+    def __init__(self, index: int, indices: tuple[int, int, int, int], allow_cw: bool = True, allow_ccw: bool = True):
         self.index = index
         self.indices = indices
         self.allow_cw = allow_cw
@@ -15,14 +16,17 @@ class Block:
 
     @classmethod
     def get_blocks(cls, n: int, m: int, disabled_nodes: dict):
+        def get_key(index, key):
+            if index not in disabled_nodes:
+                index = str(index)
+            return disabled_nodes.get(index, {}).get(key, False)
+
         blocks = [(i, i + 1, i + m, i + m + 1) for i in range(m * (n - 1)) if (i + 1) % m]
-        return [cls(i, indices,
-                    not disabled_nodes.get(str(i), {}).get('cw', False),
-                    not disabled_nodes.get(str(i), {}).get('ccw', False))
-                for i, indices in enumerate(blocks, start=1)]
+        return [cls(i, indices, not get_key(i, 'cw'), not get_key(i, 'ccw')) for i, indices in
+                enumerate(blocks, start=1)]
 
 
-def rotate_block(state: tuple[int, ...], block_indices: tuple[int, int, int, int], cw:bool=True) -> tuple:
+def rotate_block(state: tuple[int, ...], block_indices: tuple[int, int, int, int], cw: bool = True) -> tuple:
     s = list(state)
     i, j, k, l = block_indices
     if cw:
@@ -32,18 +36,18 @@ def rotate_block(state: tuple[int, ...], block_indices: tuple[int, int, int, int
     return encode(s)
 
 
-def neighbors(state: tuple[int,...], blocks: Sequence[Block], reverse:bool=False) -> Iterable[tuple]:
+def neighbors(state: tuple[int, ...], blocks: Sequence[Block], reverse: bool = False) -> Iterable[tuple]:
     for block in blocks:
         if reverse:
-            if block.allow_cw:
-                yield rotate_block(state, block.indices, False), (block.index, 'CCW')
             if block.allow_ccw:
                 yield rotate_block(state, block.indices, True), (block.index, 'CW')
+            if block.allow_cw:
+                yield rotate_block(state, block.indices, False), (block.index, 'CCW')
         else:
-            if block.allow_ccw:
-                yield rotate_block(state, block.indices, False), (block.index, 'CCW')
             if block.allow_cw:
                 yield rotate_block(state, block.indices, True), (block.index, 'CW')
+            if block.allow_ccw:
+                yield rotate_block(state, block.indices, False), (block.index, 'CCW')
 
 
 def bfs(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> Sequence[tuple] | None:
@@ -95,11 +99,110 @@ def bfs(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> S
     return None  # unsolvable
 
 
-def solve(board: Sequence[Any], outline: Sequence[Any], disabled_nodes: dict) -> Sequence[tuple] | None:
-    n = int(math.sqrt(len(board)))
-    return bfs(board, outline, Block.get_blocks(n, n, disabled_nodes))
+class StateNode:
+    def __init__(self, state: Sequence[Any], f: int = 0, g: int = 0, move: tuple[int, bool] | None = None,
+                 parent: Self | None = None):
+        self.state = state
+        self.g = g
+        self.move = move
+        self.parent = parent
+        self.f = f
 
-def is_solved(start: Sequence[Any], goal: Sequence[Any], moves: Sequence[tuple[int, bool]], disabled_nodes: dict)-> bool:
+    def __lt__(self, other: Self) -> bool:
+        return self.f < other.f
+
+
+def heuristic(state: Sequence[Any], target: Sequence[Any]) -> int:
+    misplaced = sum(a != b for a, b in zip(state, target))
+    return (misplaced + 3) // 4
+
+
+def reconstruct_path(node: StateNode) -> list[StateNode]:
+    path = []
+    while node.parent is not None:
+        path.append(node.move)
+        node = node.parent
+    path.reverse()
+    return path
+
+
+def a_star(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> Sequence[tuple] | None:
+    max_len = 30
+    start = encode(start)
+    goal = encode(goal)
+    if start == goal:
+        return []
+
+    # Initialize frontiers
+    fwd_pq = []
+    bwd_pq = []
+
+    start_node = StateNode(start, f=heuristic(start, goal), g=0)
+    goal_node = StateNode(goal, f=heuristic(goal, start), g=0)
+
+    heapq.heappush(fwd_pq, start_node)
+    heapq.heappush(bwd_pq, goal_node)
+
+    fwd_visited = {start: start_node}
+    bwd_visited = {goal: goal_node}
+
+    meeting_state = None
+    min_dist = max_len + 1
+
+    while fwd_pq and bwd_pq:
+        # --- Forward step ---
+        current = heapq.heappop(fwd_pq)
+        for nxt, move in neighbors(current.state, blocks, reverse=False):
+            g_new = current.g + 1
+            f_new = g_new + heuristic(nxt, goal)
+            if f_new >= min_dist:
+                continue
+            if nxt not in fwd_visited or g_new < fwd_visited[nxt].g:
+                nxt_node = StateNode(nxt, g=g_new, move=move, parent=current)
+                nxt_node.f = f_new
+                fwd_visited[nxt] = nxt_node
+                heapq.heappush(fwd_pq, nxt_node)
+
+            if nxt in bwd_visited:
+                total_dist = g_new + bwd_visited[nxt].g
+                if total_dist < min_dist:
+                    min_dist = total_dist
+                    meeting_state = nxt
+
+        # --- Backward step ---
+        current = heapq.heappop(bwd_pq)
+        for nxt, move in neighbors(current.state, blocks, reverse=True):
+            g_new = current.g + 1
+            f_new = g_new + heuristic(nxt, start)
+            if f_new >= min_dist:
+                continue
+            if nxt not in bwd_visited or g_new < bwd_visited[nxt].g:
+                nxt_node = StateNode(nxt, g=g_new, move=move, parent=current)
+                nxt_node.f = f_new
+                bwd_visited[nxt] = nxt_node
+                heapq.heappush(bwd_pq, nxt_node)
+
+            if nxt in fwd_visited:
+                total_dist = g_new + fwd_visited[nxt].g
+                if total_dist < min_dist:
+                    min_dist = total_dist
+                    meeting_state = nxt
+
+        if meeting_state is not None:
+            break
+
+    if meeting_state is None:
+        return None
+
+    # Reconstruct path
+    fwd_path = reconstruct_path(fwd_visited[meeting_state])
+    bwd_path = reconstruct_path(bwd_visited[meeting_state])
+    full_path = fwd_path + [(k, 'CCW' if v == 'CW' else 'CW') for k, v in bwd_path[::-1]]
+    return full_path
+
+
+def is_solved(start: Sequence[Any], goal: Sequence[Any], moves: Sequence[tuple[int, bool]],
+              disabled_nodes: dict) -> bool:
     n = int(math.sqrt(len(start)))
     blocks = {block.index: block for block in Block.get_blocks(n, n, disabled_nodes)}
 
@@ -112,3 +215,9 @@ def is_solved(start: Sequence[Any], goal: Sequence[Any], moves: Sequence[tuple[i
         else:
             return False
     return start == encode(goal)
+
+
+def solve(board: Sequence[Any], outline: Sequence[Any], disabled_nodes: dict) -> Sequence[tuple] | None:
+    n = int(math.sqrt(len(board)))
+    blocks = Block.get_blocks(n, n, disabled_nodes)
+    return bfs(board, outline, blocks)

@@ -17,7 +17,7 @@ Including another URLconf
 import datetime
 from django.contrib import admin
 from django.urls import path, register_converter
-from .views import rotatly, track_rotatly
+from .views import rotatly, track
 
 class DateConverter:
     regex = r'\d{4}-\d{2}-\d{2}'
@@ -37,6 +37,6 @@ urlpatterns = [
     path('admin-r/', admin.site.urls),
     path('', rotatly, name='rotatly'),
     path('<yyyy-mm-dd:date>/', rotatly, name='rotatly'),
-    path('rotatly/track/', track_rotatly, name='track_rotatly'),
+    path('track/', track, name='track'),
 
 ]

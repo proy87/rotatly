@@ -11,9 +11,9 @@
 }
 
 :root {
-    --cell-width: calc((var(--board-width) - 1px) / 4);
-    --outline-width: 81px;
-    --cell-width-outline: calc((var(--outline-width) - 1px) / 4);
+    --cell-width: calc((var(--board-width) - 1px) / var(--col-number));
+    --outline-cell-width: 20px;
+    --outline-width: calc(var(--outline-cell-width) * var(--col-number) + 1px);
 }
 
 body {
@@ -24,6 +24,7 @@ body {
 #board-container {
     margin: 30px auto;
     text-align: center;
+    max-width: 95%;
 }
 
 #board {
@@ -39,6 +40,10 @@ body {
     width: var(--outline-width);
     height: var(--outline-width);
     margin: 10px auto 10px auto;
+}
+
+#outline-board td{
+    width: var(--outline-cell-width);
 }
 
 #board, #board * {
@@ -139,6 +144,10 @@ table td {
 
 .purple {
     background-color: rgba(128, 0, 128, 0.3);
+}
+
+.magenta {
+    background-color: rgba(255, 0, 255, 0.3);
 }
 
 button:disabled {
