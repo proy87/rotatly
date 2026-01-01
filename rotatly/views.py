@@ -1,28 +1,18 @@
-import base64
-import itertools
-import random
 import re
 import json
 import datetime
-from urllib.parse import quote_plus
 
 from django.conf import settings
-from django.db.models import Q
-from django.forms.widgets import Input, Textarea
-from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, HttpResponseGone, JsonResponse
-from django.shortcuts import get_object_or_404, render
-from django.template.loader import render_to_string
-from django.templatetags.static import static
-from django.urls import reverse, translate_url
-from django.utils.http import urlencode
-from django.utils.translation import gettext_lazy, gettext, get_language
-from django.views.decorators.csrf import csrf_protect
+from django.http import Http404, JsonResponse
+from django.shortcuts import render
+from django.urls import reverse
 from .board import init_borders
 from .solver import solve, is_solved
 from .models import Game
-from .utils import lst_to_lst_of_lsts
+
 CW_SYMBOLS = '↻L←'
 CCW_SYMBOLS = '↺R→'
+
 
 def rotatly(request, date=None):
     start_date = datetime.datetime(2025, 11, 25)
