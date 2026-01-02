@@ -28,11 +28,18 @@ def rotatly(request, date=None):
         game_index = days_passed
         current_date = today_date
 
-    moves_re = re.findall(fr'([1-9])\s*([{CW_SYMBOLS}{CCW_SYMBOLS}])', request.GET.get('moves', ''))
+    moves_re = re.findall(fr'(?<!\d)([1-9]|[1-9][0-9])(?!\d)\s*([{CW_SYMBOLS}{CCW_SYMBOLS}])', request.GET.get('moves', ''))
     pre_moves = [(int(k), v in CW_SYMBOLS) for k, v in moves_re]
+    #from .models import Outline
+    #from .utils import generate_random_square, encode
+    #board = [3, 1, 3, 2, 5, 2, 1, 4, 5, 5, 4, 3, 1, 1, 5, 4, 3, 5, 2, 4, 3, 2, 2, 4, 1]
+    #game = Game(index=40, board=board, encoded_board=encode(board), moves_min_num=5,
+                #disabled_nodes={k: dict(ccw=True) for k in range(1, 17)})
     game = Game.objects.select_related('outline').get(index=game_index)
     size = int(math.sqrt(len(game.board)))
+    #outline = Outline(index=1, board=(0,0,1,1,2,3,0,0,1,2,3,0,4,1,2,3,3,4,1,2,3,4,4,4,2))
     outline = game.outline
+
     if settings.DEBUG:
         solution = solve(board=game.board, outline=outline.board, disabled_nodes=game.disabled_nodes)
         print(solution)

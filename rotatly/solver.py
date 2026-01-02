@@ -51,7 +51,7 @@ def neighbors(state: tuple[int, ...], blocks: Sequence[Block], reverse: bool = F
 
 
 def bfs(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> Sequence[tuple] | None:
-    max_path_length = 12
+    max_path_length = 25
     start = encode(start)
     goal = encode(goal)
 
@@ -100,7 +100,7 @@ def bfs(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> S
 
 
 class StateNode:
-    def __init__(self, state: Sequence[Any], f: int = 0, g: int = 0, move: tuple[int, bool] | None = None,
+    def __init__(self, state: tuple[int, ...], f: int = 0, g: int = 0, move: tuple[int, str] | None = None,
                  parent: Self | None = None):
         self.state = state
         self.g = g
@@ -117,7 +117,7 @@ def heuristic(state: Sequence[Any], target: Sequence[Any]) -> int:
     return (misplaced + 3) // 4
 
 
-def reconstruct_path(node: StateNode) -> list[StateNode]:
+def reconstruct_path(node: StateNode) -> list[tuple[int, str]]:
     path = []
     while node.parent is not None:
         path.append(node.move)
@@ -126,7 +126,7 @@ def reconstruct_path(node: StateNode) -> list[StateNode]:
     return path
 
 
-def a_star(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> Sequence[tuple] | None:
+def a_star(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> list[tuple[int, str]] | None:
     max_len = 30
     start = encode(start)
     goal = encode(goal)
@@ -197,8 +197,7 @@ def a_star(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -
     # Reconstruct path
     fwd_path = reconstruct_path(fwd_visited[meeting_state])
     bwd_path = reconstruct_path(bwd_visited[meeting_state])
-    full_path = fwd_path + [(k, 'CCW' if v == 'CW' else 'CW') for k, v in bwd_path[::-1]]
-    return full_path
+    return fwd_path + [(k, 'CCW' if v == 'CW' else 'CW') for k, v in reversed(bwd_path)]
 
 
 def is_solved(start: Sequence[Any], goal: Sequence[Any], moves: Sequence[tuple[int, bool]],
