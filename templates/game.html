@@ -272,6 +272,7 @@
     {% endif %}
 
 <script src="{% static 'js/game.min.js' %}"></script>
+{% if not DEBUG %}
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-J18XZKQRXX"></script>
 <script>
@@ -282,5 +283,6 @@
   gtag('config', 'G-J18XZKQRXX');
 </script>
 <script src="https://analytics.ahrefs.com/analytics.js" data-key="ZBTtGX9G1uAqsJnnTjITuQ" async></script>
+{% endif %}
 </body>
 </html>

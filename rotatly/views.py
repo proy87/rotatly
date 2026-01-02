@@ -75,7 +75,8 @@ def rotatly(request, date=None):
                        canonical_url=reverse('rotatly', args=(current_date,)),
                        previous_puzzle_url=None if game_index == 1 else reverse('rotatly', kwargs={
                            'date': current_date - datetime.timedelta(days=1)}),
-                       next_puzzle_url=next_puzzle_url))
+                       next_puzzle_url=next_puzzle_url,
+                       debug=settings.DEBUG))
 
 
 def track(request):
