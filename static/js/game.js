@@ -254,17 +254,18 @@
   };
 
   undo = function(callback) {
-    var col, elem, node, row;
+    var col, elem, node, row, value;
     if (moves.length > 0) {
       elem = moves.pop();
       moves_sequence_dom.innerHTML = moves.length ? moves.join(' ') : 'no moves';
+      value = elem.slice(0, -1);
       node = active_nodes_dom.filter(function(n) {
-        return n.getAttribute('data-value') === `${elem[0]}`;
+        return n.getAttribute('data-value') === `${value}`;
       })[0];
       if (node) {
         row = parseInt(node.getAttribute('data-row'));
         col = parseInt(node.getAttribute('data-col'));
-        return animate(elem[0], row, col, elem[1] !== cw_symbol, true, false, callback ? callback : undo);
+        return animate(value, row, col, elem.slice(-1) !== cw_symbol, true, false, callback ? callback : undo);
       }
     }
   };

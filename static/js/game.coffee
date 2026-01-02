@@ -194,11 +194,12 @@ undo = (callback)->
   if moves.length > 0
     elem = moves.pop()
     moves_sequence_dom.innerHTML = if moves.length then moves.join(' ') else 'no moves'
-    node = active_nodes_dom.filter((n)-> n.getAttribute('data-value') == "#{elem[0]}")[0]
+    value = elem.slice(0,-1)
+    node = active_nodes_dom.filter((n)-> n.getAttribute('data-value') == "#{value}")[0]
     if node
       row = parseInt(node.getAttribute('data-row'))
       col = parseInt(node.getAttribute('data-col'))
-      animate(elem[0], row, col, elem[1] != cw_symbol, true, false, if callback then callback else undo)
+      animate(value, row, col, elem.slice(-1) != cw_symbol, true, false, if callback then callback else undo)
 
 make_move = ->
   setTimeout(->
