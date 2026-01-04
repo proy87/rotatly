@@ -64,10 +64,7 @@ def bfs(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> S
     # BFS from goal
     q_goal = deque([goal])
     visited_goal = {goal: []}
-
-    nodes_expanded = 0
     while q_start and q_goal:
-        nodes_expanded += 1
         # Expand from start
         for _ in range(len(q_start)):
             cur = q_start.popleft()
@@ -126,8 +123,28 @@ def reconstruct_path(node: StateNode) -> list[tuple[int, str]]:
     return path
 
 
+def _expand_node(heap, current_visited, opposite_visited, blocks, target, min_dist, reverse):
+    optimal_node = None
+    current = heapq.heappop(heap)
+    g_new = current.g + 1
+    for nxt, move in neighbors(current.state, blocks, reverse=reverse):
+        f_new = g_new + heuristic(nxt, target)
+        if min_dist is not None and f_new >= min_dist:
+            continue
+        if nxt not in current_visited or g_new < current_visited[nxt].g:
+            nxt_node = StateNode(nxt, g=g_new, move=move, parent=current)
+            nxt_node.f = f_new
+            current_visited[nxt] = nxt_node
+            heapq.heappush(heap, nxt_node)
+
+        if nxt in opposite_visited:
+            total_dist = g_new + opposite_visited[nxt].g
+            if min_dist is not None and total_dist < min_dist:
+                optimal_node, min_dist = nxt, total_dist
+    return optimal_node, min_dist
+
+
 def a_star(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> list[tuple[int, str]] | None:
-    max_len = 30
     start = encode(start)
     goal = encode(goal)
     if start == goal:
@@ -147,47 +164,14 @@ def a_star(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -
     bwd_visited = {goal: goal_node}
 
     meeting_state = None
-    min_dist = max_len + 1
-
+    min_dist = None
     while fwd_pq and bwd_pq:
         # --- Forward step ---
-        current = heapq.heappop(fwd_pq)
-        for nxt, move in neighbors(current.state, blocks, reverse=False):
-            g_new = current.g + 1
-            f_new = g_new + heuristic(nxt, goal)
-            if f_new >= min_dist:
-                continue
-            if nxt not in fwd_visited or g_new < fwd_visited[nxt].g:
-                nxt_node = StateNode(nxt, g=g_new, move=move, parent=current)
-                nxt_node.f = f_new
-                fwd_visited[nxt] = nxt_node
-                heapq.heappush(fwd_pq, nxt_node)
+        meeting_state, min_dist = _expand_node(fwd_pq, fwd_visited, bwd_visited, blocks, goal, min_dist, False)
+        if meeting_state is not None:
+            break
 
-            if nxt in bwd_visited:
-                total_dist = g_new + bwd_visited[nxt].g
-                if total_dist < min_dist:
-                    min_dist = total_dist
-                    meeting_state = nxt
-
-        # --- Backward step ---
-        current = heapq.heappop(bwd_pq)
-        for nxt, move in neighbors(current.state, blocks, reverse=True):
-            g_new = current.g + 1
-            f_new = g_new + heuristic(nxt, start)
-            if f_new >= min_dist:
-                continue
-            if nxt not in bwd_visited or g_new < bwd_visited[nxt].g:
-                nxt_node = StateNode(nxt, g=g_new, move=move, parent=current)
-                nxt_node.f = f_new
-                bwd_visited[nxt] = nxt_node
-                heapq.heappush(bwd_pq, nxt_node)
-
-            if nxt in fwd_visited:
-                total_dist = g_new + fwd_visited[nxt].g
-                if total_dist < min_dist:
-                    min_dist = total_dist
-                    meeting_state = nxt
-
+        meeting_state, min_dist = _expand_node(bwd_pq, bwd_visited, fwd_visited, blocks, start, min_dist, True)
         if meeting_state is not None:
             break
 
