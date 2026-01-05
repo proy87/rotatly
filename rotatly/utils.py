@@ -31,17 +31,16 @@ def generate_random_square(n: int) -> tuple[tuple[int, ...], ...]:
     return tuple([tuple(square[i: i + n]) for i in range(0, n ** 2, n)])
 
 
-def get_all_squares(n: int) -> Iterable[tuple[tuple[int, ...], ...]]:
-    numbers = list(range(1, n + 1))
+def generate_all_boards(n: int) -> Iterable[tuple[int, ...]]:
+    numbers = list(range(n))
 
-    def inner(sq: list[int], idx: int, prev_comb: tuple[int, ...] | None = None) -> Iterable[
-        tuple[tuple[int, ...], ...]]:
-        if idx >= len(numbers):
-            yield tuple([tuple(sq[i: i + n]) for i in range(0, n ** 2, n)])
+    def inner(sq: list[int], idx: int, prev_comb: tuple[int, ...] | None = None) -> Iterable[tuple[int, ...]]:
+        if idx >= n:
+            yield tuple(sq)
         else:
             number = numbers[idx]
             for comb in itertools.combinations([i for i, v in enumerate(sq) if v == 0], n):
-                if prev_comb is not None and min(comb) < min(prev_comb):
+                if prev_comb is not None and comb[0] < prev_comb[0]:
                     continue
                 sqq = sq[::]
                 for c in comb:

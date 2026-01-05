@@ -1,8 +1,10 @@
 from django.db import models
 
+
 class Outline(models.Model):
     index = models.PositiveIntegerField()
     board = models.JSONField()
+
 
 class Game(models.Model):
     index = models.PositiveIntegerField()
