@@ -1,9 +1,8 @@
 import math
-import heapq
 from collections import deque
 
 from collections.abc import Sequence, Iterable
-from typing import Any, Self
+from typing import Any
 from .utils import encode
 
 
@@ -51,7 +50,7 @@ def neighbors(state: tuple[int, ...], blocks: Sequence[Block], reverse: bool = F
 
 
 def bfs(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> Sequence[tuple] | None:
-    max_path_length = 25
+    max_path_length = 15
     start = encode(start)
     goal = encode(goal)
 
