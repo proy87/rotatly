@@ -153,7 +153,7 @@
         <button id="undo-move" class="btn btn-primary" disabled>Undo</button>
         <button id="restart-game" class="btn btn-danger" disabled>Restart</button>
     </div>
-    <div class="text-center" style="font-weight: bold;">Number of moves made: <span id="moves-made-num">0</span></div>
+    <div class="text-center" style="font-weight: bold;">Number of moves made: <span id="moves-made-num">0</span>/{{ moves_max_num }}</div>
     <div id="moves-container" class="text-center" style="font-weight: bold;font-size: 12px;display: none;">Moves: <span id="moves-sequence">no moves</span></div>
     <div class="text-center" style="font-weight: bold;display:none;">Minimum number of moves to solve: {{ game.moves_min_num }}</div>
 
