@@ -28,7 +28,7 @@ def rotatly(request, date=None):
     else:
         game_index = days_passed
         current_date = today_date
-    game_index += 1
+
     moves_re = re.findall(fr'(?<!\d)([1-9]|[1-9][0-9])(?!\d)\s*([{CW_SYMBOLS}{CCW_SYMBOLS}])',
                           request.GET.get('moves', ''))
     pre_moves = [(int(k), v in CW_SYMBOLS) for k, v in moves_re]
