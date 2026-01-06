@@ -67,7 +67,7 @@ def rotatly(request, date=None):
                        is_solved=is_solved(board, outline_board, pre_moves, game.fixed_areas, game.disabled_nodes),
                        nodes=[[(e, game.disabled_nodes.get(str(e), dict())) for e in range(i, i + size - 1)] for i in
                               range(1, (size - 1) ** 2, size - 1)],
-                       moves_max_num=game.moves_min_num * 2,
+                       moves_max_num=game.moves_min_num * 100,
                        cw_symbol=CW_SYMBOLS[0],
                        ccw_symbol=CCW_SYMBOLS[0],
                        archived=date is not None,
