@@ -28,11 +28,12 @@ def rotatly(request, date=None):
     else:
         game_index = days_passed
         current_date = today_date
-
+    game_index += 1
     moves_re = re.findall(fr'(?<!\d)([1-9]|[1-9][0-9])(?!\d)\s*([{CW_SYMBOLS}{CCW_SYMBOLS}])',
                           request.GET.get('moves', ''))
     pre_moves = [(int(k), v in CW_SYMBOLS) for k, v in moves_re]
     game = Game.objects.select_related('outline').get(index=game_index)
+    game.fixed_areas = {int(k): int(v) for k, v in game.fixed_areas.items()}
     size = int(math.sqrt(len(game.board)))
     outline = game.outline
     board = encode(game.board, game.fixed_areas)

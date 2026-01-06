@@ -11,6 +11,6 @@ class Game(models.Model):
     board = models.JSONField()
     encoded_board = models.JSONField()
     moves_min_num = models.PositiveIntegerField()
-    disabled_nodes = models.JSONField(default=dict)
+    disabled_nodes = models.JSONField(default=dict, blank=True)
     outline = models.ForeignKey(Outline, on_delete=models.CASCADE)
-    fixed_areas = models.JSONField(default=dict)
+    fixed_areas = models.JSONField(default=dict, blank=True)
