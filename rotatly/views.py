@@ -33,7 +33,6 @@ def rotatly(request, date=None):
                           request.GET.get('moves', ''))
     pre_moves = [(int(k), v in CW_SYMBOLS) for k, v in moves_re]
     game = Game.objects.select_related('outline').get(index=game_index)
-    game.fixed_areas = {1: 4}
     size = int(math.sqrt(len(game.board)))
     outline = game.outline
     board = encode(game.board, game.fixed_areas)
