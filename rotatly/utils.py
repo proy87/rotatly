@@ -6,13 +6,26 @@ from collections.abc import Sequence, Iterable
 from typing import Any
 
 
-def encode(s: Sequence[Any]) -> tuple[int, ...]:
+def encode(s: Sequence[Any], fixed_areas: dict, for_outline: bool=False) -> tuple[int, ...]:
     mapping = {}
     pattern = []
-    next_id = 0
+    next_id = 1
+    values = list(fixed_areas.values())
+    subsequent_iteration = any(ch < 0 for ch in s)
     for ch in s:
         if ch not in mapping:
-            mapping[ch] = next_id
+            if for_outline:
+                if next_id in fixed_areas:
+                    mapping[ch] = -fixed_areas[next_id]
+                else:
+                    mapping[ch] = next_id
+            else:
+                if not subsequent_iteration and ch in values:
+                    mapping[ch] = -ch
+                elif subsequent_iteration and ch < 0:
+                    mapping[ch] = ch
+                else:
+                    mapping[ch] = next_id
             next_id += 1
         pattern.append(mapping[ch])
     return tuple(pattern)

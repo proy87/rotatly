@@ -5,19 +5,27 @@ from .utils import lst_to_lst_of_lsts
 
 
 class Cell:
-    def __init__(self, row: int, col: int, name: int, border_dict: dict, css_variable: str):
+    def __init__(self, row: int, col: int, name: int, for_outline:bool, border_dict: dict, css_variable: str):
         self.row = row
         self.col = col
         self.name = name
-        self.display_name = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', '': ''}[name]
+        if for_outline:
+            self.display_name = ''
+        else:
+            self.display_name = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', '': ''}[-name if name < 0 else name]
         self.border_dict = border_dict
         self.cell_width = f'var(--{css_variable})'
-        self.thickness = f'{self.cell_width} / 12' if name else '5px'
+        self.thickness = '5px' if for_outline else f'{self.cell_width} / 12'
+        self.for_outline = for_outline
         self._basic_styles = {'position': 'absolute', 'background-color': 'black'}
 
     @property
     def color_class(self) -> str:
-        return {1: 'red', 2: 'green', 3: 'blue', 4: 'purple', 5: 'magenta'}[self.name]
+        class_dict = {1: 'red', 2: 'green', 3: 'blue', 4: 'purple', 5: 'magenta'}
+        if self.for_outline:
+            return class_dict[-self.name] if self.name < 0 else ''
+        else:
+            return class_dict[-self.name if self.name < 0 else self.name]
 
     @property
     def border_styles(self) -> Sequence[str]:
@@ -71,6 +79,9 @@ def init_borders(outline: Sequence[Any], css_variable: str, board: Sequence[Any]
                 else:
                     cell_border[name] = name not in ('top', 'left') and outline[row_index][col_index] != neighbour
             current_row.append(
-                Cell(row_index, col_index, '' if board is None else digit, cell_border, css_variable))
+                Cell(row_index, col_index, digit,
+                     for_outline=board is None,
+                     border_dict=cell_border,
+                     css_variable=css_variable))
         cells.append(current_row)
     return cells

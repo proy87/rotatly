@@ -44,8 +44,10 @@
         </p>
 
         <p>
-            An outline consists of blocks that are separated by a black border. Letters/colors within the same block should be the same.
+            An outline consists of blocks that are separated by a black border.
         </p>
+        <p>Letters/colors within the same block should be the same.</p>
+        <p>If the block in the target outline is colored, that exact color should be in that block.</p>
 
         <div class="instructions-controls">
              <ul>
@@ -62,7 +64,7 @@
             {% for row in outline %}
                 <tr>
                     {% for cell in row %}
-                        <td style="{{ cell.css }}"></td>
+                        <td class="{{ cell.color_class }}"></td>
                     {% endfor %}
                 </tr>
             {% endfor %}
@@ -120,6 +122,7 @@
                     {% for cell in row %}
                         <td id="cell-{{ forloop.parentloop.counter0 }}-{{ forloop.counter0 }}"
                             data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}"
+                            data-value="{{ cell.name }}"
                             class="cell {{ cell.color_class }}">
                             <span style="display: inline-block; width: calc(var(--cell-width) * 0.9);color:black;">{{ cell.display_name }}</span>
                         </td>

@@ -99,18 +99,29 @@ rotate = (row, col, cw)->
   bottom_left.className = if cw then d else a
   bottom_right.className = if cw then b else c
 
+  a = top_left.getAttribute('data-value')
+  b = top_right.getAttribute('data-value')
+  c = bottom_left.getAttribute('data-value')
+  d = bottom_right.getAttribute('data-value')
+  top_left.setAttribute('data-value', if cw then c else b)
+  top_right.setAttribute('data-value', if cw then a else d)
+  bottom_left.setAttribute('data-value', if cw then d else a)
+  bottom_right.setAttribute('data-value', if cw then b else c)
+
 check = ->
   for index in [0...N * M]
     row = Math.floor(index / M)
     col = index % M
     elem = document.getElementById("cell-#{row}-#{col}")
+    value = parseInt(elem.getAttribute('data-value'))
+    if outline[index] < 0 and value != outline[index]
+      return false
     for index1 in [index + 1 ... N * M]
       row1 = Math.floor(index1 / M)
       col1 = index1 % M
       elem1 = document.getElementById("cell-#{row1}-#{col1}")
-      letter = elem.innerHTML.replace(/\s/g, "")
-      letter1 = elem1.innerHTML.replace(/\s/g, "")
-      if !(letter != letter1) != !(outline[index] != outline[index1])
+      value1 = parseInt(elem1.getAttribute('data-value'))
+      if !(value != value1) != !(outline[index] != outline[index1])
         return false
   return true
 
@@ -172,7 +183,7 @@ animate = (value, row, col, cw, undo = false, demo = false, callback = null) ->
 
           get_request(track_url, {
             game_index: game_index, init_time: (start_time - visit_time) / 1000,
-            game_time: (end_time - start_time) / 1000, moves: moves.join(''), length:number_of_moves
+            game_time: (end_time - start_time) / 1000, moves: moves.join(''), length: number_of_moves
           })
 
         in_animation = false
@@ -194,7 +205,7 @@ undo = (callback)->
   if moves.length > 0
     elem = moves.pop()
     moves_sequence_dom.innerHTML = if moves.length then moves.join(' ') else 'no moves'
-    value = elem.slice(0,-1)
+    value = elem.slice(0, -1)
     node = active_nodes_dom.filter((n)-> n.getAttribute('data-value') == "#{value}")[0]
     if node
       row = parseInt(node.getAttribute('data-row'))

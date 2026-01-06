@@ -10,6 +10,7 @@ from django.urls import reverse
 from .board import init_borders
 from .solver import solve, is_solved
 from .models import Game
+from .utils import encode
 
 CW_SYMBOLS = '↻L←'
 CCW_SYMBOLS = '↺R→'
@@ -28,25 +29,25 @@ def rotatly(request, date=None):
         game_index = days_passed
         current_date = today_date
 
-    moves_re = re.findall(fr'(?<!\d)([1-9]|[1-9][0-9])(?!\d)\s*([{CW_SYMBOLS}{CCW_SYMBOLS}])', request.GET.get('moves', ''))
+    moves_re = re.findall(fr'(?<!\d)([1-9]|[1-9][0-9])(?!\d)\s*([{CW_SYMBOLS}{CCW_SYMBOLS}])',
+                          request.GET.get('moves', ''))
     pre_moves = [(int(k), v in CW_SYMBOLS) for k, v in moves_re]
-    from .models import Outline
-    from .utils import generate_random_square, encode
-    board = [3, 1, 3, 2, 5, 2, 1, 4, 5, 5, 4, 3, 1, 1, 5, 4, 3, 5, 2, 4, 3, 2, 2, 4, 1]
-    game = Game(index=40, board=board, encoded_board=encode(board), moves_min_num=5,
-                disabled_nodes={k: dict() for k in range(1, 17)})
     game = Game.objects.select_related('outline').get(index=game_index)
+    game.fixed_areas = {1: 4}
     size = int(math.sqrt(len(game.board)))
-    outline = Outline(index=1, board=(0,0,1,1,2,3,0,0,1,2,3,0,4,1,2,3,3,4,1,2,3,4,4,4,2))
     outline = game.outline
+    board = encode(game.board, game.fixed_areas)
+    outline_board = encode(outline.board, game.fixed_areas, for_outline=True)
 
     if settings.DEBUG:
-        solution = solve(board=game.board, outline=outline.board, disabled_nodes=game.disabled_nodes)
-        #assert len(solution) == game.moves_min_num
+        solution = solve(board=board,
+                         outline=outline_board,
+                         disabled_nodes=game.disabled_nodes,
+                         fixed_areas=game.fixed_areas)
         print(solution)
 
-    bordered_board = init_borders(outline=outline.board, css_variable='cell-width', board=game.board)
-    bordered_outline = init_borders(outline=outline.board, css_variable='outline-cell-width')
+    bordered_board = init_borders(outline=outline_board, css_variable='cell-width', board=board)
+    bordered_outline = init_borders(outline=outline_board, css_variable='outline-cell-width')
     if date is None:
         next_puzzle_url = None
     else:
@@ -60,10 +61,10 @@ def rotatly(request, date=None):
                        game=game,
                        board=bordered_board,
                        outline=bordered_outline,
-                       outline_dumped=json.dumps(outline.board),
+                       outline_dumped=json.dumps(outline_board),
                        pre_moves=pre_moves,
                        pre_moves_dumped=json.dumps(pre_moves),
-                       is_solved=is_solved(game.board, outline.board, pre_moves, game.disabled_nodes),
+                       is_solved=is_solved(board, outline_board, pre_moves, game.fixed_areas, game.disabled_nodes),
                        nodes=[[(e, game.disabled_nodes.get(str(e), dict())) for e in range(i, i + size - 1)] for i in
                               range(1, (size - 1) ** 2, size - 1)],
                        moves_max_num=game.moves_min_num * 2,

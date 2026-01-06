@@ -13,3 +13,4 @@ class Game(models.Model):
     moves_min_num = models.PositiveIntegerField()
     disabled_nodes = models.JSONField(default=dict)
     outline = models.ForeignKey(Outline, on_delete=models.CASCADE)
+    fixed_areas = models.JSONField(default=dict)

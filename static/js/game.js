@@ -140,22 +140,33 @@
     top_left.className = cw ? c : b;
     top_right.className = cw ? a : d;
     bottom_left.className = cw ? d : a;
-    return bottom_right.className = cw ? b : c;
+    bottom_right.className = cw ? b : c;
+    a = top_left.getAttribute('data-value');
+    b = top_right.getAttribute('data-value');
+    c = bottom_left.getAttribute('data-value');
+    d = bottom_right.getAttribute('data-value');
+    top_left.setAttribute('data-value', cw ? c : b);
+    top_right.setAttribute('data-value', cw ? a : d);
+    bottom_left.setAttribute('data-value', cw ? d : a);
+    return bottom_right.setAttribute('data-value', cw ? b : c);
   };
 
   check = function() {
-    var col, col1, elem, elem1, index, index1, l, letter, letter1, m, ref, ref1, ref2, row, row1;
+    var col, col1, elem, elem1, index, index1, l, m, ref, ref1, ref2, row, row1, value, value1;
     for (index = l = 0, ref = N * M; (0 <= ref ? l < ref : l > ref); index = 0 <= ref ? ++l : --l) {
       row = Math.floor(index / M);
       col = index % M;
       elem = document.getElementById(`cell-${row}-${col}`);
+      value = parseInt(elem.getAttribute('data-value'));
+      if (outline[index] < 0 && value !== outline[index]) {
+        return false;
+      }
       for (index1 = m = ref1 = index + 1, ref2 = N * M; (ref1 <= ref2 ? m < ref2 : m > ref2); index1 = ref1 <= ref2 ? ++m : --m) {
         row1 = Math.floor(index1 / M);
         col1 = index1 % M;
         elem1 = document.getElementById(`cell-${row1}-${col1}`);
-        letter = elem.innerHTML.replace(/\s/g, "");
-        letter1 = elem1.innerHTML.replace(/\s/g, "");
-        if (!(letter !== letter1) !== !(outline[index] !== outline[index1])) {
+        value1 = parseInt(elem1.getAttribute('data-value'));
+        if (!(value !== value1) !== !(outline[index] !== outline[index1])) {
           return false;
         }
       }

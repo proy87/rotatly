@@ -25,34 +25,32 @@ class Block:
                 enumerate(blocks, start=1)]
 
 
-def rotate_block(state: tuple[int, ...], block_indices: tuple[int, int, int, int], cw: bool = True) -> tuple:
+def rotate_block(state: tuple[int, ...], block_indices: tuple[int, int, int, int], fixed_areas:dict, cw: bool = True) -> tuple:
     s = list(state)
     i, j, k, l = block_indices
     if cw:
         s[i], s[j], s[l], s[k] = s[k], s[i], s[j], s[l]
     else:
         s[i], s[j], s[l], s[k] = s[j], s[l], s[k], s[i]
-    return encode(s)
+    return encode(s, fixed_areas)
 
 
-def neighbors(state: tuple[int, ...], blocks: Sequence[Block], reverse: bool = False) -> Iterable[tuple]:
+def neighbors(state: tuple[int, ...], blocks: Sequence[Block], fixed_areas:dict, reverse: bool = False) -> Iterable[tuple]:
     for block in blocks:
         if reverse:
             if block.allow_ccw:
-                yield rotate_block(state, block.indices, True), (block.index, 'CW')
+                yield rotate_block(state, block.indices,fixed_areas, True), (block.index, 'CW')
             if block.allow_cw:
-                yield rotate_block(state, block.indices, False), (block.index, 'CCW')
+                yield rotate_block(state, block.indices,fixed_areas, False), (block.index, 'CCW')
         else:
             if block.allow_cw:
-                yield rotate_block(state, block.indices, True), (block.index, 'CW')
+                yield rotate_block(state, block.indices,fixed_areas, True), (block.index, 'CW')
             if block.allow_ccw:
-                yield rotate_block(state, block.indices, False), (block.index, 'CCW')
+                yield rotate_block(state, block.indices,fixed_areas, False), (block.index, 'CCW')
 
 
-def bfs(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> Sequence[tuple] | None:
-    max_path_length = 15
-    start = encode(start)
-    goal = encode(goal)
+def bfs(start: tuple[int,...], goal: tuple[int,...], blocks: Sequence[Block], fixed_areas:dict) -> Sequence[tuple] | None:
+    max_path_length = 25
 
     if start == goal:
         return []
@@ -70,7 +68,7 @@ def bfs(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> S
             path = visited_start[cur]
             if len(path) >= (max_path_length // 2 + (max_path_length % 2)):
                 continue
-            for nxt, move in neighbors(cur, blocks, reverse=False):
+            for nxt, move in neighbors(cur, blocks, fixed_areas, reverse=False):
                 if nxt not in visited_start:
                     visited_start[nxt] = path + [move]
                     if nxt in visited_goal:
@@ -84,7 +82,7 @@ def bfs(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> S
             path = visited_goal[cur]
             if len(path) >= (max_path_length // 2):
                 continue
-            for nxt, move in neighbors(cur, blocks, reverse=True):
+            for nxt, move in neighbors(cur, blocks, fixed_areas, reverse=True):
                 if nxt not in visited_goal:
                     visited_goal[nxt] = path + [move]
                     if nxt in visited_start:
@@ -95,23 +93,23 @@ def bfs(start: Sequence[Any], goal: Sequence[Any], blocks: Sequence[Block]) -> S
     return None  # unsolvable
 
 
+
 def is_solved(start: Sequence[Any], goal: Sequence[Any], moves: Sequence[tuple[int, bool]],
-              disabled_nodes: dict) -> bool:
+              fixed_areas: dict, disabled_nodes: dict) -> bool:
     n = int(math.sqrt(len(start)))
     blocks = {block.index: block for block in Block.get_blocks(n, n, disabled_nodes)}
-
     for index, cw in moves:
         if index not in blocks:
             return False
         block = blocks[index]
         if getattr(block, f'allow_{'cw' if cw else 'ccw'}'):
-            start = rotate_block(start, block.indices, cw)
+            start = rotate_block(start, block.indices, fixed_areas, cw)
         else:
             return False
-    return start == encode(goal)
+    return start == encode(goal, fixed_areas, for_outline=True)
 
 
-def solve(board: Sequence[Any], outline: Sequence[Any], disabled_nodes: dict) -> Sequence[tuple] | None:
+def solve(board: tuple[int,...], outline: tuple[int,...], disabled_nodes: dict, fixed_areas:dict) -> Sequence[tuple] | None:
     n = int(math.sqrt(len(board)))
     blocks = Block.get_blocks(n, n, disabled_nodes)
-    return bfs(board, outline, blocks)
+    return bfs(board, outline, blocks, fixed_areas)
