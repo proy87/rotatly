@@ -17,103 +17,94 @@
     </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-        <style>
-    :root{--col-number: {{size}};}
-</style>
+    <style>
+        :root {
+            --col-number: {{size}};
+        }
+    </style>
     <link href="{% static "css/game.min.css" %}" rel="stylesheet">
-
 </head>
 <body>
 
 <div id="board-container">
     <h1>Rotatly #{{ game.index }}</h1>
     <div class="date">{{ current_date }}</div>
-
-<div class="instructions-card">
-    <div class="instructions-header">
-        <i class="fa fa-info-circle"></i> How to Play
-    </div>
-
-    <div class="instructions-body">
-        <p>
-            Make the correct outline using the fewest number of rotations.
-        </p>
-
-        <p>
-            Rotate the cells until you get the correct outline.
-        </p>
-
-        <p>
-            An outline consists of blocks that are separated by a black border.
-        </p>
-        <p>Letters/colors within the same block should be the same.</p>
-        <p>If the block in the target outline is colored, that exact color should be in that block.</p>
-
-        <div class="instructions-controls">
-             <ul>
-                <li><i class="fa fa-arrow-rotate-right rotate-icon"></i> Click a blue node to rotate clockwise</li>
-                <li><i class="fa fa-arrow-rotate-left rotate-icon"></i> Press and hold, or right-click a blue node, to rotate counterclockwise</li>
-                <li>
-                    <i class="fa fa-arrows-alt rotate-icon"></i> Slide across cells (to determine direction, you need to slide across three cells)
-                </li>
-            </ul>
+    <div class="instructions-card">
+        <div class="instructions-header" id="instructions-toggle" role="button">
+            <i class="fa fa-circle-question"></i> How to Play
         </div>
-        <div class="text-center" style="margin-top: 15px;font-weight: bold;">Target outline</div>
+        <div class="instructions-body">
+            <p>Make the correct outline using the fewest number of rotations.</p>
+            <p>Rotate the cells until you get the correct outline.</p>
+            <p>An outline consists of blocks that are separated by a black border.</p>
+            <p>Letters/colors within the same block should be the same.</p>
+            <p>If the block in the target outline is colored, that exact color should be in that block.</p>
+            <div class="instructions-controls">
+                <ul>
+                    <li><i class="fa fa-arrow-rotate-right rotate-icon"></i> Click a blue node to rotate clockwise</li>
+                    <li>
+                        <i class="fa fa-arrow-rotate-left rotate-icon"></i> Press and hold, or right-click a blue node,
+                            to rotate counterclockwise
+                    </li>
+                    <li>
+                        <i class="fa fa-arrows-alt rotate-icon"></i> Slide across cells (to determine direction, you
+                        need to slide across three cells)
+                    </li>
+                </ul>
+            </div>
+            <hr>
+            <div>
+                <p>💡 Have suggestions or feedback about Rotatly?<br>
+                    We’d love to hear from you: <a href="mailto:support@rotatly.com">support@rotatly.com</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id="target-container">
+        <div class="text-center fw-bold mb-2">Target outline</div>
         <div id="outline-board">
-        <table>
+            <table>
+                {% for row in outline %}
+                    <tr>
+                        {% for cell in row %}
+                            <td class="{{ cell.color_class }}"></td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
             {% for row in outline %}
-                <tr>
-                    {% for cell in row %}
-                        <td class="{{ cell.color_class }}"></td>
+                {% for cell in row %}
+                    {% for v in cell.border_styles %}
+                        <div style="{{ v }}"></div>
                     {% endfor %}
-                </tr>
-            {% endfor %}
-        </table>
-        {% for row in outline %}
-            {% for cell in row %}
-                {% for v in cell.border_styles %}
-                    <div style="{{ v }}"></div>
                 {% endfor %}
             {% endfor %}
-        {% endfor %}
-
         </div>
-            <hr>
-<div>
-    <p>
-        💡 Have suggestions or feedback about Rotatly?<br>
-        We’d love to hear from you:
-        <a href="mailto:support@rotatly.com">support@rotatly.com</a>
-    </p>
-</div>
     </div>
-
-</div>
-
     <div>
-    <div id="min-text" class="alert-card" style="display: none;">
-        Congratulations! You've solved the puzzle in the minimum number of moves.<br>
-        Can anyone else match your result?
+        <div id="min-text" class="alert-card" style="display: none;">
+            Congratulations! You've solved the puzzle in the minimum number of moves.<br>
+            Can anyone else match your result?
+        </div>
+        <div id="non-min-text" class="alert-card" style="display: none;">
+            Congratulations! You've solved the puzzle in <span id="moves-num"></span> moves.<br>
+            Can you solve it in <span id="one-less-move"></span> moves?<br>
+            Will anyone be able to repeat your result or even surpass it?
+        </div>
+        <div id="non-solve-text" class="alert-card" style="display: none;">
+            Unfortunately, you couldn't solve the puzzle.<br>
+            Maybe someone else can?
+        </div>
     </div>
-    <div id="non-min-text" class="alert-card" style="display: none;">
-        Congratulations! You've solved the puzzle in <span id="moves-num"></span> moves.<br>
-        Can you solve it in <span id="one-less-move"></span> moves?<br>
-        Will anyone be able to repeat your result or even surpass it?
-    </div>
-    <div id="non-solve-text" class="alert-card" style="display: none;">
-        Unfortunately, you couldn't solve the puzzle.<br>
-        Maybe someone else can?
-    </div>
-    </div>
-        <div id='share-container' class="share-card" style="display: none;">
-         <script defer src="https://static.addtoany.com/menu/page.js"></script>
+    <div id='share-container' class="share-card" style="display: none;">
+        <script defer src="https://static.addtoany.com/menu/page.js"></script>
         <div class="a2a_kit a2a_kit_size_32 a2a_default_style text-center" id="share-button-container">
-    <a class="a2a_button_facebook"></a>
-    <a class="a2a_button_twitter"></a>
-    <a class="a2a_button_reddit"></a>
-    <a class="a2a_dd"></a>
-    <div class="share-text">Share your result!</div>
-</div>
+            <a class="a2a_button_facebook"></a>
+            <a class="a2a_button_twitter"></a>
+            <a class="a2a_button_reddit"></a>
+            <a class="a2a_dd"></a>
+            <div class="share-text">Share your result!</div>
+        </div>
     </div>
     <div id="board">
         <table>
@@ -143,12 +134,13 @@
                 {% widthratio 100 size forloop.counter as left %}
                 {% widthratio 100 size forloop.parentloop.counter as top %}
 
-                                                <div class="node{% if not blocked.cw or not blocked.ccw %} active{% endif %}" style="left: {{ left }}%; top: {{ top }}%"
-                             data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}"
-                             data-value="{{ node }}"
-                             data-cw="{% if blocked.cw %}false{% else %}true{% endif %}"
-                             data-ccw="{% if blocked.ccw %}false{% else %}true{% endif %}">{{ node }}
-                        </div>
+                <div class="node{% if not blocked.cw or not blocked.ccw %} active{% endif %}"
+                     style="left: {{ left }}%; top: {{ top }}%"
+                     data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}"
+                     data-value="{{ node }}"
+                     data-cw="{% if blocked.cw %}false{% else %}true{% endif %}"
+                     data-ccw="{% if blocked.ccw %}false{% else %}true{% endif %}">{{ node }}
+                </div>
             {% endfor %}
         {% endfor %}
     </div>
@@ -157,25 +149,36 @@
         <button id="restart-game" class="btn btn-danger" disabled>Restart</button>
     </div>
     <div class="text-center" style="font-weight: bold;">Number of moves made: <span id="moves-made-num">0</span></div>
-    <div id="moves-container" class="text-center" style="font-weight: bold;font-size: 12px;display: none;">Moves: <span id="moves-sequence">no moves</span></div>
+    <div id="moves-container" class="text-center" style="font-weight: bold;font-size: 12px;display: none;">Moves: <span
+            id="moves-sequence">no moves</span></div>
     <div class="text-center" style="font-weight: bold;">Minimum number of moves to solve: {{ game.moves_min_num }}</div>
-
     <div class="puzzle-nav px-3 my-4">
-    {% if previous_puzzle_url %}
-            <a href="{{ previous_puzzle_url }}" class="btn btn-outline-secondary"><i class="fa fa-arrow-left me-2"></i> Previous Puzzle</a>
+        {% if previous_puzzle_url %}
+            <a href="{{ previous_puzzle_url }}" class="btn btn-outline-secondary">
+                <i class="fa fa-arrow-left me-2"></i>Previous Puzzle
+            </a>
         {% endif %}
 
-    {% if next_puzzle_url %}
-            <a href="{{ next_puzzle_url }}" class="btn btn-outline-secondary">Next Puzzle <i class="fa fa-arrow-right ms-2"></i></a>
+        {% if next_puzzle_url %}
+            <a href="{{ next_puzzle_url }}" class="btn btn-outline-secondary">
+                Next Puzzle <i class="fa fa-arrow-right ms-2"></i>
+            </a>
         {% endif %}
     </div>
-
 </div>
-<a href="https://www.reddit.com/r/Rotatly/" style="display:none;"
+<a href="mailto:support@rotatly.com"
+   target="_blank"
+   title="Contact Us"
+   rel="noopener"
+   class="icon contact-us-float"
+   aria-label="Contact Us">
+    <i class="fa-solid fa-envelope"></i>
+</a>
+<a href="https://www.reddit.com/r/Rotatly/" style="display: none;"
    target="_blank"
    title="Discuss on Reddit"
    rel="noopener"
-   class="reddit-float"
+   class="icon reddit-float"
    aria-label="Discuss on Reddit">
     <i class="fa-brands fa-reddit"></i>
 </a>
@@ -183,109 +186,110 @@
    target="_blank"
    title="View on Github"
    rel="noopener"
-   class="github-float"
+   class="icon github-float"
    aria-label="View on GitHub">
     <i class="fa-brands fa-github"></i>
 </a>
+<script>
+    let game_index = {{ game.index }};
+    let moves_max_num = {{ moves_max_num }};
+    let moves_min_num = {{ game.moves_min_num }};
+    let outline = {{ outline_dumped }};
+    let cw_symbol = '{{ cw_symbol }}';
+    let ccw_symbol = '{{ ccw_symbol }}';
+
+    let pre_moves = {{ pre_moves_dumped }};
+    let canonical_url = 'https://www.rotatly.com{{ canonical_url }}';
+    let today_url = 'https://www.rotatly.com{{ today_url }}';
+    let track_url = '{% url 'track' %}';
+    var a2a_config = a2a_config || {};
+</script>
+{% if False %}
+    <!-- html2canvas -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- gif.js -->
+    <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
     <script>
-        let game_index = {{ game.index }};
-        let moves_max_num = {{ moves_max_num }};
-        let moves_min_num = {{ game.moves_min_num }};
-        let outline = {{ outline_dumped }};
-        let cw_symbol = '{{ cw_symbol }}';
-        let ccw_symbol = '{{ ccw_symbol }}';
+        $(function () {
+            function animate($node, cw, step) {
+                let row = $node.data('row');
+                let col = $node.data('col');
+                let $tl = $(`#cell-${row}-${col}`);
+                let $tr = $(`#cell-${row}-${col + 1}`);
+                let $br = $(`#cell-${row + 1}-${col + 1}`);
+                let $bl = $(`#cell-${row + 1}-${col}`);
+                $tl.css('transform', (cw ? 'translateX' : 'translateY') + `(${step}px)`)
+                $tr.css('transform', (cw ? 'translateY' : 'translateX') + (cw ? `(${step}px)` : `(-${step}px)`))
+                $br.css('transform', (cw ? 'translateX' : 'translateY') + `(-${step}px)`)
+                $bl.css('transform', (cw ? 'translateY' : 'translateX') + (cw ? `(-${step}px)` : `(${step}px)`))
+            }
 
-        let pre_moves = {{ pre_moves_dumped }};
-        let canonical_url = 'https://www.rotatly.com{{ canonical_url }}';
-        let today_url = 'https://www.rotatly.com{{ today_url }}';
-        let track_url = '{% url 'track' %}';
-        var a2a_config = a2a_config || {};
-    </script>
-    {% if False %}
-        <!-- html2canvas -->
-        <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-        <!-- gif.js -->
-        <script src="https://cdn.jsdelivr.net/npm/gif.js.optimized/dist/gif.js"></script>
-        <script>
-            $(function () {
-                function animate($node, cw, step){
-                    let row = $node.data('row');
-                    let col = $node.data('col');
-                    let $tl = $(`#cell-${row}-${col}`);
-                    let $tr = $(`#cell-${row}-${col + 1}`);
-                    let $br = $(`#cell-${row + 1}-${col + 1}`);
-                    let $bl = $(`#cell-${row + 1}-${col}`);
-                    $tl.css('transform', (cw ? 'translateX':'translateY')+ `(${step}px)`)
-                    $tr.css('transform', (cw ? 'translateY':'translateX')+ (cw? `(${step}px)`: `(-${step}px)`))
-                    $br.css('transform', (cw ? 'translateX':'translateY')+ `(-${step}px)`)
-                    $bl.css('transform', (cw? 'translateY':'translateX')+ (cw? `(-${step}px)`: `(${step}px)`))
-                }
-                document.getElementById("start").addEventListener("click", async () => {
-                    const target = document.getElementById("board");
-                    const gif = new GIF({
-                        workers: 2,
-                        quality: 10,
-                        workerScript: '{% static "js/gif.worker.js" %}'
-                    });
-                    //dict(square=((2, 3, 3, 4), (4, 4, 3, 4), (2, 1, 1, 3), (1, 2, 2, 1)), min=9, index=10, disabled_nodes=[5, 9]),
+            document.getElementById("start").addEventListener("click", async () => {
+                const target = document.getElementById("board");
+                const gif = new GIF({
+                    workers: 2,
+                    quality: 10,
+                    workerScript: '{% static "js/gif.worker.js" %}'
+                });
+//dict(square=((2, 3, 3, 4), (4, 4, 3, 4), (2, 1, 1, 3), (1, 2, 2, 1)), min=9, index=10, disabled_nodes=[5, 9]),
 
-                    let steps = [[1, 'CW'], [6, 'CCW'], [2, 'CCW'], [1, 'CW'], [8, 'CW'], [7, 'CCW'], [6, 'CCW'], [4, 'CW'], [8, 'CCW']];
+                let steps = [[1, 'CW'], [6, 'CCW'], [2, 'CCW'], [1, 'CW'], [8, 'CW'], [7, 'CCW'], [6, 'CCW'], [4, 'CW'], [8, 'CCW']];
 
-                    let canvas = await html2canvas(target);
-                    gif.addFrame(canvas, {delay: 1000});
-                    for (let i = 0; i < steps.length; i++) {
-                        let row = Math.floor((steps[i][0] - 1) / 3);
-                        let col = (steps[i][0] - 1) % 3;
-                        let $node = $('[data-row=' + row + '][data-col=' + col + ']').addClass('highlight').text(steps[i][1] === 'CW'?'↻':'↺');
-                        for (let j = 7; j <= cell_width; j+=7) {
-                            animate($node, steps[i][1] === 'CW', j)
+                let canvas = await html2canvas(target);
+                gif.addFrame(canvas, {delay: 1000});
+                for (let i = 0; i < steps.length; i++) {
+                    let row = Math.floor((steps[i][0] - 1) / 3);
+                    let col = (steps[i][0] - 1) % 3;
+                    let $node = $('[data-row=' + row + '][data-col=' + col + ']').addClass('highlight').text(steps[i][1] === 'CW' ? '↻' : '↺');
+                    for (let j = 7; j <= cell_width; j += 7) {
+                        animate($node, steps[i][1] === 'CW', j)
 
-                            let d;
-                            if (i === steps.length - 1){
-                                d = (j === cell_width)? 3000: 500/11;
-                            }
-                            else{
-                                d = (j === cell_width)? 1000: 500/11;
-                            }
+                        let d;
+                        if (i === steps.length - 1) {
+                            d = (j === cell_width) ? 3000 : 500 / 11;
+                        } else {
+                            d = (j === cell_width) ? 1000 : 500 / 11;
+                        }
 
-                            if (j=== cell_width){
-                                $node.removeClass('highlight').text($node.data('node'))
-                                let $tl = $(`#cell-${row}-${col}`).css('transform', 'none');
-                                let $tr = $(`#cell-${row}-${col + 1}`).css('transform', 'none');
-                                let $br = $(`#cell-${row + 1}-${col + 1}`).css('transform', 'none');
-                                let $bl = $(`#cell-${row + 1}-${col}`).css('transform', 'none');
-                                $.rotate(row, col, steps[i][1] === 'CW')
-                            }
-                            const canvas = await html2canvas(target);
-                            gif.addFrame(canvas, {delay: d});
-                            }
-
+                        if (j === cell_width) {
+                            $node.removeClass('highlight').text($node.data('node'))
+                            let $tl = $(`#cell-${row}-${col}`).css('transform', 'none');
+                            let $tr = $(`#cell-${row}-${col + 1}`).css('transform', 'none');
+                            let $br = $(`#cell-${row + 1}-${col + 1}`).css('transform', 'none');
+                            let $bl = $(`#cell-${row + 1}-${col}`).css('transform', 'none');
+                            $.rotate(row, col, steps[i][1] === 'CW')
+                        }
+                        const canvas = await html2canvas(target);
+                        gif.addFrame(canvas, {delay: d});
                     }
 
-                    gif.on("finished", blob => {
-                        const img = document.createElement("img");
-                        img.src = URL.createObjectURL(blob);
-                        document.body.appendChild(img);
-                    });
+                }
 
-                    gif.render();
+                gif.on("finished", blob => {
+                    const img = document.createElement("img");
+                    img.src = URL.createObjectURL(blob);
+                    document.body.appendChild(img);
                 });
-            })
-        </script>
-    {% endif %}
+
+                gif.render();
+            });
+        })
+    </script>
+{% endif %}
 
 <script src="{% static 'js/game.min.js' %}"></script>
 {% if not DEBUG %}
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-J18XZKQRXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-J18XZKQRXX');
-</script>
-<script src="https://analytics.ahrefs.com/analytics.js" data-key="ZBTtGX9G1uAqsJnnTjITuQ" async></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J18XZKQRXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', 'G-J18XZKQRXX');
+    </script>
+    <script src="https://analytics.ahrefs.com/analytics.js" data-key="ZBTtGX9G1uAqsJnnTjITuQ" async></script>
 {% endif %}
 </body>
 </html>

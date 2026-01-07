@@ -412,3 +412,8 @@ document.addEventListener('keydown', (e)->
       if not undo_button.getAttribute('disabled')
         undo_button.click()
 )
+
+document.getElementById('instructions-toggle').addEventListener('click', ->
+  body = document.querySelector('.instructions-body')
+  body.style.display = if body.style.display != 'block' then 'block' else 'none'
+)

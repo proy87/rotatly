@@ -274,10 +274,10 @@ button:disabled {
     gap: 12px;
 }
 
-.github-float, .reddit-float {
+.icon{
     position: fixed;
     bottom: 16px;
-    right: 16px;
+
     z-index: 1000;
 
     width: 44px;
@@ -295,14 +295,42 @@ button:disabled {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     text-decoration: none;
 }
+.github-float {
+    right: 16px;
+}
 
 .reddit-float {
-    bottom: 16px;
     right: 65px;
 }
 
-.github-float:hover, .reddit-float:hover {
+.contact-us-float {
+    right: 65px;
+}
+
+.icon:hover {
     background: #f5f5f5;
+}
+
+.instructions-body {
+    display: none;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.instructions-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+#target-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 

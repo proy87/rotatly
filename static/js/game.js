@@ -553,6 +553,12 @@
     }
   });
 
+  document.getElementById('instructions-toggle').addEventListener('click', function() {
+    var body;
+    body = document.querySelector('.instructions-body');
+    return body.style.display = body.style.display !== 'block' ? 'block' : 'none';
+  });
+
 }).call(this);
 
 //# sourceMappingURL=game.js.map
