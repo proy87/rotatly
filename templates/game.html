@@ -26,42 +26,45 @@
 </head>
 <body>
 
+
 <div id="board-container">
     <h1>Rotatly #{{ game.index }}</h1>
     <div class="date">{{ current_date }}</div>
-    <div class="instructions-card">
-        <div class="instructions-header" id="instructions-toggle" role="button">
-            <i class="fa fa-circle-question"></i> How to Play
-        </div>
-        <div class="instructions-body">
-            <p>Make the correct outline using the fewest number of rotations.</p>
-            <p>Rotate the cells until you get the correct outline.</p>
-            <p>An outline consists of blocks that are separated by a black border.</p>
-            <p>Letters/colors within the same block should be the same.</p>
-            <p>If the block in the target outline is colored, that exact color should be in that block.</p>
-            <div class="instructions-controls">
-                <ul>
-                    <li><i class="fa fa-arrow-rotate-right rotate-icon"></i> Click a blue node to rotate clockwise</li>
-                    <li>
-                        <i class="fa fa-arrow-rotate-left rotate-icon"></i> Press and hold, or right-click a blue node,
-                            to rotate counterclockwise
-                    </li>
-                    <li>
-                        <i class="fa fa-arrows-alt rotate-icon"></i> Slide across cells (to determine direction, you
-                        need to slide across three cells)
-                    </li>
-                </ul>
-            </div>
-            <hr>
-            <div>
-                <p>💡 Have suggestions or feedback about Rotatly?<br>
-                    We’d love to hear from you: <a href="mailto:support@rotatly.com">support@rotatly.com</a>
-                </p>
-            </div>
-        </div>
-    </div>
+    <div id="icons-container">
+        <a href="#" class="icon help-float"
+     data-bs-toggle="modal"
+     data-bs-target="#instructionsModal"
+     title="Instructions"
+     aria-label="Instructions">
+    <i class="fa fa-circle-question"></i>
+    </a>
+<a href="mailto:support@rotatly.com"
+   target="_blank"
+   title="Contact Us"
+   rel="noopener"
+   class="icon contact-us-float"
+   aria-label="Contact Us">
+    <i class="fa-solid fa-envelope"></i>
+</a>
+<a href="https://www.reddit.com/r/Rotatly/" style="display: none;"
+   target="_blank"
+   title="Discuss on Reddit"
+   rel="noopener"
+   class="icon reddit-float"
+   aria-label="Discuss on Reddit">
+    <i class="fa-brands fa-reddit"></i>
+</a>
+<a href="https://github.com/proy87/rotatly"
+   target="_blank"
+   title="View on Github"
+   rel="noopener"
+   class="icon github-float"
+   aria-label="View on GitHub">
+    <i class="fa-brands fa-github"></i>
+</a>
+</div>
     <div id="target-container">
-        <div class="text-center fw-bold mb-2">Target outline</div>
+        <div class="text-center fw-bold">Target outline</div>
         <div id="outline-board">
             <table>
                 {% for row in outline %}
@@ -166,30 +169,48 @@
         {% endif %}
     </div>
 </div>
-<a href="mailto:support@rotatly.com"
-   target="_blank"
-   title="Contact Us"
-   rel="noopener"
-   class="icon contact-us-float"
-   aria-label="Contact Us">
-    <i class="fa-solid fa-envelope"></i>
-</a>
-<a href="https://www.reddit.com/r/Rotatly/" style="display: none;"
-   target="_blank"
-   title="Discuss on Reddit"
-   rel="noopener"
-   class="icon reddit-float"
-   aria-label="Discuss on Reddit">
-    <i class="fa-brands fa-reddit"></i>
-</a>
-<a href="https://github.com/proy87/rotatly"
-   target="_blank"
-   title="View on Github"
-   rel="noopener"
-   class="icon github-float"
-   aria-label="View on GitHub">
-    <i class="fa-brands fa-github"></i>
-</a>
+<div class="modal fade" id="instructionsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fa fa-circle-question me-2"></i>How to Play
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+            <p>Make the correct outline using the fewest number of rotations.</p>
+            <p>Rotate the cells until you get the correct outline.</p>
+            <p>An outline consists of blocks that are separated by a black border.</p>
+            <p>Letters/colors within the same block should be the same.</p>
+            <p>If the block in the target outline is colored, that exact color should be in that block.</p>
+            <div class="instructions-controls">
+                <ul>
+                    <li><i class="fa fa-arrow-rotate-right rotate-icon"></i> Click a blue node to rotate clockwise.</li>
+                    <li>
+                        <i class="fa fa-arrow-rotate-left rotate-icon"></i> Press and hold, or right-click a blue node,
+                            to rotate counterclockwise.
+                    </li>
+                    <li>
+                        <i class="fa fa-arrows-alt rotate-icon"></i> Slide across cells (to determine direction, you
+                        need to slide across three cells).
+                    </li>
+                </ul>
+            </div>
+            <hr>
+            <div>
+                Have suggestions or feedback about Rotatly?<br>
+                    We’d love to hear from you: <a href="mailto:support@rotatly.com">support@rotatly.com</a>
+
+            </div>
+        </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     let game_index = {{ game.index }};
     let moves_max_num = {{ moves_max_num }};
@@ -278,6 +299,7 @@
 {% endif %}
 
 <script src="{% static 'js/game.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 {% if not DEBUG %}
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-J18XZKQRXX"></script>
