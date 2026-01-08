@@ -413,7 +413,11 @@ document.addEventListener('keydown', (e)->
         undo_button.click()
 )
 
-document.getElementById('instructions-toggle').addEventListener('click', ->
-  body = document.querySelector('.instructions-body')
-  body.style.display = if body.style.display != 'block' then 'block' else 'none'
+puzzle_date_dom = document.getElementById('puzzle-date')
+min_date = puzzle_date_dom.getAttribute('min')
+max_date = puzzle_date_dom.getAttribute('max')
+puzzle_date_dom.addEventListener("change", ->
+  value = this.value
+  if value and /^\d{4}-\d{2}-\d{2}$/.test(value) and min_date <= value <= max_date
+    window.location.href = "/#{value}/"
 )

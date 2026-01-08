@@ -30,6 +30,18 @@
 <div id="board-container">
     <h1>Rotatly #{{ game.index }}</h1>
     <div class="date">{{ current_date }}</div>
+    <div class="text-center my-3">
+        <input
+            type="date"
+            id="puzzle-date"
+            class="form-control d-inline-block"
+            style="max-width: 220px;"
+            min="{{ min_date_js }}"
+            max="{{ max_date_js }}"
+            value="{{ current_date_js }}"
+            placeholder="Jump to date"
+        >
+    </div>
     <div id="icons-container">
         <a href="#" class="icon help-float"
      data-bs-toggle="modal"
