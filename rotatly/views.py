@@ -15,6 +15,8 @@ from .utils import encode
 CW_SYMBOLS = '↻L←'
 CCW_SYMBOLS = '↺R→'
 
+DATE_FORMAT = '%B %d, %Y'
+JS_DATE_FORMAT = '%Y-%m-%d'
 
 def rotatly(request, date=None):
     start_date = datetime.datetime(2025, 11, 25)
@@ -28,7 +30,6 @@ def rotatly(request, date=None):
     else:
         game_index = days_passed
         current_date = today_date
-
     moves_re = re.findall(fr'(?<!\d)([1-9]|[1-9][0-9])(?!\d)\s*([{CW_SYMBOLS}{CCW_SYMBOLS}])',
                           request.GET.get('moves', ''))
     pre_moves = [(int(k), v in CW_SYMBOLS) for k, v in moves_re]
@@ -36,11 +37,11 @@ def rotatly(request, date=None):
     game.fixed_areas = {int(k): int(v) for k, v in game.fixed_areas.items()}
     size = int(math.sqrt(len(game.board)))
     outline = game.outline
-    board = encode(game.board, game.fixed_areas)
-    outline_board = encode(outline.board, game.fixed_areas, for_outline=True)
+    board = encode(game.board, game.fixed_areas, mode='encode')
+    outline_board = encode(outline.board, game.fixed_areas, mode='outline')
 
     if settings.DEBUG:
-        solution = solve(board=board,
+        solution = solve(board=encode(game.board, game.fixed_areas),
                          outline=outline_board,
                          disabled_nodes=game.disabled_nodes,
                          fixed_areas=game.fixed_areas)
@@ -71,13 +72,15 @@ def rotatly(request, date=None):
                        cw_symbol=CW_SYMBOLS[0],
                        ccw_symbol=CCW_SYMBOLS[0],
                        archived=date is not None,
-                       current_date=current_date.strftime('%B %d, %Y'),
-
+                       current_date=current_date.strftime(DATE_FORMAT),
                        today_url=reverse('rotatly'),
                        canonical_url=reverse('rotatly', args=(current_date,)),
                        previous_puzzle_url=None if game_index == 1 else reverse('rotatly', kwargs={
                            'date': current_date - datetime.timedelta(days=1)}),
                        next_puzzle_url=next_puzzle_url,
+                       min_date_js=(start_date + datetime.timedelta(days=1)).strftime(JS_DATE_FORMAT),
+                       max_date_js=today_date.strftime(JS_DATE_FORMAT),
+                       current_date_js=current_date.strftime(JS_DATE_FORMAT),
                        debug=settings.DEBUG))
 
 
