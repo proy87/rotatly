@@ -137,7 +137,7 @@ set_shareable_text = ->
       moves_text = "Rotating…\nMoves: #{moves_made}"
     else
       emoji = '😤'
-      moves_text = "This one got me\nAnyone want to take a shot?"
+      moves_text = "This one got me\nWant to take a shot?"
 
     full_text = "Rotatly #{number} #{emoji}\n#{moves_text}\n#{canonical_url}"
 
