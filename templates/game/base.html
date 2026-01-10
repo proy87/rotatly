@@ -37,12 +37,6 @@
     <i class="fa-brands fa-github"></i>
 </a>
 </div>
-    <div id="target-outline-container">
-        <div class="text-center fw-bold">Target outline</div>
-        <div class="outline-container">
-            {% include './includes/board.html' with board=outline is_outline=True %}
-        </div>
-    </div>
     <div>
         <div id="min-text" class="alert-card" style="display: none;">
             Congratulations! You've solved the puzzle in the minimum number of moves.<br>
@@ -63,6 +57,12 @@
         <button id="copy-result" class="btn btn-success">📋 Copy Result</button>
         <div id="copy-toast" style="display:none; margin-top:10px; color:green; font-weight:bold;">
             Copied! Share anywhere.
+        </div>
+    </div>
+    <div id="target-outline-container">
+        <div class="text-center fw-bold">Target outline</div>
+        <div class="outline-container">
+            {% include './includes/board.html' with board=outline is_outline=True %}
         </div>
     </div>
     <div id="game-container">
