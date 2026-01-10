@@ -22,9 +22,11 @@ moves_num_dom = document.getElementById('moves-num')
 active_nodes_dom = [...document.querySelectorAll('.node.active')]
 shareable_text_dom = document.getElementById('shareable-text')
 puzzle_date_dom = document.getElementById('puzzle-date')
+today_date = null
 if puzzle_date_dom
   min_date = puzzle_date_dom.getAttribute('min')
   max_date = puzzle_date_dom.getAttribute('max')
+  today_date = puzzle_date_dom.value
   puzzle_date_dom.addEventListener("change", ->
     value = this.value
     if value and /^\d{4}-\d{2}-\d{2}$/.test(value) and min_date <= value <= max_date
@@ -111,11 +113,10 @@ set_shareable_text = ->
   rows = null
 
   number = "##{game_index}"
-  if puzzle_date_dom
-    number += " (#{puzzle_date_dom.value})"
+  if today_date
+    number += " (#{today_date})"
 
   if check()
-    rows = 4
     if moves_made == moves_min_num
       emoji = '🧠✨'
       text = 'Perfect Solve'
@@ -127,21 +128,19 @@ set_shareable_text = ->
       text = 'Solved'
     full_text = "Rotatly #{number} #{emoji}\n#{text}\nMoves: #{moves_made}/#{moves_min_num}\n#{canonical_url}"
   else
-    rows = 3
+    moves_text = ''
     if moves_made == 0
       emoji = '😴'
-      text = "Didn't try today"
+      moves_text = "Didn't try today\nIt's never too late to start"
     else if moves_made < moves_max_num
-      rows = 4
       emoji = '⏳'
-      text = 'Rotating…'
+      moves_text = "Rotating…\nMoves: #{moves_made}"
     else
       emoji = '😤'
-      text = "This one got me"
-    if rows == 4
-      full_text = "Rotatly #{number} #{emoji}\n#{text}\nMoves: #{moves_made}\n#{canonical_url}"
-    else
-      full_text = "Rotatly #{number} #{emoji}\n#{text}\n#{canonical_url}"
+      moves_text = "This one got me\nAnyone want to take a shot?"
+
+    full_text = "Rotatly #{number} #{emoji}\n#{moves_text}\n#{canonical_url}"
+
   shareable_text_dom.value = full_text
 
 set_shareable_text()
