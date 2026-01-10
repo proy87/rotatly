@@ -1,8 +1,8 @@
 import datetime
 CUSTOM_GAME_STR='abcdefghkmnpqrstuvwxyz123456789'
 
-CW_SYMBOLS = '↻L←'
-CCW_SYMBOLS = '↺R→'
+CW_SYMBOLS = '↻R→'
+CCW_SYMBOLS = '↺L←'
 
 START_DATE = datetime.datetime(2025, 11, 25)
 DATE_FORMAT = '%B %d, %Y'
