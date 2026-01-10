@@ -81,7 +81,7 @@ class DailyView(GameView):
 
     def setup(self, request, *args, date=None, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.today_date = datetime.datetime.now() - datetime.timedelta(hours=7 if settings.DEBUG else -1)
+        self.today_date = datetime.datetime.now() - datetime.timedelta(hours=7 if settings.DEBUG else 5)
         days_passed = (self.today_date - START_DATE).days
         if date is not None:
             self.game_index = (date - START_DATE).days
