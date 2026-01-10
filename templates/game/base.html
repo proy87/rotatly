@@ -5,18 +5,23 @@
     <h1>{% block title %}{% endblock %}</h1>
     {% block calendar %}{% endblock %}
     <div id="icons-container">
-        <a href="#" class="icon help-float"
+        <a href="#" class="icon"
      data-bs-toggle="modal"
      data-bs-target="#instructions-modal"
      title="Instructions"
      aria-label="Instructions">
     <i class="fa fa-circle-question"></i>
     </a>
+    <a href="#" class="icon" id="share-icon"
+     title="Share"
+     aria-label="Share">
+    <i class="fa fa-share-alt"></i>
+    </a>
 <a href="mailto:support@rotatly.com"
    target="_blank"
    title="Contact Us"
    rel="noopener"
-   class="icon contact-us-float"
+   class="icon"
    aria-label="Contact Us">
     <i class="fa-solid fa-envelope"></i>
 </a>
@@ -24,7 +29,7 @@
    target="_blank"
    title="Discuss on Reddit"
    rel="noopener"
-   class="icon reddit-float"
+   class="icon"
    aria-label="Discuss on Reddit">
     <i class="fa-brands fa-reddit"></i>
 </a>
@@ -32,7 +37,7 @@
    target="_blank"
    title="View on Github"
    rel="noopener"
-   class="icon github-float"
+   class="icon"
    aria-label="View on GitHub">
     <i class="fa-brands fa-github"></i>
 </a>

@@ -591,6 +591,13 @@
     });
   });
 
+  document.getElementById('share-icon').addEventListener('click', function() {
+    var container;
+    container = document.getElementById('share-container');
+    container.parentNode.insertBefore(container, document.getElementById('target-outline-container'));
+    return container.insertBefore(shareable_text_dom, document.getElementById('copy-result'));
+  });
+
 }).call(this);
 
 //# sourceMappingURL=game.js.map

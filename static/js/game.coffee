@@ -451,3 +451,9 @@ document.getElementById('copy-result').addEventListener('click', ->
     }
   )
 )
+
+document.getElementById('share-icon').addEventListener('click', ->
+  container = document.getElementById('share-container')
+  container.parentNode.insertBefore(container, document.getElementById('target-outline-container'))
+  container.insertBefore(shareable_text_dom, document.getElementById('copy-result'))
+)
