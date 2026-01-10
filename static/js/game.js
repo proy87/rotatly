@@ -176,7 +176,7 @@
       moves_text = '';
       if (moves_made === 0) {
         emoji = '😴';
-        moves_text = "Didn't try today\nIt's never too late to start";
+        moves_text = "Didn't try today\nIt's never too late to start!";
       } else if (moves_made < moves_max_num) {
         emoji = '⏳';
         moves_text = `Rotating…\nMoves: ${moves_made}`;
