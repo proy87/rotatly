@@ -58,7 +58,7 @@ class Cell:
         return [''.join(f'{key}:calc({value});' for key, value in item.items()) + s for item in lst]
 
 
-def init_borders(outline: Sequence[Any], css_variable: str, board: Sequence[Any] | None = None) -> Sequence[Cell]:
+def init_borders(outline: Sequence[Any], board: Sequence[Any] | None = None) -> Sequence[Cell]:
     outline = lst_to_lst_of_lsts(outline)
     if board:
         board = lst_to_lst_of_lsts(board)
@@ -82,6 +82,6 @@ def init_borders(outline: Sequence[Any], css_variable: str, board: Sequence[Any]
                 Cell(row_index, col_index, digit,
                      for_outline=board is None,
                      border_dict=cell_border,
-                     css_variable=css_variable))
+                     css_variable='outline-cell-width' if board is None else 'cell-width'))
         cells.append(current_row)
     return cells

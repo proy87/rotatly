@@ -15,9 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import datetime
+
 from django.contrib import admin
-from django.urls import path, register_converter
-from .views import rotatly, track
+from django.urls import path
+from django.urls.converters import register_converter, StringConverter
+
+from .constants import CUSTOM_GAME_STR
+from .views import track, DailyView, CustomView, CreateView
+
 
 class DateConverter:
     regex = r'\d{4}-\d{2}-\d{2}'
@@ -31,12 +36,20 @@ class DateConverter:
         # Convert the Python date object back to a URL string
         return value.strftime(self.format)
 
+
+class AlphaNum7Converter(StringConverter):
+    regex = fr'[{CUSTOM_GAME_STR}]{{7}}'
+
+
 register_converter(DateConverter, 'yyyy-mm-dd')
+register_converter(AlphaNum7Converter, 'alpha_num_7')
 
 urlpatterns = [
     path('admin-r/', admin.site.urls),
-    path('', rotatly, name='rotatly'),
-    path('<yyyy-mm-dd:date>/', rotatly, name='rotatly'),
+    path('', DailyView.as_view(), name='daily'),
+    #path('create/', CreateView.as_view(), name='create'),
+    path('<yyyy-mm-dd:date>/', DailyView.as_view(), name='daily'),
+    path('<alpha_num_7:slug>/', CustomView.as_view(), name='custom'),
     path('track/', track, name='track'),
 
 ]

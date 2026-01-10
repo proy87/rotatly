@@ -1,0 +1,135 @@
+@import "core";
+
+#game-container {
+    position: relative;
+    width: var(--board-width);
+    height: var(--board-width);
+
+    margin: 10px auto 10px auto;
+}
+
+#game-container, #game-container * {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    touch-action: none !important;
+}
+
+.outline-container {
+    position: relative;
+    width: var(--outline-width);
+    height: var(--outline-width);
+    margin: 10px auto 10px auto;
+}
+
+.outline-container td {
+    width: var(--outline-cell-width);
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    height: 100%;
+}
+
+table td {
+    border: 1px solid #a9a9a9;
+    text-align: center;
+    font-size: 30px;
+    font-family: sans-serif;
+    background: white;
+    position: relative;
+
+}
+
+#game-container td {
+    cursor: pointer;
+}
+
+.animate {
+    transition: transform 0.4s ease;
+}
+
+.non-animate {
+    transition: none;
+}
+
+/* nodes */
+.node {
+    position: absolute;
+    width: calc(var(--cell-width) / 3);
+    height: calc(var(--cell-width) / 3);
+    font-size: 12px;
+    background: #4da3ff;
+    border-radius: 50%;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    user-select: none;
+    transition: background 0.2s;
+}
+
+.node.active {
+    display: flex;
+}
+
+.node:hover {
+    background: #6bb4ff;
+}
+
+.node.highlight {
+    background: #0671d0;
+}
+
+/* animations */
+.move-left {
+    transform: translateX(calc(-1 * var(--cell-width)));
+}
+
+.move-right {
+    transform: translateX(var(--cell-width));
+}
+
+.move-down {
+    transform: translateY(var(--cell-width));
+}
+
+.move-up {
+    transform: translateY(calc(-1 * var(--cell-width)));
+}
+
+.red {
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+.green {
+    background-color: rgba(0, 255, 0, 0.3);
+}
+
+.blue {
+    background-color: rgba(0, 0, 255, 0.3);
+}
+
+.purple {
+    background-color: rgba(128, 0, 128, 0.3);
+}
+
+.magenta {
+    background-color: rgba(255, 0, 255, 0.3);
+}
+
+#target-outline-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+@import "misc";
+
+

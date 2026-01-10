@@ -1,0 +1,45 @@
+{% extends './base.html' %}
+{% load static %}
+{% block meta_title %}
+    {% if archived %}
+        {% if is_solved %}
+            Rotatly #{{ game.index }} ({{ current_date }}) in {{ pre_moves|length }} moves
+        {% else %}
+            Rotatly #{{ game.index }}, {{ current_date }}
+        {% endif %}
+    {% else %}
+        Rotatly #{{ game.index }}
+    {% endif %}
+{% endblock %}
+{% block title %}Rotatly #{{ game.index }}{% endblock %}
+{% block calendar %}
+    <div id="date">{{ current_date }}</div>
+    <div class="text-center my-3">
+        <input
+                type="date"
+                id="puzzle-date"
+                class="form-control d-inline-block"
+                style="max-width: 220px;"
+                min="{{ min_date_js }}"
+                max="{{ max_date_js }}"
+                value="{{ current_date_js }}"
+                placeholder="Jump to date"
+        >
+    </div>
+{% endblock %}
+{% block prev_next_navigation %}
+    <div class="puzzle-nav px-3 my-4">
+        {% if previous_puzzle_url %}
+            <a href="{{ previous_puzzle_url }}" class="btn btn-outline-secondary">
+                <i class="fa fa-arrow-left me-2"></i>Previous Puzzle
+            </a>
+        {% endif %}
+
+        {% if next_puzzle_url %}
+            <a href="{{ next_puzzle_url }}" class="btn btn-outline-secondary">
+                Next Puzzle <i class="fa fa-arrow-right ms-2"></i>
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}
+

@@ -1,0 +1,21 @@
+:root {
+    --board-width: 309px;
+    --col-number: 4;
+}
+
+:root {
+    --cell-width: calc((var(--board-width) - 1px) / var(--col-number));
+    --outline-cell-width: 20px;
+    --outline-width: calc(var(--outline-cell-width) * var(--col-number) + 1px);
+}
+
+body {
+    background: #f4f6f8;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+#content-container {
+    margin: 30px auto;
+    text-align: center;
+    max-width: 95%;
+}

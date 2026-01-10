@@ -1,0 +1,23 @@
+<table>
+    {% for row in board %}
+        <tr>
+            {% for cell in row %}
+                <td {% if not is_outline %}id="cell-{{ forloop.parentloop.counter0 }}-{{ forloop.counter0 }}"
+                    data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}"{% endif %}
+                    data-value="{{ cell.name }}"
+                    {% if cell.color_class %}class="{% if not is_outline %}cell {% endif %}{{ cell.color_class }}"{% endif %}>
+                    {% if not is_outline %}<span style="display: inline-block; width: calc(var(--cell-width) * 0.9);color:black;">{{ cell.display_name }}</span>{% endif %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>
+<div class="outline-grid">
+    {% for row in board %}
+        {% for cell in row %}
+            {% for v in cell.border_styles %}
+                <div style="{{ v }}"></div>
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+</div>

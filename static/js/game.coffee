@@ -2,7 +2,7 @@ visit_time = new Date()
 start_time = visit_time
 end_time = start_time
 
-board = document.getElementById('board')
+board = document.getElementById('game-container')
 table = board.querySelector('table')
 
 N = table.rows.length
@@ -20,7 +20,16 @@ moves_sequence_dom = document.getElementById('moves-sequence')
 one_less_move_dom = document.getElementById('one-less-move')
 moves_num_dom = document.getElementById('moves-num')
 active_nodes_dom = [...document.querySelectorAll('.node.active')]
-
+shareable_text_dom = document.getElementById('shareable-text')
+puzzle_date_dom = document.getElementById('puzzle-date')
+if puzzle_date_dom
+  min_date = puzzle_date_dom.getAttribute('min')
+  max_date = puzzle_date_dom.getAttribute('max')
+  puzzle_date_dom.addEventListener("change", ->
+    value = this.value
+    if value and /^\d{4}-\d{2}-\d{2}$/.test(value) and min_date <= value <= max_date
+      window.location.href = "/#{value}/"
+  )
 
 hold_timer = null
 hold_duration = 500
@@ -45,37 +54,6 @@ get_request = (url, data)->
     params.push("#{k}=#{v}")
   await fetch(url + '?' + params.join('&'))
 
-a2a_config.callbacks = [
-  share: (share_data)->
-    title = null
-    url = null
-    if moves.length
-      if check()
-        title = "Rotatly ##{game_index} in #{moves.length} moves"
-      else
-        title = "Rotatly ##{game_index}"
-      rcw = new RegExp(cw_symbol, 'g')
-      rccw = new RegExp(ccw_symbol, 'g')
-      url = canonical_url + "?moves=#{moves.join('').replace(rcw, '%E2%86%BB').replace(rccw, '%E2%86%BA')}"
-    else
-      title = "Rotatly"
-      url = today_url
-
-    get_request(track_url, {
-      game_index: game_index,
-      init_time: (start_time - visit_time) / 1000,
-      game_time: (end_time - start_time) / 1000,
-      moves: moves.join(''),
-      length: moves.length,
-      share: share_data.service
-    })
-
-    return {
-      title: title,
-      description: 'Rotate the cells until you get the correct outline.',
-      url: url
-    }
-]
 rotate = (row, col, cw)->
   top_left = document.getElementById("cell-#{row}-#{col}")
   top_right = document.getElementById("cell-#{row}-#{col + 1}")
@@ -125,6 +103,49 @@ check = ->
         return false
   return true
 
+set_shareable_text = ->
+  moves_made = moves.length
+  emoji = null
+  text = null
+  full_text = null
+  rows = null
+
+  number = "##{game_index}"
+  if puzzle_date_dom
+    number += " (#{puzzle_date_dom.value})"
+
+  if check()
+    rows = 4
+    if moves_made == moves_min_num
+      emoji = '🧠✨'
+      text = 'Perfect Solve'
+    else if moves_made - moves_min_num < 3
+      emoji = '🤏'
+      text = 'So close!'
+    else
+      emoji = '🧩'
+      text = 'Solved'
+    full_text = "Rotatly #{number} #{emoji}\n#{text}\nMoves: #{moves_made}/#{moves_min_num}\n#{canonical_url}"
+  else
+    rows = 3
+    if moves_made == 0
+      emoji = '😴'
+      text = "Didn't try today"
+    else if moves_made < moves_max_num
+      rows = 4
+      emoji = '⏳'
+      text = 'Rotating…'
+    else
+      emoji = '😤'
+      text = "This one got me"
+    if rows == 4
+      full_text = "Rotatly #{number} #{emoji}\n#{text}\nMoves: #{moves_made}\n#{canonical_url}"
+    else
+      full_text = "Rotatly #{number} #{emoji}\n#{text}\n#{canonical_url}"
+  shareable_text_dom.value = full_text
+
+set_shareable_text()
+
 animate = (value, row, col, cw, undo = false, demo = false, callback = null) ->
   if in_animation
     return
@@ -160,6 +181,7 @@ animate = (value, row, col, cw, undo = false, demo = false, callback = null) ->
             restart_button.removeAttribute('disabled')
 
         number_of_moves = moves.length
+        set_shareable_text()
         if number_of_moves == 1 and not undo
           start_time = new Date()
         moves_made_num_dom.innerHTML = number_of_moves
@@ -177,9 +199,7 @@ animate = (value, row, col, cw, undo = false, demo = false, callback = null) ->
             block = document.getElementById("#{if number_of_moves > moves_min_num then 'non-' else ''}min-text")
           else
             block = document.getElementById("non-solve-text")
-          show_element(block)
-
-          document.getElementById("share-container").style.display = 'flex'
+          #show_element(block)
 
           get_request(track_url, {
             game_index: game_index, init_time: (start_time - visit_time) / 1000,
@@ -413,11 +433,21 @@ document.addEventListener('keydown', (e)->
         undo_button.click()
 )
 
-puzzle_date_dom = document.getElementById('puzzle-date')
-min_date = puzzle_date_dom.getAttribute('min')
-max_date = puzzle_date_dom.getAttribute('max')
-puzzle_date_dom.addEventListener("change", ->
-  value = this.value
-  if value and /^\d{4}-\d{2}-\d{2}$/.test(value) and min_date <= value <= max_date
-    window.location.href = "/#{value}/"
+document.getElementById('copy-result').addEventListener('click', ->
+  share_text = shareable_text_dom.value
+  navigator.clipboard.writeText(share_text).then(->
+    toast = document.getElementById('copy-toast')
+    show_element(toast)
+    setTimeout(->
+      hide_element(toast)
+    , 2000)
+  )
+  get_request(track_url, {
+      game_index: game_index,
+      init_time: (start_time - visit_time) / 1000,
+      game_time: (end_time - start_time) / 1000,
+      moves: moves.join(''),
+      length: moves.length,
+    }
+  )
 )

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block meta_title %}Rotatly Constructor{% endblock %}
+{% block meta_description %}Create your own Rotatly puzzle, solve and share it.{% endblock %}
+{% block css %}
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
+    <link href="{% static "css/game.min.css" %}" rel="stylesheet">
+    <style>
+  .table-card {
+    display: inline-block;      /* horizontal flow */
+    margin: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .table-card table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+  }
+  .table-card th, .table-card td {
+    border: 1px solid #ccc;
+    padding: 4px 6px;
+    text-align: left;
+  }
+
+  /* Highlight selected table */
+  .table-card.selected {
+    outline: 5px solid #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    background-color: #e6f0ff;
+  }
+</style>
+{% endblock %}
+{% block content %}
+    <div id="outlines" style="padding: 10px; text-align: center; max-height: 110px; overflow-y: scroll;">
+        {% for index, outline in outlines %}
+            <div class="outline-board table-card" data-index="{{ index }}">{% include './includes/board.html' with board=outline is_outline=True %}</div>
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+    let selectedCard = null;
+    active_nodes_dom = [...document.querySelectorAll('.table-card')];
+    active_nodes_dom.forEach(function(node){
+        node.addEventListener('click', function(){
+            if (selectedCard) {
+      selectedCard.classList.remove('selected');
+      if (selectedCard == this){
+          selectedCard = null;
+          return
+      }
+    }
+    // Highlight this card
+    this.classList.add('selected');
+    selectedCard = this;
+    console.log(this.getAttribute('data-index'))
+        })
+
+    });
+    </script>
+{% endblock %}
+

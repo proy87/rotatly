@@ -1,51 +1,13 @@
+{% extends './../base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>
-        {% if archived %}
-            {% if is_solved %}
-                Rotatly #{{ game.index }} ({{ current_date }}) in {{ pre_moves|length }} moves
-            {% else %}
-                Rotatly #{{ game.index }}, {{ current_date }}
-            {% endif %}
-        {% else %}
-            Rotatly #{{ game.index }}
-        {% endif %}
-    </title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --col-number: {{size}};
-        }
-    </style>
-    <link href="{% static "css/game.min.css" %}" rel="stylesheet">
-</head>
-<body>
-
-
-<div id="board-container">
-    <h1>Rotatly #{{ game.index }}</h1>
-    <div class="date">{{ current_date }}</div>
-    <div class="text-center my-3">
-        <input
-            type="date"
-            id="puzzle-date"
-            class="form-control d-inline-block"
-            style="max-width: 220px;"
-            min="{{ min_date_js }}"
-            max="{{ max_date_js }}"
-            value="{{ current_date_js }}"
-            placeholder="Jump to date"
-        >
-    </div>
+{% block css %}<link href="{% static "css/game.min.css" %}" rel="stylesheet">{% endblock %}
+{% block content %}
+    <h1>{% block title %}{% endblock %}</h1>
+    {% block calendar %}{% endblock %}
     <div id="icons-container">
         <a href="#" class="icon help-float"
      data-bs-toggle="modal"
-     data-bs-target="#instructionsModal"
+     data-bs-target="#instructions-modal"
      title="Instructions"
      aria-label="Instructions">
     <i class="fa fa-circle-question"></i>
@@ -75,25 +37,10 @@
     <i class="fa-brands fa-github"></i>
 </a>
 </div>
-    <div id="target-container">
+    <div id="target-outline-container">
         <div class="text-center fw-bold">Target outline</div>
-        <div id="outline-board">
-            <table>
-                {% for row in outline %}
-                    <tr>
-                        {% for cell in row %}
-                            <td class="{{ cell.color_class }}"></td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-            </table>
-            {% for row in outline %}
-                {% for cell in row %}
-                    {% for v in cell.border_styles %}
-                        <div style="{{ v }}"></div>
-                    {% endfor %}
-                {% endfor %}
-            {% endfor %}
+        <div class="outline-container">
+            {% include './includes/board.html' with board=outline is_outline=True %}
         </div>
     </div>
     <div>
@@ -111,44 +58,19 @@
             Maybe someone else can?
         </div>
     </div>
-    <div id='share-container' class="share-card" style="display: none;">
-        <script defer src="https://static.addtoany.com/menu/page.js"></script>
-        <div class="a2a_kit a2a_kit_size_32 a2a_default_style text-center" id="share-button-container">
-            <a class="a2a_button_facebook"></a>
-            <a class="a2a_button_twitter"></a>
-            <a class="a2a_button_reddit"></a>
-            <a class="a2a_dd"></a>
-            <div class="share-text">Share your result!</div>
+    <div id='share-container' class="share-card">
+        <textarea id="shareable-text" style="width:100%" rows="4"></textarea>
+        <button id="copy-result" class="btn btn-success">📋 Copy Result</button>
+        <div id="copy-toast" style="display:none; margin-top:10px; color:green; font-weight:bold;">
+            Copied! Share anywhere.
         </div>
     </div>
-    <div id="board">
-        <table>
-            {% for row in board %}
-                <tr>
-                    {% for cell in row %}
-                        <td id="cell-{{ forloop.parentloop.counter0 }}-{{ forloop.counter0 }}"
-                            data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}"
-                            data-value="{{ cell.name }}"
-                            class="cell {{ cell.color_class }}">
-                            <span style="display: inline-block; width: calc(var(--cell-width) * 0.9);color:black;">{{ cell.display_name }}</span>
-                        </td>
-
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-        </table>
-        {% for row in board %}
-            {% for cell in row %}
-                {% for v in cell.border_styles %}
-                    <div style="{{ v }}"></div>
-                {% endfor %}
-            {% endfor %}
-        {% endfor %}
+    <div id="game-container">
+        {% include './includes/board.html' %}
         {% for row in nodes %}
             {% for node, blocked in row %}
                 {% widthratio 100 size forloop.counter as left %}
                 {% widthratio 100 size forloop.parentloop.counter as top %}
-
                 <div class="node{% if not blocked.cw or not blocked.ccw %} active{% endif %}"
                      style="left: {{ left }}%; top: {{ top }}%"
                      data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}"
@@ -167,21 +89,9 @@
     <div id="moves-container" class="text-center" style="font-weight: bold;font-size: 12px;display: none;">Moves: <span
             id="moves-sequence">no moves</span></div>
     <div class="text-center" style="font-weight: bold;">Minimum number of moves to solve: {{ game.moves_min_num }}</div>
-    <div class="puzzle-nav px-3 my-4">
-        {% if previous_puzzle_url %}
-            <a href="{{ previous_puzzle_url }}" class="btn btn-outline-secondary">
-                <i class="fa fa-arrow-left me-2"></i>Previous Puzzle
-            </a>
-        {% endif %}
+    {% block prev_next_navigation %}{% endblock %}
 
-        {% if next_puzzle_url %}
-            <a href="{{ next_puzzle_url }}" class="btn btn-outline-secondary">
-                Next Puzzle <i class="fa fa-arrow-right ms-2"></i>
-            </a>
-        {% endif %}
-    </div>
-</div>
-<div class="modal fade" id="instructionsModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="instructions-modal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -213,8 +123,7 @@
             <hr>
             <div>
                 Have suggestions or feedback about Rotatly?<br>
-                    We’d love to hear from you: <a href="mailto:support@rotatly.com">support@rotatly.com</a>
-
+                We’d love to hear from you: <a href="mailto:support@rotatly.com">support@rotatly.com</a>
             </div>
         </div>
             <div class="modal-footer">
@@ -223,21 +132,22 @@
         </div>
     </div>
 </div>
-<script>
-    let game_index = {{ game.index }};
-    let moves_max_num = {{ moves_max_num }};
-    let moves_min_num = {{ game.moves_min_num }};
-    let outline = {{ outline_dumped }};
-    let cw_symbol = '{{ cw_symbol }}';
-    let ccw_symbol = '{{ ccw_symbol }}';
+{% endblock %}
+{% block js %}
+    <script>
+        let game_index = {{ game.index }};
+        let moves_max_num = {{ moves_max_num }};
+        let moves_min_num = {{ game.moves_min_num }};
+        let outline = {{ outline_dumped }};
+        let cw_symbol = '{{ cw_symbol }}';
+        let ccw_symbol = '{{ ccw_symbol }}';
 
-    let pre_moves = {{ pre_moves_dumped }};
-    let canonical_url = 'https://www.rotatly.com{{ canonical_url }}';
-    let today_url = 'https://www.rotatly.com{{ today_url }}';
-    let track_url = '{% url 'track' %}';
-    var a2a_config = a2a_config || {};
-</script>
-{% if False %}
+        let pre_moves = {{ pre_moves_dumped }};
+        let canonical_url = 'https://www.rotatly.com{{ canonical_url }}';
+
+        let track_url = '{% url 'track' %}';
+    </script>
+    {% if False %}
     <!-- html2canvas -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <!-- gif.js -->
@@ -309,21 +219,7 @@
         })
     </script>
 {% endif %}
-
+{% block additional_js %}{% endblock %}
 <script src="{% static 'js/game.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-{% if not DEBUG %}
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J18XZKQRXX"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-        gtag('config', 'G-J18XZKQRXX');
-    </script>
-    <script src="https://analytics.ahrefs.com/analytics.js" data-key="ZBTtGX9G1uAqsJnnTjITuQ" async></script>
-{% endif %}
-</body>
-</html>
+{% endblock %}
+
