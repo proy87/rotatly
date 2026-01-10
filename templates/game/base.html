@@ -58,13 +58,7 @@
             Maybe someone else can?
         </div>
     </div>
-    <div id='share-container' class="share-card">
-        <textarea id="shareable-text" style="width:100%" rows="4"></textarea>
-        <button id="copy-result" class="btn btn-success">📋 Copy Result</button>
-        <div id="copy-toast" style="display:none; margin-top:10px; color:green; font-weight:bold;">
-            Copied! Share anywhere.
-        </div>
-    </div>
+
     <div id="game-container">
         {% include './includes/board.html' %}
         {% for row in nodes %}
@@ -84,6 +78,13 @@
     <div class="btn-container" style="margin-bottom: 10px;">
         <button id="undo-move" class="btn btn-primary" disabled>Undo</button>
         <button id="restart-game" class="btn btn-danger" disabled>Restart</button>
+    </div>
+    <div id='share-container' class="share-card">
+        <button id="copy-result" class="btn btn-success">📋 Copy Result</button>
+        <div id="copy-toast" style="display:none; color:green; font-weight:bold;">
+            Copied! Share anywhere.
+        </div>
+        <textarea id="shareable-text" style="width:100%" rows="4"></textarea>
     </div>
     <div class="text-center" style="font-weight: bold;">Number of moves made: <span id="moves-made-num">0</span></div>
     <div id="moves-container" class="text-center" style="font-weight: bold;font-size: 12px;display: none;">Moves: <span
