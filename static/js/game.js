@@ -589,7 +589,8 @@
       init_time: (start_time - visit_time) / 1000,
       game_time: (end_time - start_time) / 1000,
       moves: moves.join(''),
-      length: moves.length
+      length: moves.length,
+      copied: true
     });
   });
 

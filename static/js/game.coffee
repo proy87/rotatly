@@ -448,6 +448,7 @@ document.getElementById('copy-result').addEventListener('click', ->
       game_time: (end_time - start_time) / 1000,
       moves: moves.join(''),
       length: moves.length,
+      copied: true,
     }
   )
 )
