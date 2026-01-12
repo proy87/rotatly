@@ -47,7 +47,7 @@ register_converter(AlphaNum7Converter, 'alpha_num_7')
 urlpatterns = [
     path('admin-r/', admin.site.urls),
     path('', DailyView.as_view(), name='daily'),
-    #path('create/', CreateView.as_view(), name='create'),
+    path('create/', CreateView.as_view(), name='create'),
     path('<yyyy-mm-dd:date>/', DailyView.as_view(), name='daily'),
     path('<alpha_num_7:slug>/', CustomView.as_view(), name='custom'),
     path('track/', track, name='track'),

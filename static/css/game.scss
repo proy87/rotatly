@@ -82,10 +82,6 @@ table td {
     background: #6bb4ff;
 }
 
-.node.highlight {
-    background: #0671d0;
-}
-
 /* animations */
 .move-left {
     transform: translateX(calc(-1 * var(--cell-width)));

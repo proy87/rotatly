@@ -96,48 +96,49 @@
             id="moves-sequence">no moves</span></div>
     <div class="text-center" style="font-weight: bold;">Minimum number of moves to solve: {{ game.moves_min_num }}</div>
     {% block prev_next_navigation %}{% endblock %}
+{% endblock %}
+{% block modal %}
+    <div class="modal fade" id="instructions-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fa fa-circle-question me-2"></i>How to Play
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
-<div class="modal fade" id="instructions-modal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fa fa-circle-question me-2"></i>How to Play
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-body">
+                <p>Make the correct outline using the fewest number of rotations.</p>
+                <p>Rotate the cells until you get the correct outline.</p>
+                <p>An outline consists of blocks that are separated by a black border.</p>
+                <p>Letters/colors within the same block should be the same.</p>
+                <p>If the block in the target outline is colored, that exact color should be in that block.</p>
+                <div class="instructions-controls">
+                    <ul>
+                        <li><i class="fa fa-arrow-rotate-right rotate-icon"></i> Click a blue node to rotate clockwise.</li>
+                        <li>
+                            <i class="fa fa-arrow-rotate-left rotate-icon"></i> Press and hold, or right-click a blue node,
+                                to rotate counterclockwise.
+                        </li>
+                        <li>
+                            <i class="fa fa-arrows-alt rotate-icon"></i> Slide across cells (to determine direction, you
+                            need to slide across three cells).
+                        </li>
+                    </ul>
+                </div>
+                <hr>
+                <div>
+                    Have suggestions or feedback about Rotatly?<br>
+                    We’d love to hear from you: <a href="mailto:support@rotatly.com">support@rotatly.com</a>
+                </div>
             </div>
-
-            <div class="modal-body">
-            <p>Make the correct outline using the fewest number of rotations.</p>
-            <p>Rotate the cells until you get the correct outline.</p>
-            <p>An outline consists of blocks that are separated by a black border.</p>
-            <p>Letters/colors within the same block should be the same.</p>
-            <p>If the block in the target outline is colored, that exact color should be in that block.</p>
-            <div class="instructions-controls">
-                <ul>
-                    <li><i class="fa fa-arrow-rotate-right rotate-icon"></i> Click a blue node to rotate clockwise.</li>
-                    <li>
-                        <i class="fa fa-arrow-rotate-left rotate-icon"></i> Press and hold, or right-click a blue node,
-                            to rotate counterclockwise.
-                    </li>
-                    <li>
-                        <i class="fa fa-arrows-alt rotate-icon"></i> Slide across cells (to determine direction, you
-                        need to slide across three cells).
-                    </li>
-                </ul>
-            </div>
-            <hr>
-            <div>
-                Have suggestions or feedback about Rotatly?<br>
-                We’d love to hear from you: <a href="mailto:support@rotatly.com">support@rotatly.com</a>
-            </div>
-        </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 {% block js %}
     <script>

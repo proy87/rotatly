@@ -13,11 +13,13 @@
     {% endfor %}
 </table>
 <div class="outline-grid">
-    {% for row in board %}
-        {% for cell in row %}
-            {% for v in cell.border_styles %}
-                <div style="{{ v }}"></div>
+    {% if not skip_grid %}
+        {% for row in board %}
+            {% for cell in row %}
+                {% for v in cell.border_styles %}
+                    <div style="{{ v }}"></div>
+                {% endfor %}
             {% endfor %}
         {% endfor %}
-    {% endfor %}
+    {% endif %}
 </div>

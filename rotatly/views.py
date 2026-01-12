@@ -125,6 +125,7 @@ class CreateView(TemplateView):
         context_data = super().get_context_data(**kwargs)
         outlines = Outline.objects.all()
         context_data['outlines'] = [(outline.index, init_borders(outline.board)) for outline in outlines]
+        context_data['empty_outline'] = init_borders([0] * len(outlines[0].board))
         context_data['size'] = int(math.sqrt(len(outlines[0].board)))
         return context_data
 
