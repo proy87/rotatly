@@ -1,0 +1,49 @@
+@import 'game';
+
+.table-card {
+  display: inline-block; /* horizontal flow */
+  margin: 5px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.table-card table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+
+.table-card th, .table-card td {
+  border: 1px solid #ccc;
+  padding: 4px 6px;
+  text-align: left;
+}
+
+/* Highlight selected table */
+.table-card.selected {
+  outline: 5px solid #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+#outline-hidden {
+  display: none;
+}
+
+#color-palette {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.color-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  cursor: grab;
+}
+
+.color-icon.selected{
+  outline: 2px solid #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
