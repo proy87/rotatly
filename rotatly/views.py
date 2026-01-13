@@ -8,7 +8,7 @@ from django.http import Http404, JsonResponse
 from django.urls import reverse
 from django.views.generic import TemplateView
 
-from .board import init_borders
+from .board import init_borders, Cell
 from .constants import START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYMBOLS, CCW_SYMBOLS
 from .models import Daily, Custom, Outline
 from .solver import solve, is_solved
@@ -56,8 +56,7 @@ class GameView(TemplateView):
                                         range(1, (size - 1) ** 2, size - 1)],
                                  moves_max_num=game.moves_min_num * 100,
                                  cw_symbol=CW_SYMBOLS[0],
-                                 ccw_symbol=CCW_SYMBOLS[0],
-                                 debug=settings.DEBUG))
+                                 ccw_symbol=CCW_SYMBOLS[0]))
         return context_data
 
 
@@ -124,9 +123,15 @@ class CreateView(TemplateView):
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         outlines = Outline.objects.all()
-        context_data['outlines'] = [(outline.index, init_borders(outline.board)) for outline in outlines]
-        context_data['empty_outline'] = init_borders([0] * len(outlines[0].board))
-        context_data['size'] = int(math.sqrt(len(outlines[0].board)))
+        size = int(math.sqrt(len(outlines[0].board)))
+        context_data.update(
+            size=size,
+            nodes=[[(e, dict()) for e in range(i, i + size - 1)] for i in range(1, (size - 1) ** 2, size - 1)],
+            outlines=[(outline.index, init_borders(outline.board)) for outline in outlines],
+            empty_outline=init_borders([0] * len(outlines[0].board)),
+            empty_board=init_borders([0] * len(outlines[0].board), [0] * len(outlines[0].board)),
+            names=[(i,Cell.names_dict[i], c) for i, c in Cell.colors_dict.items()],
+        )
         return context_data
 
 

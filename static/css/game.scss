@@ -1,11 +1,11 @@
-@import "core";
+@use "core";
+@use "misc";
 
 #game-container {
     position: relative;
     width: var(--board-width);
     height: var(--board-width);
-
-    margin: 10px auto 10px auto;
+    margin: 34px auto 5px auto;
 }
 
 #game-container, #game-container * {
@@ -24,8 +24,19 @@
     margin: 10px auto 10px auto;
 }
 
+.outline-container.double {
+    position: relative;
+    width: var(--outline-width-2x);
+    height: var(--outline-width-2x);
+    margin: 10px auto 10px auto;
+}
+
 .outline-container td {
     width: var(--outline-cell-width);
+}
+
+.outline-container.double td {
+    width: var(--outline-cell-width-2x);
 }
 
 table {
@@ -41,7 +52,6 @@ table td {
     font-family: sans-serif;
     background: white;
     position: relative;
-
 }
 
 #game-container td {
@@ -126,6 +136,5 @@ table td {
     margin-top: 10px;
 }
 
-@import "misc";
 
 

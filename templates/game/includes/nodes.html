@@ -1,0 +1,13 @@
+{% for row in nodes %}
+    {% for node, blocked in row %}
+        {% widthratio 100 size forloop.counter as left %}
+        {% widthratio 100 size forloop.parentloop.counter as top %}
+        <div class="node{% if not blocked.cw or not blocked.ccw %} active{% endif %}"
+             style="left: {{ left }}%; top: {{ top }}%"
+             data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}"
+             data-value="{{ node }}"
+             data-cw="{% if blocked.cw %}false{% else %}true{% endif %}"
+             data-ccw="{% if blocked.ccw %}false{% else %}true{% endif %}">{{ node }}
+        </div>
+    {% endfor %}
+{% endfor %}

@@ -5,6 +5,8 @@ from .utils import lst_to_lst_of_lsts
 
 
 class Cell:
+    colors_dict =  {i: c for i, c in enumerate(('red', 'green', 'blue', 'purple'), start=1)}
+    names_dict = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 0: ''}
     def __init__(self, row: int, col: int, name: int, for_outline: bool, border_dict: dict, css_variable: str):
         self.row = row
         self.col = col
@@ -12,21 +14,20 @@ class Cell:
         if for_outline:
             self.display_name = ''
         else:
-            self.display_name = {1: 'A', 2: 'B', 3: 'C', 4: 'D', '': ''}[-name if name < 0 else name]
+            self.display_name = self.names_dict[-name if name < 0 else name]
         self.border_dict = border_dict
-        self.cell_width = f'var(--{css_variable})'
+        self.cell_width = f'calc(var(--scale) * var(--{css_variable}))'
         self.thickness = '5px' if for_outline else f'{self.cell_width} / 12'
         self.for_outline = for_outline
         self._basic_styles = {'position': 'absolute', 'background-color': 'black'}
-        self.color_classes = ('red', 'green', 'blue', 'purple')
 
     @property
     def color_class(self) -> str:
-        class_dict = {i: c for i, c in enumerate(self.color_classes, start=1)}
         if self.for_outline:
-            return class_dict[-self.name] if self.name < 0 else ''
+            return self.colors_dict[-self.name] if self.name < 0 else ''
         else:
-            return class_dict[-self.name if self.name < 0 else self.name]
+            key = -self.name if self.name < 0 else self.name
+            return self.colors_dict.get(key, '')
 
     @property
     def border_styles(self) -> Sequence[str]:

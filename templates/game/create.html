@@ -3,23 +3,34 @@
 {% block meta_title %}Rotatly Constructor{% endblock %}
 {% block meta_description %}Create your own Rotatly puzzle, solve and share it.{% endblock %}
 {% block css %}
+    <link href="{% static "css/game.min.css" %}" rel="stylesheet">
     <link href="{% static "css/create.min.css" %}" rel="stylesheet">
 {% endblock %}
 {% block content %}
-    <div id="outlines" style="padding: 10px; text-align: center; max-height: 110px; overflow-y: scroll;">
+    <div id="outlines" style="padding: 10px; text-align: center; max-height: 110px; overflow-y: scroll; max-width: 890px;margin:auto;">
         {% for index, outline in outlines %}
             <div class="outline-container table-card" data-index="{{ index }}">{% include './includes/board.html' with board=outline is_outline=True %}</div>
         {% endfor %}
     </div>
     <div id="outline">
-        <div class="outline-container table-card" data-index="0">{% include './includes/board.html' with board=empty_outline is_outline=True skip_grid=True %}</div>
+        <div class="outline-container double" style="--scale: 2;" data-index="0">{% include './includes/board.html' with board=empty_outline is_outline=True skip_grid=True %}</div>
     </div>
     <div id="outline-hidden">
-        <div class="outline-container table-card" data-index="0">{% include './includes/board.html' with board=empty_outline is_outline=True skip_grid=True %}</div>
+        <div class="outline-container" data-index="0">{% include './includes/board.html' with board=empty_outline is_outline=True skip_grid=True %}</div>
     </div>
     <div id="color-palette">
-        {% for color_class in empty_outline.0.0.color_classes %}
-            <div class="color-icon {{ color_class }}" data-color-class="{{ color_class }}" data-index="{{ forloop.counter }}"></div>
+        {% for index, name, color_class in names %}
+            <div class="color-icon {{ color_class }}" data-class="{{ color_class }}" data-index="{{ index }}" data-name=""></div>
+        {% endfor %}
+    </div>
+    <div id="game-container" style="--scale: calc(var(--cell-width) / var(--outline-cell-width));">
+        {% include './includes/board.html' with board=empty_board is_outline=False skip_grid=True %}
+        {% include './includes/nodes.html' %}
+    </div>
+
+    <div id="board-palette">
+        {% for index, name, color_class in names %}
+            <div class="board-item {{ color_class }}" data-class="{{ color_class }}" data-index="{{ index }}" data-name="{{ name }}">{{ name }}</div>
         {% endfor %}
     </div>
 {% endblock %}
