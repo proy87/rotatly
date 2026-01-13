@@ -164,7 +164,7 @@
       if (moves_made === moves_min_num) {
         emoji = '🧠✨';
         text = 'Perfect Solve';
-      } else if (moves_made - moves_min_num < 3) {
+      } else if (moves_made - moves_min_num <= 3) {
         emoji = '🤏';
         text = 'So close!';
       } else {
@@ -177,7 +177,7 @@
       if (moves_made === 0) {
         emoji = '😴';
         moves_text = "Didn't try today\nIt's never too late to start!";
-      } else if (moves_made < moves_max_num) {
+      } else if (moves_made < moves_min_num * 2) {
         emoji = '⏳';
         moves_text = `Rotating…\nMoves: ${moves_made}`;
       } else {
