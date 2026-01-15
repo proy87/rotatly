@@ -1,32 +1,152 @@
-.table-card {
-  display: inline-block; /* horizontal flow */
-  margin: 5px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  transition: all 0.2s;
+#tetraminoes {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  justify-content: center;
+  gap: 1px;
+  margin-bottom: 15px;
+  --scale: 2;
 }
 
-.table-card table {
-  border-collapse: collapse;
+#tetraminoes .cell {
+  border: 1px solid #ccc;
+  background-color: white;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  position: absolute;
+
+}
+
+.tetramino-container {
+  position: relative;
+  width: calc(4 * var(--cell-size));
+  height: calc(4 * var(--cell-size));
+}
+
+.tetramino {
+  position: absolute;
+  z-index: 1000;
+  transform: rotate(var(--rotation, 0deg));
   width: 100%;
-  font-size: 14px;
-}
-
-.table-card th, .table-card td {
-  border: 1px solid #ccc;
-  padding: 4px 6px;
-  text-align: left;
-}
-
-/* Highlight selected table */
-.table-card.selected {
-  outline: 5px solid #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-#outline td{
+  height: 100%;
   cursor: grab;
 }
+
+.tetramino-container:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+.tet-T, .tet-S {
+  width: calc(3 * var(--cell-size));
+  height: calc(3 * var(--cell-size));
+}
+
+.tet-O {
+  width: calc(2 * var(--cell-size));
+  height: calc(2 * var(--cell-size));
+}
+
+.tet-I .tetramino {
+  top: calc(3 * var(--cell-size) / 2);
+  transform-origin: calc(2 * var(--cell-size)) calc(1 * var(--cell-size) / 2);
+}
+
+.tet-L .tetramino {
+  left: calc(var(--cell-size) / 2);
+  top: calc(3 * var(--cell-size) / 2);
+  transform-origin: calc(3 * var(--cell-size) / 2) calc(var(--cell-size));
+}
+
+.tet-T .tetramino {
+  top: calc(var(--cell-size) / 2);
+  transform-origin: calc(3 * var(--cell-size) / 2) calc(var(--cell-size));
+}
+
+.tet-S .tetramino {
+  top: calc(var(--cell-size) / 2);
+  transform-origin: calc(3 * var(--cell-size) / 2) calc(var(--cell-size));
+}
+
+.tet-I .cell:nth-child(2) {
+  left: var(--cell-size);
+}
+
+.tet-I .cell:nth-child(3) {
+  left: calc(2 * var(--cell-size));
+}
+
+.tet-I .cell:nth-child(4) {
+  left: calc(3 * var(--cell-size));
+}
+
+.tet-L .cell:nth-child(2) {
+  left: var(--cell-size);
+}
+
+.tet-L .cell:nth-child(3) {
+  left: calc(2 * var(--cell-size));
+}
+
+.tet-L .cell:nth-child(4) {
+  top: var(--cell-size);
+}
+
+.tet-T .cell:nth-child(2) {
+  left: var(--cell-size);
+}
+
+.tet-T .cell:nth-child(3) {
+  left: calc(2 * var(--cell-size));
+}
+
+.tet-T .cell:nth-child(4) {
+  top: var(--cell-size);
+  left: var(--cell-size);
+}
+
+.tet-S .cell:nth-child(1) {
+  left: var(--cell-size);
+}
+
+.tet-S .cell:nth-child(2) {
+  left: calc(2 * var(--cell-size));
+}
+
+.tet-S .cell:nth-child(3) {
+  top: var(--cell-size);
+}
+
+.tet-S .cell:nth-child(4) {
+  top: var(--cell-size);
+  left: var(--cell-size);
+}
+
+.tet-O .cell:nth-child(2) {
+  left: var(--cell-size);
+}
+
+.tet-O .cell:nth-child(3) {
+  top: var(--cell-size);
+}
+
+.tet-O .cell:nth-child(4) {
+  top: var(--cell-size);
+  left: var(--cell-size);
+}
+
+
+#game-container {
+  margin-top: 35px;
+}
+
+#outline {
+  --scale: 2;
+}
+
+#outline td {
+  cursor: pointer;
+}
+
 #outline-hidden {
   display: none;
 }
@@ -35,35 +155,39 @@
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 10px;
 }
 
 .color-icon {
   display: inline-block;
   width: 20px;
   height: 20px;
-  cursor: grab;
+  cursor: pointer;
 }
 
-.color-icon.selected{
+.color-icon.selected {
   outline: 2px solid #007bff;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 .board-item {
-  display: inline-flex;
-  align-items: center;     /* vertical */
+  display: flex;
+  align-items: center; /* vertical */
   justify-content: center; /* horizontal */
   width: 40px;
   height: 40px;
   cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  touch-action: none
 }
 
-.board-item.selected{
+.board-item.selected {
   outline: 4px solid #007bff;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-.node.disabled{
+.node.disabled {
   background-color: #a9a9a9;
 }

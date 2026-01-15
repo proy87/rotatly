@@ -69,6 +69,6 @@ def generate_all_boards(n: int) -> Iterable[tuple[int, ...]]:
     yield from inner([0] * n ** 2, 0)
 
 
-def lst_to_lst_of_lsts(lst: Sequence[Any], split: int | None = None) -> Sequence[Sequence[Any]]:
-    split = split or int(math.sqrt(len(lst)))
+def lst_to_lst_of_lsts(lst: Sequence[Any]) -> Sequence[Sequence[Any]]:
+    split = int(math.sqrt(len(lst)))
     return tuple(tuple(lst[i: i + split]) for i in range(0, len(lst), split))

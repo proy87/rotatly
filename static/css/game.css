@@ -1,15 +1,7 @@
 :root {
-  --board-width: 309px;
-  --col-number: 4;
   --scale: 1;
-}
-
-:root {
-  --cell-width: calc((var(--board-width) - 1px) / var(--col-number));
-  --outline-cell-width: 20px;
-  --outline-width: calc(var(--outline-cell-width) * var(--col-number) + 1px);
-  --outline-cell-width-2x: 40px;
-  --outline-width-2x: calc(var(--outline-cell-width-2x) * var(--col-number) + 1px);
+  --base-board-cell-size: 77px;
+  --base-outline-cell-size: 20px;
 }
 
 body {
@@ -192,44 +184,6 @@ button:disabled {
     transform: translateY(0);
   }
 }
-#game-container {
-  position: relative;
-  width: var(--board-width);
-  height: var(--board-width);
-  margin: 34px auto 5px auto;
-}
-
-#game-container, #game-container * {
-  -webkit-touch-callout: none !important;
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
-  user-select: none !important;
-  touch-action: none !important;
-}
-
-.outline-container {
-  position: relative;
-  width: var(--outline-width);
-  height: var(--outline-width);
-  margin: 10px auto 10px auto;
-}
-
-.outline-container.double {
-  position: relative;
-  width: var(--outline-width-2x);
-  height: var(--outline-width-2x);
-  margin: 10px auto 10px auto;
-}
-
-.outline-container td {
-  width: var(--outline-cell-width);
-}
-
-.outline-container.double td {
-  width: var(--outline-cell-width-2x);
-}
-
 table {
   border-collapse: collapse;
   width: 100%;
@@ -245,8 +199,50 @@ table td {
   position: relative;
 }
 
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#game-container, #game-container * {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  touch-action: none !important;
+}
+
+#game-container, .outline-container {
+  position: relative;
+  margin: 10px auto 10px auto;
+}
+
+#game-container {
+  --cell-size: calc(var(--scale) * var(--base-board-cell-size));
+  --grid-thickness: calc(var(--cell-size) / 12);
+}
+
+.outline-container {
+  --cell-size: calc(var(--scale) * var(--base-outline-cell-size));
+  --grid-thickness: 5px;
+}
+
 #game-container td {
   cursor: pointer;
+  width: var(--cell-size);
+  height: var(--cell-size);
+}
+
+.outline-container td {
+  width: var(--cell-size);
+  height: var(--cell-size);
+}
+
+.outline-grid div {
+  position: absolute;
+  background-color: black;
 }
 
 .animate {
@@ -260,8 +256,8 @@ table td {
 /* nodes */
 .node {
   position: absolute;
-  width: calc(var(--cell-width) / 3);
-  height: calc(var(--cell-width) / 3);
+  width: calc(var(--cell-size) / 3);
+  height: calc(var(--cell-size) / 3);
   font-size: 12px;
   background: #4da3ff;
   border-radius: 50%;
@@ -285,19 +281,19 @@ table td {
 
 /* animations */
 .move-left {
-  transform: translateX(calc(-1 * var(--cell-width)));
+  transform: translateX(calc(-1 * var(--cell-size)));
 }
 
 .move-right {
-  transform: translateX(var(--cell-width));
+  transform: translateX(var(--cell-size));
 }
 
 .move-down {
-  transform: translateY(var(--cell-width));
+  transform: translateY(var(--cell-size));
 }
 
 .move-up {
-  transform: translateY(calc(-1 * var(--cell-width)));
+  transform: translateY(calc(-1 * var(--cell-size)));
 }
 
 .red {
@@ -318,13 +314,6 @@ table td {
 
 .magenta {
   background-color: rgba(255, 0, 255, 0.3);
-}
-
-#target-outline-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 10px;
 }
 
 /*# sourceMappingURL=game.css.map */

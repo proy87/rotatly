@@ -42,7 +42,7 @@
     <i class="fa-brands fa-github"></i>
 </a>
 </div>
-    <div id="target-outline-container">
+    <div id="target-outline-container" class="flex-container">
         <div class="text-center fw-bold">Target outline</div>
         <div class="outline-container">
             {% include './includes/board.html' with board=outline is_outline=True %}
@@ -64,9 +64,11 @@
         </div>
     </div>
 
-    <div id="game-container">
-        {% include './includes/board.html' %}
-        {% include './includes/nodes.html' %}
+    <div class="flex-container">
+        <div id="game-container">
+            {% include './includes/board.html' %}
+            {% include './includes/nodes.html' %}
+        </div>
     </div>
     <div class="btn-container" style="margin-bottom: 10px;">
         <button id="undo-move" class="btn btn-primary" disabled>Undo</button>

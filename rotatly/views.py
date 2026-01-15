@@ -38,6 +38,8 @@ class GameView(TemplateView):
                              outline=outline_board,
                              disabled_nodes=game.disabled_nodes,
                              fixed_areas=game.fixed_areas)
+            if solution:
+                solution = ' '.join(f'{i}{(CW_SYMBOLS if v == 'CW' else CCW_SYMBOLS)[0]}' for i, v in solution)
             print(solution)
 
         bordered_board = init_borders(outline=outline_board, board=board)
@@ -123,14 +125,40 @@ class CreateView(TemplateView):
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         outlines = Outline.objects.all()
-        size = int(math.sqrt(len(outlines[0].board)))
+        size2 = len(outlines[0].board)
+        size = int(math.sqrt(size2))
         context_data.update(
             size=size,
             nodes=[[(e, dict()) for e in range(i, i + size - 1)] for i in range(1, (size - 1) ** 2, size - 1)],
-            outlines=[(outline.index, init_borders(outline.board)) for outline in outlines],
-            empty_outline=init_borders([0] * len(outlines[0].board)),
-            empty_board=init_borders([0] * len(outlines[0].board), [0] * len(outlines[0].board)),
-            names=[(i,Cell.names_dict[i], c) for i, c in Cell.colors_dict.items()],
+            empty_outline=init_borders([0] * size2),
+            empty_board=init_borders([0] * size2, [0] * size2),
+            names=[(i, Cell.names_dict[i], c) for i, c in Cell.colors_dict.items()],
+            tetraminoes=[dict(name='I',
+                              cells=[Cell(0, 0, True, dict(left=True, top=True, bottom=True)),
+                                     Cell(0, 1, True, dict(top=True, bottom=True)),
+                                     Cell(0, 2, True, dict(top=True, bottom=True)),
+                                     Cell(0, 3, True, dict(right=True, top=True, bottom=True))]),
+                         dict(name='L',
+                              cells=[Cell(0, 0, True, dict(left=True, top=True)),
+                                     Cell(0, 1, True, dict(top=True, bottom=True)),
+                                     Cell(0, 2, True, dict(top=True, bottom=True, right=True)),
+                                     Cell(1, 0, True, dict(right=True, left=True, bottom=True))]),
+                         dict(name='T',
+                              cells=[Cell(0, 0, True, dict(left=True, top=True, bottom=True)),
+                                     Cell(0, 1, True, dict(top=True)),
+                                     Cell(0, 2, True, dict(top=True, bottom=True, right=True)),
+                                     Cell(1, 1, True, dict(right=True, left=True, bottom=True))]),
+                         dict(name='S',
+                              cells=[Cell(0, 1, True, dict(left=True, top=True)),
+                                     Cell(0, 2, True, dict(top=True, right=True, bottom=True)),
+                                     Cell(1, 0, True, dict(top=True, bottom=True, left=True)),
+                                     Cell(1, 1, True, dict(right=True, bottom=True))]),
+                         dict(name='O',
+                              cells=[Cell(0, 0, True, dict(left=True, top=True)),
+                                     Cell(0, 1, True, dict(top=True, right=True)),
+                                     Cell(1, 0, True, dict(bottom=True, left=True)),
+                                     Cell(1, 1, True, dict(right=True, bottom=True))]),
+                         ]
         )
         return context_data
 

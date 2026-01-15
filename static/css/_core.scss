@@ -1,24 +1,16 @@
 :root {
-    --board-width: 309px;
-    --col-number: 4;
-    --scale: 1;
-}
-
-:root {
-    --cell-width: calc((var(--board-width) - 1px) / var(--col-number));
-    --outline-cell-width: 20px;
-    --outline-width: calc(var(--outline-cell-width) * var(--col-number) + 1px);
-    --outline-cell-width-2x: 40px;
-    --outline-width-2x: calc(var(--outline-cell-width-2x) * var(--col-number) + 1px);
+  --scale: 1;
+  --base-board-cell-size: 77px;
+  --base-outline-cell-size: 20px;
 }
 
 body {
-    background: #f4f6f8;
-    font-family: 'Segoe UI', sans-serif;
+  background: #f4f6f8;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 #content-container {
-    margin: 30px auto;
-    text-align: center;
-    max-width: 95%;
+  margin: 30px auto;
+  text-align: center;
+  max-width: 95%;
 }

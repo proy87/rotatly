@@ -7,34 +7,54 @@
     <link href="{% static "css/create.min.css" %}" rel="stylesheet">
 {% endblock %}
 {% block content %}
-    <div id="outlines" style="padding: 10px; text-align: center; max-height: 110px; overflow-y: scroll; max-width: 890px;margin:auto;">
-        {% for index, outline in outlines %}
-            <div class="outline-container table-card" data-index="{{ index }}">{% include './includes/board.html' with board=outline is_outline=True %}</div>
+    <div id="tetraminoes" class="flex-container">
+        {% for tetramino in tetraminoes %}
+            <div class="tetramino-container outline-container tet-{{ tetramino.name }}">
+                <div class="tetramino animate">
+                    {% for cell in tetramino.cells %}
+                        <div class="cell"></div>
+                    {% endfor %}
+                    <div class="outline-grid">
+                        {% for cell in tetramino.cells %}
+                            {% for v in cell.border_styles %}
+                                <div style="{{ v }}"></div>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         {% endfor %}
     </div>
-    <div id="outline">
-        <div class="outline-container double" style="--scale: 2;" data-index="0">{% include './includes/board.html' with board=empty_outline is_outline=True skip_grid=True %}</div>
+    <div id="outline" class="flex-container">
+        <div class="outline-container double"
+             data-index="0">{% include './includes/board.html' with board=empty_outline is_outline=True skip_grid=True %}</div>
     </div>
     <div id="outline-hidden">
-        <div class="outline-container" data-index="0">{% include './includes/board.html' with board=empty_outline is_outline=True skip_grid=True %}</div>
+        <div class="outline-container"
+             data-index="0">{% include './includes/board.html' with board=empty_outline is_outline=True skip_grid=True %}</div>
     </div>
     <div id="color-palette">
         {% for index, name, color_class in names %}
-            <div class="color-icon {{ color_class }}" data-class="{{ color_class }}" data-index="{{ index }}" data-name=""></div>
+            <div class="color-icon {{ color_class }}" data-class="{{ color_class }}" data-index="{{ index }}"
+                 data-name=""></div>
         {% endfor %}
     </div>
-    <div id="game-container" style="--scale: calc(var(--cell-width) / var(--outline-cell-width));">
-        {% include './includes/board.html' with board=empty_board is_outline=False skip_grid=True %}
-        {% include './includes/nodes.html' %}
+    <div class="flex-container">
+        <div id="game-container">
+            {% include './includes/board.html' with board=empty_board is_outline=False skip_grid=True %}
+            {% include './includes/nodes.html' %}
+        </div>
     </div>
 
     <div id="board-palette">
         {% for index, name, color_class in names %}
-            <div class="board-item {{ color_class }}" data-class="{{ color_class }}" data-index="{{ index }}" data-name="{{ name }}">{{ name }}</div>
+            <div class="board-item {{ color_class }}" data-class="{{ color_class }}" data-index="{{ index }}"
+                 data-name="{{ name }}">{{ name }}</div>
         {% endfor %}
     </div>
 {% endblock %}
 {% block js %}
+    <script src="https://unpkg.com/interactjs/dist/interact.min.js"></script>
     <script src="{% static 'js/create.min.js' %}"></script>
 {% endblock %}
 
