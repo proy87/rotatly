@@ -180,10 +180,11 @@ document.querySelectorAll('.tetramino').forEach((t)->
 outline_table = document.querySelector('#outline table')
 snap_targets = (index) ->
   inner = (x, y, interaction) ->
-    console.log(x,y)
     el = interaction.element
+    console.log(x - el.style.left,y- el.style.top)
     cell_size = el.querySelector('.cell').getBoundingClientRect().width
     tableRect = outline_table.getBoundingClientRect()
+    console.log(tableRect)
     offsetY  = window.pageYOffset or document.documentElement.scrollTop
     offsetX = window.pageXOffset or document.documentElement.scrollLeft
     points  = []
@@ -210,11 +211,11 @@ interact('.tetramino').draggable(
     el.dataset.y = y
   onend: (evt)->
     el = evt.target
-    #el.style.transform = "rotate(var(--rotation, 0))"
-    #el.removeAttribute('data-x')
-    #el.removeAttribute('data-y')
+    el.style.transform = "rotate(var(--rotation, 0))"
+    el.removeAttribute('data-x')
+    el.removeAttribute('data-y')
     el.offsetHeight
-    #el.classList.add('animate')
+    el.classList.add('animate')
     active_item_clone.remove()
     active_item_clone = null
   modifiers:[
@@ -231,9 +232,9 @@ interact('#outline table').dropzone(
     accept: '.tetramino'
     overlap: 0.8,
     ondrop: (evt) ->
-      #tetramino = evt.relatedTarget
-      #cell = evt.target
-      #cell.parentNode.querySelector('.outline-grid').innerHTML = tetramino.querySelector('.outline-grid').innerHTML
-      #console.log(cell.getBoundingClientRect())
-      #console.log(tetramino.getBoundingClientRect())
+      tetramino = evt.relatedTarget
+      cell = evt.target
+      cell.parentNode.querySelector('.outline-grid').innerHTML = tetramino.querySelector('.outline-grid').innerHTML
+      console.log(cell.getBoundingClientRect())
+      console.log(tetramino.getBoundingClientRect())
 )

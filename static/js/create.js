@@ -241,10 +241,11 @@
     var inner;
     inner = function(x, y, interaction) {
       var cell_size, el, i, j, l, m, offsetX, offsetY, points, ref1, ref2, tableRect;
-      console.log(x, y);
       el = interaction.element;
+      console.log(x - el.style.left, y - el.style.top);
       cell_size = el.querySelector('.cell').getBoundingClientRect().width;
       tableRect = outline_table.getBoundingClientRect();
+      console.log(tableRect);
       offsetY = window.pageYOffset || document.documentElement.scrollTop;
       offsetX = window.pageXOffset || document.documentElement.scrollLeft;
       points = [];
@@ -281,11 +282,11 @@
     onend: function(evt) {
       var el;
       el = evt.target;
-      //el.style.transform = "rotate(var(--rotation, 0))"
-      //el.removeAttribute('data-x')
-      //el.removeAttribute('data-y')
+      el.style.transform = "rotate(var(--rotation, 0))";
+      el.removeAttribute('data-x');
+      el.removeAttribute('data-y');
       el.offsetHeight;
-      //el.classList.add('animate')
+      el.classList.add('animate');
       active_item_clone.remove();
       return active_item_clone = null;
     },
@@ -316,14 +317,15 @@
   interact('#outline table').dropzone({
     accept: '.tetramino',
     overlap: 0.8,
-    ondrop: function(evt) {}
+    ondrop: function(evt) {
+      var cell, tetramino;
+      tetramino = evt.relatedTarget;
+      cell = evt.target;
+      cell.parentNode.querySelector('.outline-grid').innerHTML = tetramino.querySelector('.outline-grid').innerHTML;
+      console.log(cell.getBoundingClientRect());
+      return console.log(tetramino.getBoundingClientRect());
+    }
   });
-
-  //tetramino = evt.relatedTarget
-//cell = evt.target
-//cell.parentNode.querySelector('.outline-grid').innerHTML = tetramino.querySelector('.outline-grid').innerHTML
-//console.log(cell.getBoundingClientRect())
-//console.log(tetramino.getBoundingClientRect())
 
 }).call(this);
 
