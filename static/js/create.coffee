@@ -1,41 +1,8 @@
-selected_outline = null
 selected = {color_icon: null, board_item: null}
-outlines_dom = [...document.querySelectorAll('#outlines > .outline-container')]
-outline_dom = document.querySelector('#outline > .outline-container')
 game_dom = document.querySelector('#game-container')
-outline_hidden_dom = document.querySelector('#outline-hidden > .outline-container')
 
 color_palette_dom = document.getElementById("color-palette")
 board_palette_dom = document.getElementById("board-palette")
-
-copy_outline = (src, target, erase_data = false)->
-  target.setAttribute('data-index', src.getAttribute('data-index'))
-  src_table = src.querySelector('table')
-  target_table = target.querySelector('table')
-  for i in [0...src_table.rows.length]
-    for j in [0...src_table.rows[0].cells.length]
-      target_cell = target_table.rows[i].cells[j]
-      src_cell = src_table.rows[i].cells[j]
-      target_cell.setAttribute('data-value', src_cell.getAttribute('data-value'))
-      if erase_data
-        remove_data(target_cell, color_palette_dom, 'color-icon', 'color_icon')
-  target.querySelector('.outline-grid').innerHTML = src.querySelector('.outline-grid').innerHTML
-
-outlines_dom.forEach((outline)->
-  outline.addEventListener('click', ->
-    if selected_outline
-      selected_outline.classList.remove('selected')
-      if selected_outline == this
-        copy_outline(outline_hidden_dom, outline_dom, true)
-        copy_outline(outline_hidden_dom, game_dom)
-        selected_outline = null
-        return
-    this.classList.add('selected')
-    selected_outline = this
-    copy_outline(selected_outline, outline_dom, true)
-    copy_outline(selected_outline, game_dom)
-  )
-)
 
 item_click_handler = (property) ->
   if selected[property]
@@ -47,73 +14,56 @@ item_click_handler = (property) ->
   selected[property] = this
 
 
-remove_data = (cell, palette, icon_class, key)->
-  color_class = cell.getAttribute('data-class')
+remove_data = (el, palette)->
+  color_class = el.getAttribute('data-class')
   if color_class
-    cell.classList.remove(color_class)
+    el.classList.remove(color_class)
     palette.querySelector(".#{color_class}").style.display = 'flex'
-  cell.removeAttribute('data-class')
-  cell.removeAttribute('data-index')
-  cell.removeAttribute('data-name')
-  span = cell.querySelector('span')
+  el.removeAttribute('data-class')
+  el.removeAttribute('data-index')
+  el.removeAttribute('data-name')
+  span = el.querySelector('span')
   if span
     span.innerHTML = ''
 
-set_data = (cell, klass, index, name)->
-  cell_color_class = cell.getAttribute('data-class')
+set_data = (el, klass, index, name)->
+  cell_color_class = el.getAttribute('data-class')
   if cell_color_class
-    cell.classList.remove(cell_color_class)
-  cell.classList.add(klass)
-  cell.setAttribute('data-class', klass)
-  cell.setAttribute('data-index', index)
-  cell.setAttribute('data-name', name)
+    el.classList.remove(cell_color_class)
+  el.classList.add(klass)
+  el.setAttribute('data-class', klass)
+  el.setAttribute('data-index', index)
+  el.setAttribute('data-name', name)
   if name
-    cell.querySelector('span').innerHTML = name
+    el.querySelector('span').innerHTML = name
 
-
-init_handlers = (key, icon_class, dom, palette_dom)->
-  if key == 'color_icon'
-    for item in palette_dom.getElementsByClassName(icon_class)
-      item.addEventListener('click', ->
-        item_click_handler.call(this, key)
-      )
-  dom.querySelectorAll('td').forEach((cell) ->
-    cell.addEventListener("click", ->
-      value = cell.getAttribute('data-value')
-      selected_value = selected[key]
-      if selected_value
-        cell_color_class = cell.getAttribute('data-class')
-        if cell_color_class
-          palette_dom.querySelector(".#{cell_color_class}").style.display = 'flex'
-        klass = selected_value.getAttribute('data-class')
-        index = selected_value.getAttribute('data-index')
-        name = selected_value.getAttribute('data-name')
-        if key == 'color_icon'
-          dom.querySelectorAll("td[data-value='#{value}']").forEach((c)->
-            set_data(c, klass, index, name)
-          )
-        else
-          set_data(cell, klass, index, name)
-
-        selected_value.classList.remove('selected')
-        if dom.querySelectorAll(".#{klass}").length >= 4
-          selected_value.style.display = 'none'
-        selected[key] = null
-      else
-        cell_color_class = cell.getAttribute('data-class')
-        if cell_color_class
-          if key == 'color_icon'
-            dom.querySelectorAll("td[data-value='#{value}']").forEach((c)->
-              remove_data(c, palette_dom, icon_class, key)
-            )
-          else
-            remove_data(cell, palette_dom, icon_class, key)
-    )
+for item in color_palette_dom.getElementsByClassName('color-icon')
+  item.addEventListener('click', ->
+    item_click_handler.call(this, 'color_icon')
   )
 
-for [key, icon_class, dom, palette_dom] in [['color_icon', 'color-icon', outline_dom, color_palette_dom],
-  ['board_item', 'board-item', game_dom, board_palette_dom]]
-  init_handlers(key, icon_class, dom, palette_dom)
+game_dom.querySelectorAll('td').forEach((cell) ->
+  cell.addEventListener("click", ->
+    selected_value = selected['board_item']
+    if selected_value
+      cell_color_class = cell.getAttribute('data-class')
+      if cell_color_class
+        board_palette_dom.querySelector(".#{cell_color_class}").style.display = 'flex'
+      klass = selected_value.getAttribute('data-class')
+      index = selected_value.getAttribute('data-index')
+      name = selected_value.getAttribute('data-name')
+      set_data(cell, klass, index, name)
+
+      selected_value.classList.remove('selected')
+      if game_dom.querySelectorAll(".#{klass}").length >= 4
+        selected_value.style.display = 'none'
+      selected['board_item'] = null
+    else
+      cell_color_class = cell.getAttribute('data-class')
+      if cell_color_class
+        remove_data(cell, board_palette_dom)
+  )
+  )
 
 document.querySelectorAll('.node').forEach((node)->
   node.addEventListener('click', ->
@@ -121,12 +71,14 @@ document.querySelectorAll('.node').forEach((node)->
   )
 )
 
-create_clone = (source)->
+create_clone = (source, click_listener = null)->
   clone = source.cloneNode(true)
   clone.style.position = 'absolute'
   clone.style.left = source.offsetLeft + 'px'
   clone.style.top = source.offsetTop + 'px'
-  source.before(clone)
+  if click_listener
+    clone.addEventListener('click', click_listener)
+  source.after(clone)
   return clone
 
 active_item_clone = null
@@ -135,6 +87,7 @@ interact('.board-item').draggable(
     active_item_clone = create_clone(evt.target)
   onmove: (evt)->
     el = evt.target
+
     x = (parseFloat(el.dataset.x) || 0) + evt.dx
     y = (parseFloat(el.dataset.y) || 0) + evt.dy
     el.style.transform = "translate(#{x}px, #{y}px)"
@@ -166,42 +119,225 @@ interact('#game-container td').dropzone(
       selected_value.style.display = 'none'
 )
 
+tetramino_click_handler = ->
+  if this.dataset.isDragging == 'true'
+    this.dataset.isDragging = false
+  else
+    angle = parseInt(this.dataset.rotationAngle)
+    if angle >= 270
+      this.classList.remove('animate')
+      angle -= 360
+      this.style.setProperty('--rotation', "#{angle}deg")
+      this.offsetHeight
+      this.classList.add('animate')
+
+    this.dataset.rotationAngle = angle + 90
+    this.style.setProperty('--rotation', "#{this.dataset.rotationAngle}deg")
+
+tetramino_color_click_handler = ->
+  if this.dataset.isDragging == 'true'
+    this.dataset.isDragging = false
+  else
+    color_class = this.querySelector('.cell').getAttribute('data-class')
+    if color_class
+      this.querySelectorAll('.cell').forEach((c)->
+        remove_data(c, color_palette_dom)
+      )
+      color_palette_dom.querySelector("[data-class='#{color_class}']").style.display = 'inline-block'
+    icon = selected['color_icon']
+    if icon
+      klass = icon.getAttribute('data-class')
+      index = icon.getAttribute('data-index')
+      name = icon.getAttribute('data-name')
+      this.querySelectorAll('.cell').forEach((c)->
+        set_data(c, klass, index, name)
+      )
+      icon.classList.remove('selected')
+      icon.style.display = 'none'
+      selected['color_icon'] = null
+
 document.querySelectorAll('.tetramino').forEach((t)->
   if not t.parentNode.classList.contains('tet-O')
     t.dataset.rotationAngle = 0
-    t.addEventListener('click', ->
-      if t.dataset.isDragging == 'true'
-        t.dataset.isDragging = false
-      else
-        t.dataset.rotationAngle = parseInt(t.dataset.rotationAngle) + 90
-        t.style.setProperty('--rotation', "#{t.dataset.rotationAngle}deg")
-    )
+    t.addEventListener('click', tetramino_click_handler)
 )
+
 outline_table = document.querySelector('#outline table')
+N = outline_table.rows.length
+M = outline_table.rows[0].cells.length
+
+get_tetramino_data = (el)->
+  cell_size = el.querySelector('.cell').getBoundingClientRect().width
+  range = cell_size / 2
+  rotation_angle = (parseInt(el.dataset.rotationAngle) or 0) % 360
+
+  [row_array, col_array] = [null, null]
+  if el.parentNode.classList.contains('tet-O')
+    [row_array, col_array] = [[0...N - 1], [0...M - 1]]
+  else if el.parentNode.classList.contains('tet-I')
+    if rotation_angle == 0
+      [row_array, col_array] = [[0...N], [0...1]]
+    else if rotation_angle == 90
+      [row_array, col_array] = [[0...1], [0...M]]
+    else if rotation_angle == 180
+      [row_array, col_array] = [[0...N], [0...1]]
+    else if rotation_angle == 270
+      [row_array, col_array] = [[0...1], [0...M]]
+  else if el.parentNode.classList.contains('tet-T')
+    if rotation_angle == 0
+      [row_array, col_array] = [[0...N - 1], [0...M - 2]]
+    else if rotation_angle == 90
+      [row_array, col_array] = [[0...N - 2], [0...M - 1]]
+    else if rotation_angle == 180
+      [row_array, col_array] = [[0...N - 1], [0...M - 2]]
+    else if rotation_angle == 270
+      [row_array, col_array] = [[0...N - 2], [0...M - 1]]
+  else if el.parentNode.classList.contains('tet-L')
+    if rotation_angle == 0
+      [row_array, col_array] = [[0...N - 1], [0...M - 2]]
+    else if rotation_angle == 90
+      [row_array, col_array] = [[0...N - 2], [0...M - 1]]
+    else if rotation_angle == 180
+      [row_array, col_array] = [[0...N - 1], [0...M - 2]]
+    else if rotation_angle == 270
+      [row_array, col_array] = [[0...N - 2], [0...M - 1]]
+  else if el.parentNode.classList.contains('tet-J')
+    if rotation_angle == 0
+      [row_array, col_array] = [[0...N - 1], [0...M - 2]]
+    else if rotation_angle == 90
+      [row_array, col_array] = [[0...N - 2], [0...M - 1]]
+    else if rotation_angle == 180
+      [row_array, col_array] = [[0...N - 1], [0...M - 2]]
+    else if rotation_angle == 270
+      [row_array, col_array] = [[0...N - 2], [0...M - 1]]
+  else if el.parentNode.classList.contains('tet-S')
+    if rotation_angle == 0
+      [row_array, col_array] = [[0...N - 1], [0...M - 2]]
+    else if rotation_angle == 90
+      [row_array, col_array] = [[0...N - 2], [0...M - 1]]
+    else if rotation_angle == 180
+      [row_array, col_array] = [[0...N - 1], [0...M - 2]]
+    else if rotation_angle == 270
+      [row_array, col_array] = [[0...N - 2], [0...M - 1]]
+  else if el.parentNode.classList.contains('tet-Z')
+    if rotation_angle == 0
+      [row_array, col_array] = [[0...N - 1], [0...M - 2]]
+    else if rotation_angle == 90
+      [row_array, col_array] = [[0...N - 2], [0...M - 1]]
+    else if rotation_angle == 180
+      [row_array, col_array] = [[0...N - 1], [0...M - 2]]
+    else if rotation_angle == 270
+      [row_array, col_array] = [[0...N - 2], [0...M - 1]]
+
+  return {
+    row_array: row_array,
+    col_array: col_array,
+    cell_size: cell_size,
+    range: range
+  }
+
+
+get_tetramino_indices = (el, row, col)->
+  rotation_angle = (parseInt(el.dataset.rotationAngle) or 0) % 360
+  cells = []
+  if el.parentNode.classList.contains('tet-O')
+    cells = [[row, col], [row, col + 1], [row + 1, col], [row + 1, col + 1]]
+  else if el.parentNode.classList.contains('tet-I')
+    if rotation_angle == 0
+      cells = [[row, col], [row, col + 1], [row, col + 2], [row, col + 3]]
+    else if rotation_angle == 90
+      cells = [[row, col], [row + 1, col], [row + 2, col], [row + 3, col]]
+    else if rotation_angle == 180
+      cells = [[row, col], [row, col + 1], [row, col + 2], [row, col + 3]]
+    else if rotation_angle == 270
+      cells = [[row, col], [row + 1, col], [row + 2, col], [row + 3, col]]
+  else if el.parentNode.classList.contains('tet-T')
+    if rotation_angle == 0
+      cells = [[row, col], [row, col + 1], [row, col + 2], [row + 1, col + 1]]
+    else if rotation_angle == 90
+      cells = [[row, col + 1], [row + 1, col], [row + 1, col + 1], [row + 2, col + 1]]
+    else if rotation_angle == 180
+      cells = [[row, col + 1], [row + 1, col], [row + 1, col + 1], [row + 1, col + 2]]
+    else if rotation_angle == 270
+      cells = [[row, col], [row + 1, col], [row + 1, col + 1], [row + 2, col]]
+  else if el.parentNode.classList.contains('tet-L')
+    if rotation_angle == 0
+      cells = [[row, col], [row, col + 1], [row, col + 2], [row + 1, col]]
+    else if rotation_angle == 90
+      cells = [[row, col], [row, col + 1], [row + 1, col + 1], [row + 2, col + 1]]
+    else if rotation_angle == 180
+      cells = [[row, col + 2], [row + 1, col], [row + 1, col + 1], [row + 1, col + 2]]
+    else if rotation_angle == 270
+      cells = [[row, col], [row + 1, col], [row + 2, col], [row + 2, col + 1]]
+  else if el.parentNode.classList.contains('tet-J')
+    if rotation_angle == 0
+      cells = [[row, col], [row, col + 1], [row, col + 2], [row + 1, col + 2]]
+    else if rotation_angle == 90
+      cells = [[row + 2, col], [row, col + 1], [row + 1, col + 1], [row + 2, col + 1]]
+    else if rotation_angle == 180
+      cells = [[row, col], [row + 1, col], [row + 1, col + 1], [row + 1, col + 2]]
+    else if rotation_angle == 270
+      cells = [[row, col], [row, col + 1], [row + 1, col], [row + 2, col]]
+  else if el.parentNode.classList.contains('tet-S')
+    if rotation_angle == 0
+      cells = [[row, col + 1], [row, col + 2], [row + 1, col], [row + 1, col + 1]]
+    else if rotation_angle == 90
+      cells = [[row, col], [row + 1, col], [row + 1, col + 1], [row + 2, col + 1]]
+    else if rotation_angle == 180
+      cells = [[row, col + 1], [row, col + 2], [row + 1, col], [row + 1, col + 1]]
+    else if rotation_angle == 270
+      cells = [[row, col], [row + 1, col], [row + 1, col + 1], [row + 2, col + 1]]
+  else if el.parentNode.classList.contains('tet-Z')
+    if rotation_angle == 0
+      cells = [[row, col], [row, col + 1], [row + 1, col + 1], [row + 1, col + 2]]
+    else if rotation_angle == 90
+      cells = [[row, col + 1], [row + 1, col], [row + 1, col + 1], [row + 2, col]]
+    else if rotation_angle == 180
+      cells = [[row, col], [row, col + 1], [row + 1, col + 1], [row + 1, col + 2]]
+    else if rotation_angle == 270
+      cells = [[row, col + 1], [row + 1, col], [row + 1, col + 1], [row + 2, col]]
+
+  return cells
+
 snap_targets = (index) ->
   inner = (x, y, interaction) ->
+    table_rect = outline_table.getBoundingClientRect()
+    offset_y = window.pageYOffset or document.documentElement.scrollTop
+    offset_x = window.pageXOffset or document.documentElement.scrollLeft
+
+    table_top = table_rect.top + offset_y
+    table_left = table_rect.left + offset_x
+
     el = interaction.element
-    console.log(x - el.style.left,y- el.style.top)
-    cell_size = el.querySelector('.cell').getBoundingClientRect().width
-    tableRect = outline_table.getBoundingClientRect()
-    console.log(tableRect)
-    offsetY  = window.pageYOffset or document.documentElement.scrollTop
-    offsetX = window.pageXOffset or document.documentElement.scrollLeft
-    points  = []
-    for i in [0...outline_table.rows.length - 1]
-      for j in [0...outline_table.rows[0].cells.length - 1]
-        points.push(
-          x: tableRect.left + offsetX + (j + 1) * cell_size,
-          y: tableRect.top + offsetY + (i + 1) * cell_size
-        )
-    return points[index]
+    data = get_tetramino_data(el)
+    idx = 0
+    for i in data.row_array
+      for j in data.col_array
+        if index == idx
+          for [r, c] in get_tetramino_indices(el, i, j)
+            if outline_table.rows[r].cells[c].getAttribute('data-number')
+              return {x:Infinity, y: Infinity, range: data.range}
+          return{
+            x: table_left + j * data.cell_size,
+            y: table_top + i * data.cell_size,
+            range: data.range
+          }
+        idx += 1
+
   return inner
 interact('.tetramino').draggable(
   onstart: (evt)->
     el = evt.target
+    if not el.classList.contains('placed')
+      create_clone(el, tetramino_click_handler)
     el.classList.remove('animate')
+    el.style.setProperty('z-index', 10000)
     el.dataset.isDragging = true
-    active_item_clone = create_clone(el)
+    number =el.getAttribute('data-number')
+    if number
+      outline_table.querySelectorAll("[data-number='#{number}']").forEach((e)->
+        e.removeAttribute('data-number')
+      )
   onmove: (evt)->
     el = evt.target
     x = (parseFloat(el.dataset.x) or 0) + evt.dx
@@ -211,30 +347,41 @@ interact('.tetramino').draggable(
     el.dataset.y = y
   onend: (evt)->
     el = evt.target
-    el.style.transform = "rotate(var(--rotation, 0))"
-    el.removeAttribute('data-x')
-    el.removeAttribute('data-y')
-    el.offsetHeight
-    el.classList.add('animate')
-    active_item_clone.remove()
-    active_item_clone = null
-  modifiers:[
+    snap = evt.modifiers[0]
+    snapped = snap.inRange
+    if snapped
+      el.classList.add('placed')
+      el.style.removeProperty('z-index')
+      el.removeEventListener('click', tetramino_click_handler)
+      el.addEventListener('click', tetramino_color_click_handler)
+      data = get_tetramino_data(el)
+      row = Math.floor(snap.target.index / data.col_array.length)
+      col = snap.target.index % data.col_array.length
+      num = Math.random()
+      for [r, c] in get_tetramino_indices(el, row, col)
+        outline_table.rows[r].cells[c].setAttribute('data-number', num)
+        el.setAttribute('data-number', num)
+    else
+      outline_table.querySelectorAll("[data-number='#{el.getAttribute('data-number')}']").forEach((e)->
+        e.removeAttribute('data-number')
+      )
+      color_class = el.querySelector('.cell').getAttribute('data-class')
+      if color_class
+        el.querySelectorAll('.cell').forEach((c)->
+          remove_data(c, color_palette_dom)
+        )
+        color_palette_dom.querySelector("[data-class='#{color_class}']").style.display = 'inline-block'
+      el.remove()
+
+  modifiers: [
     interact.modifiers.snap(
-      targets: (snap_targets(i) for i in [0...9] if snap_targets(i))
-      range: 20
-      relativePoints: [{ x: 0.5, y: 0.5 }]
+      targets: (snap_targets(i) for i in [0...9])
+      relativePoints: [{x: 0, y: 0}]
     )
   ]
-
 ).styleCursor(false)
 
 interact('#outline table').dropzone(
-    accept: '.tetramino'
-    overlap: 0.8,
-    ondrop: (evt) ->
-      tetramino = evt.relatedTarget
-      cell = evt.target
-      cell.parentNode.querySelector('.outline-grid').innerHTML = tetramino.querySelector('.outline-grid').innerHTML
-      console.log(cell.getBoundingClientRect())
-      console.log(tetramino.getBoundingClientRect())
+  accept: '.tetramino'
+  overlap: 0.8,
 )

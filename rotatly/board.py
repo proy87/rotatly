@@ -18,7 +18,7 @@ class Cell:
             self.display_name = self.names_dict[-name if name < 0 else name]
         self.border_dict = border_dict
         self.cell_size = f'var(--cell-size)'
-        self.thickness = 'var(--grid-thickness)'
+        self.thickness = 'round(down, var(--grid-thickness), 2px)'
         self.for_outline = for_outline
 
     @property
@@ -33,8 +33,8 @@ class Cell:
     def border_styles(self) -> Sequence[str]:
         increment = f'{self.thickness} / 2'
         length = f'{self.cell_size} + {self.thickness}'
-        offset_y = f'{self.cell_size} * var(--row, {self.row}) - {increment}'
-        offset_x = f'{self.cell_size} * var(--col, {self.col}) - {increment}'
+        offset_y = f'{self.cell_size} * {self.row} - {increment}'
+        offset_x = f'{self.cell_size} * {self.col} - {increment}'
         lst = []
         if self.border_dict.get('left'):
             lst.append(dict(width=self.thickness,

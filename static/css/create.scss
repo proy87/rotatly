@@ -2,22 +2,20 @@
   display: grid;
   grid-template-columns: repeat(2, max-content);
   justify-content: center;
-  gap: 1px;
+  gap: 15px 1px;
   margin-bottom: 15px;
   --scale: 2;
 }
 
 #tetraminoes .cell {
-  border: 1px solid #ccc;
+  outline: 1px solid #ccc;
   background-color: white;
   width: var(--cell-size);
   height: var(--cell-size);
   position: absolute;
-
 }
 
 .tetramino-container {
-  position: relative;
   width: calc(4 * var(--cell-size));
   height: calc(4 * var(--cell-size));
 }
@@ -36,7 +34,7 @@
   justify-self: center;
 }
 
-.tet-T, .tet-S {
+.tet-L, .tet-J, .tet-Z, .tet-S {
   width: calc(3 * var(--cell-size));
   height: calc(3 * var(--cell-size));
 }
@@ -47,22 +45,29 @@
 }
 
 .tet-I .tetramino {
+  width: calc(4 * var(--cell-size));
+  height: var(--cell-size);
   top: calc(3 * var(--cell-size) / 2);
   transform-origin: calc(2 * var(--cell-size)) calc(1 * var(--cell-size) / 2);
 }
 
-.tet-L .tetramino {
-  left: calc(var(--cell-size) / 2);
-  top: calc(3 * var(--cell-size) / 2);
+.tet-T .tetramino, .tet-L .tetramino, .tet-J .tetramino, .tet-S .tetramino, .tet-Z .tetramino {
+  width: calc(3 * var(--cell-size));
+  height: calc(2 * var(--cell-size));
+}
+
+.tet-L .tetramino, .tet-J .tetramino {
+  top: var(--cell-size);
   transform-origin: calc(3 * var(--cell-size) / 2) calc(var(--cell-size));
 }
 
 .tet-T .tetramino {
-  top: calc(var(--cell-size) / 2);
+  top: calc(3 * var(--cell-size) / 2);
+  left: calc(var(--cell-size) / 2);
   transform-origin: calc(3 * var(--cell-size) / 2) calc(var(--cell-size));
 }
 
-.tet-S .tetramino {
+.tet-S .tetramino, .tet-Z .tetramino {
   top: calc(var(--cell-size) / 2);
   transform-origin: calc(3 * var(--cell-size) / 2) calc(var(--cell-size));
 }
@@ -79,6 +84,19 @@
   left: calc(3 * var(--cell-size));
 }
 
+.tet-T .cell:nth-child(2) {
+  left: var(--cell-size);
+}
+
+.tet-T .cell:nth-child(3) {
+  left: calc(2 * var(--cell-size));
+}
+
+.tet-T .cell:nth-child(4) {
+  top: var(--cell-size);
+  left: var(--cell-size);
+}
+
 .tet-L .cell:nth-child(2) {
   left: var(--cell-size);
 }
@@ -91,17 +109,17 @@
   top: var(--cell-size);
 }
 
-.tet-T .cell:nth-child(2) {
+.tet-J .cell:nth-child(2) {
   left: var(--cell-size);
 }
 
-.tet-T .cell:nth-child(3) {
+.tet-J .cell:nth-child(3) {
   left: calc(2 * var(--cell-size));
 }
 
-.tet-T .cell:nth-child(4) {
+.tet-J .cell:nth-child(4) {
   top: var(--cell-size);
-  left: var(--cell-size);
+  left: calc(2 * var(--cell-size));
 }
 
 .tet-S .cell:nth-child(1) {
@@ -119,6 +137,20 @@
 .tet-S .cell:nth-child(4) {
   top: var(--cell-size);
   left: var(--cell-size);
+}
+
+.tet-Z .cell:nth-child(2) {
+  left: var(--cell-size);
+}
+
+.tet-Z .cell:nth-child(3) {
+  top: var(--cell-size);
+  left: var(--cell-size);
+}
+
+.tet-Z .cell:nth-child(4) {
+  top: var(--cell-size);
+  left: calc(2 * var(--cell-size));
 }
 
 .tet-O .cell:nth-child(2) {

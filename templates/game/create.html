@@ -26,12 +26,9 @@
         {% endfor %}
     </div>
     <div id="outline" class="flex-container">
-        <div class="outline-container double"
-             data-index="0">{% include './includes/board.html' with board=empty_outline is_outline=True skip_grid=True %}</div>
-    </div>
-    <div id="outline-hidden">
-        <div class="outline-container"
-             data-index="0">{% include './includes/board.html' with board=empty_outline is_outline=True skip_grid=True %}</div>
+        <div class="outline-container double">
+            {% include './includes/board.html' with board=empty_outline is_outline=True skip_grid=True %}
+        </div>
     </div>
     <div id="color-palette">
         {% for index, name, color_class in names %}
@@ -54,7 +51,7 @@
     </div>
 {% endblock %}
 {% block js %}
-    <script src="https://unpkg.com/interactjs/dist/interact.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <script src="{% static 'js/create.min.js' %}"></script>
 {% endblock %}
 
