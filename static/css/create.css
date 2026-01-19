@@ -27,6 +27,19 @@
   width: 100%;
   height: 100%;
   cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  touch-action: none;
+}
+
+.tetramino.snapped {
+  pointer-events: none;
+}
+
+.tetramino.snapped * {
+  pointer-events: auto;
 }
 
 .tetramino-container:last-child:nth-child(odd) {
@@ -34,40 +47,40 @@
   justify-self: center;
 }
 
-.tet-L, .tet-J, .tet-Z, .tet-S {
+#tet-L, #tet-J, #tet-Z, #tet-S {
   width: calc(3 * var(--cell-size));
   height: calc(3 * var(--cell-size));
 }
 
-.tet-O {
+#tet-O {
   width: calc(2 * var(--cell-size));
   height: calc(2 * var(--cell-size));
 }
 
-.tet-I .tetramino {
+.tet-I.tetramino {
   width: calc(4 * var(--cell-size));
   height: var(--cell-size);
   top: calc(3 * var(--cell-size) / 2);
   transform-origin: calc(2 * var(--cell-size)) calc(1 * var(--cell-size) / 2);
 }
 
-.tet-T .tetramino, .tet-L .tetramino, .tet-J .tetramino, .tet-S .tetramino, .tet-Z .tetramino {
+.tet-T.tetramino, .tet-L.tetramino, .tet-J.tetramino, .tet-S.tetramino, .tet-Z.tetramino {
   width: calc(3 * var(--cell-size));
   height: calc(2 * var(--cell-size));
 }
 
-.tet-L .tetramino, .tet-J .tetramino {
+.tet-L.tetramino, .tet-J.tetramino {
   top: var(--cell-size);
   transform-origin: calc(3 * var(--cell-size) / 2) calc(var(--cell-size));
 }
 
-.tet-T .tetramino {
+.tet-T.tetramino {
   top: calc(3 * var(--cell-size) / 2);
   left: calc(var(--cell-size) / 2);
   transform-origin: calc(3 * var(--cell-size) / 2) calc(var(--cell-size));
 }
 
-.tet-S .tetramino, .tet-Z .tetramino {
+.tet-S.tetramino, .tet-Z.tetramino {
   top: calc(var(--cell-size) / 2);
   transform-origin: calc(3 * var(--cell-size) / 2) calc(var(--cell-size));
 }

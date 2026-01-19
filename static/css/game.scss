@@ -36,7 +36,7 @@ table td {
   margin: 10px auto 10px auto;
 }
 
-#game-container{
+#game-container {
   --cell-size: calc(var(--scale) * var(--base-board-cell-size));
   --grid-thickness: calc(var(--cell-size) / 12);
 }
@@ -57,9 +57,12 @@ table td {
   height: var(--cell-size);
 }
 
-.outline-grid div{
-  position:absolute;
-  background-color:black;
+.outline-grid div {
+  position: absolute;
+}
+
+.outline-grid div:not(.grid-item-container) {
+  background-color: black;
 }
 
 .animate {
@@ -114,23 +117,23 @@ table td {
 }
 
 .red {
-  background-color: rgba(255, 0, 0, 0.3)!important;
+  background-color: rgba(255, 0, 0, 0.3) !important;
 }
 
 .green {
-  background-color: rgba(0, 255, 0, 0.3)!important;
+  background-color: rgba(0, 255, 0, 0.3) !important;
 }
 
 .blue {
-  background-color: rgba(0, 0, 255, 0.3)!important;
+  background-color: rgba(0, 0, 255, 0.3) !important;
 }
 
 .purple {
-  background-color: rgba(128, 0, 128, 0.3)!important;
+  background-color: rgba(128, 0, 128, 0.3) !important;
 }
 
 .magenta {
-  background-color: rgba(255, 0, 255, 0.3)!important;
+  background-color: rgba(255, 0, 255, 0.3) !important;
 }
 
 

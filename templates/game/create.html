@@ -9,8 +9,8 @@
 {% block content %}
     <div id="tetraminoes" class="flex-container">
         {% for tetramino in tetraminoes %}
-            <div class="tetramino-container outline-container tet-{{ tetramino.name }}">
-                <div class="tetramino animate">
+            <div class="tetramino-container outline-container" id="tet-{{ tetramino.name }}">
+                <div class="tetramino animate tet-{{ tetramino.name }}">
                     {% for cell in tetramino.cells %}
                         <div class="cell"></div>
                     {% endfor %}
@@ -32,8 +32,7 @@
     </div>
     <div id="color-palette">
         {% for index, name, color_class in names %}
-            <div class="color-icon {{ color_class }}" data-class="{{ color_class }}" data-index="{{ index }}"
-                 data-name=""></div>
+            <div class="color-icon {{ color_class }}" data-class="{{ color_class }}" data-name=""></div>
         {% endfor %}
     </div>
     <div class="flex-container">
@@ -45,13 +44,13 @@
 
     <div id="board-palette">
         {% for index, name, color_class in names %}
-            <div class="board-item {{ color_class }}" data-class="{{ color_class }}" data-index="{{ index }}"
-                 data-name="{{ name }}">{{ name }}</div>
+            <div class="board-item {{ color_class }}" data-class="{{ color_class }}" data-name="{{ name }}">{{ name }}</div>
         {% endfor %}
     </div>
 {% endblock %}
 {% block js %}
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script src="{% static 'js/core.min.js' %}"></script>
     <script src="{% static 'js/create.min.js' %}"></script>
 {% endblock %}
 

@@ -39,23 +39,6 @@ hold_duration = 500
 is_sliding = false
 slided_cells = []
 
-hide_element = (el)->
-  display = window.getComputedStyle(el, null).display
-  if display != 'none'
-    el.setAttribute('data-display', display)
-  el.style.display = 'none'
-
-show_element = (el)->
-  display = window.getComputedStyle(el, null).display
-  if display == 'none'
-    el.style.display = el.getAttribute('data-display') or 'block'
-
-get_request = (url, data)->
-  params = []
-  for k, v of data
-    params.push("#{k}=#{v}")
-  await fetch(url + '?' + params.join('&'))
-
 rotate = (row, col, cw)->
   top_left = document.getElementById("cell-#{row}-#{col}")
   top_right = document.getElementById("cell-#{row}-#{col + 1}")
@@ -189,18 +172,18 @@ animate = (value, row, col, cw, undo = false, demo = false, callback = null) ->
           end_time = new Date()
           game_completed = true
           active_nodes_dom.forEach((node)->
-            hide_element(node)
+            window.hide_element(node)
           )
-          hide_element(undo_button)
+          window.hide_element(undo_button)
           if solved
             one_less_move_dom.innerHTML = number_of_moves - 1
             moves_num_dom.innerHTML = number_of_moves
             block = document.getElementById("#{if number_of_moves > moves_min_num then 'non-' else ''}min-text")
           else
             block = document.getElementById("non-solve-text")
-          #show_element(block)
+          #window.show_element(block)
 
-          get_request(track_url, {
+          window.get_request(track_url, {
             game_index: game_index, init_time: (start_time - visit_time) / 1000,
             game_time: (end_time - start_time) / 1000, moves: moves.join(''), length: number_of_moves
           })
@@ -306,11 +289,11 @@ undo_button.addEventListener('click', ->
 )
 restart_button.addEventListener('click', ->
   [...document.getElementById("non-solve-text").parentElement.children].forEach((node)->
-    hide_element(node)
+    window.hide_element(node)
   )
-  active_nodes_dom.forEach((node)-> show_element(node))
+  active_nodes_dom.forEach((node)-> window.show_element(node))
   undo_button.setAttribute('disabled', true)
-  show_element(undo_button)
+  window.show_element(undo_button)
   restart_button.setAttribute('disabled', true)
   game_completed = false
   undo()
@@ -436,12 +419,12 @@ document.getElementById('copy-result').addEventListener('click', ->
   share_text = shareable_text_dom.value
   navigator.clipboard.writeText(share_text).then(->
     toast = document.getElementById('copy-toast')
-    show_element(toast)
+    window.show_element(toast)
     setTimeout(->
-      hide_element(toast)
+      window.hide_element(toast)
     , 2000)
   )
-  get_request(track_url, {
+  window.get_request(track_url, {
       game_index: game_index,
       init_time: (start_time - visit_time) / 1000,
       game_time: (end_time - start_time) / 1000,

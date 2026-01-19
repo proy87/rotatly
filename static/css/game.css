@@ -242,6 +242,9 @@ table td {
 
 .outline-grid div {
   position: absolute;
+}
+
+.outline-grid div:not(.grid-item-container) {
   background-color: black;
 }
 
