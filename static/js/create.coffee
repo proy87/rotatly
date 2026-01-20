@@ -401,15 +401,15 @@ document.getElementById('create-button').addEventListener('click', ->
     if number
       outline.push(number)
   )
-  if false and outline.length != N * M
+  if outline.length != N * M
     set_error('Incomplete outline.')
     return
 
-  mapping = {}
+  fixed_areas = {}
   document.querySelectorAll('.snapped').forEach((e)->
     index = e.querySelector('.cell').getAttribute('data-index')
     if index
-      mapping[e.getAttribute('data-number')] = index
+      fixed_areas[e.getAttribute('data-number')] = index
   )
 
   board = []
@@ -418,7 +418,7 @@ document.getElementById('create-button').addEventListener('click', ->
     if index
       board.push(index)
   )
-  if false and board.length != M * N
+  if board.length != M * N
     set_error('Incomplete board.')
     return
 
@@ -427,13 +427,13 @@ document.getElementById('create-button').addEventListener('click', ->
     if n.classList.contains('disabled')
       disabled_nodes.push(n.getAttribute('data-value'))
   )
-  if false and disabled_nodes.length == (M - 1) * (N - 1)
+  if disabled_nodes.length == (M - 1) * (N - 1)
     set_error('No active nodes.')
     return
 
   send_request('/post-create/', {
     outline: outline.join(','),
-    mapping: ("#{k}:#{v}" for k, v of mapping).join(','),
+    fixed_areas: ("#{k}:#{v}" for k, v of fixed_areas).join(','),
     board: board.join(','),
     nodes: disabled_nodes.join(',')
   }, 'POST', (data)->

@@ -215,7 +215,7 @@ def post_create(request):
         return JsonResponse({'error': 'Invalid outline.'})
 
     fixed_areas = {}
-    for item in request.POST.get('mapping', '').replace(' ', '').split(','):
+    for item in request.POST.get('fixed_areas', '').replace(' ', '').split(','):
         try:
             key, value = item.split(':')
         except:

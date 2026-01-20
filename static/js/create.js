@@ -758,7 +758,7 @@
   };
 
   document.getElementById('create-button').addEventListener('click', function() {
-    var board, disabled_nodes, k, mapping, outline, v;
+    var board, disabled_nodes, fixed_areas, k, outline, v;
     window.hide_element(error_field);
     outline = [];
     outline_dom.querySelectorAll('td').forEach(function(e) {
@@ -768,16 +768,16 @@
         return outline.push(number);
       }
     });
-    if (false && outline.length !== N * M) {
+    if (outline.length !== N * M) {
       set_error('Incomplete outline.');
       return;
     }
-    mapping = {};
+    fixed_areas = {};
     document.querySelectorAll('.snapped').forEach(function(e) {
       var index;
       index = e.querySelector('.cell').getAttribute('data-index');
       if (index) {
-        return mapping[e.getAttribute('data-number')] = index;
+        return fixed_areas[e.getAttribute('data-number')] = index;
       }
     });
     board = [];
@@ -788,7 +788,7 @@
         return board.push(index);
       }
     });
-    if (false && board.length !== M * N) {
+    if (board.length !== M * N) {
       set_error('Incomplete board.');
       return;
     }
@@ -798,17 +798,17 @@
         return disabled_nodes.push(n.getAttribute('data-value'));
       }
     });
-    if (false && disabled_nodes.length === (M - 1) * (N - 1)) {
+    if (disabled_nodes.length === (M - 1) * (N - 1)) {
       set_error('No active nodes.');
       return;
     }
     return send_request('/post-create/', {
       outline: outline.join(','),
-      mapping: ((function() {
+      fixed_areas: ((function() {
         var results;
         results = [];
-        for (k in mapping) {
-          v = mapping[k];
+        for (k in fixed_areas) {
+          v = fixed_areas[k];
           results.push(`${k}:${v}`);
         }
         return results;
