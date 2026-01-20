@@ -603,8 +603,8 @@
               }
             }
             return {
-              x: table_left + j * data.cell_size,
-              y: table_top + i * data.cell_size,
+              x: Math.round(table_left + j * data.cell_size),
+              y: Math.round(table_top + i * data.cell_size),
               range: data.range
             };
           }
