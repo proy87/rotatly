@@ -227,7 +227,7 @@
               block = document.getElementById("non-solve-text");
             }
             //window.show_element(block)
-            window.get_request(track_url, {
+            window.send_request(track_url, {
               game_index: game_index,
               init_time: (start_time - visit_time) / 1000,
               game_time: (end_time - start_time) / 1000,
@@ -554,7 +554,7 @@
         return window.hide_element(toast);
       }, 2000);
     });
-    return window.get_request(track_url, {
+    return window.send_request(track_url, {
       game_index: game_index,
       init_time: (start_time - visit_time) / 1000,
       game_time: (end_time - start_time) / 1000,

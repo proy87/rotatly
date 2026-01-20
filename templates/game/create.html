@@ -32,7 +32,8 @@
     </div>
     <div id="color-palette">
         {% for index, name, color_class in names %}
-            <div class="color-icon {{ color_class }}" data-class="{{ color_class }}" data-name=""></div>
+            <div class="color-icon {{ color_class }}" data-class="{{ color_class }}" data-index="{{ index }}"
+                 data-name=""></div>
         {% endfor %}
     </div>
     <div class="flex-container">
@@ -44,8 +45,23 @@
 
     <div id="board-palette">
         {% for index, name, color_class in names %}
-            <div class="board-item {{ color_class }}" data-class="{{ color_class }}" data-name="{{ name }}">{{ name }}</div>
+            <div class="board-item {{ color_class }}" data-class="{{ color_class }}" data-index="{{ index }}"
+                 data-name="{{ name }}">{{ name }}</div>
         {% endfor %}
+    </div>
+
+    <div id="error-container" class="d-flex justify-content-center mt-4">
+        <div id="error-box" class="alert alert-danger text-center" role="alert" style="display: none;"></div>
+    </div>
+
+    <div id="response-container" class="d-flex justify-content-center mt-3">
+        <div id="response-box" class="alert alert-info text-center" role="alert" style="display: none;"></div>
+    </div>
+
+    <div class="d-flex justify-content-center mt-3">
+        <button id="create-button" class="btn btn-primary">
+            Create
+        </button>
     </div>
 {% endblock %}
 {% block js %}

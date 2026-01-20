@@ -1,6 +1,7 @@
 import datetime
 import json
 import math
+import random
 import re
 
 from django.conf import settings
@@ -9,7 +10,7 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 
 from .board import init_borders, Cell
-from .constants import START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYMBOLS, CCW_SYMBOLS
+from .constants import START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYMBOLS, CCW_SYMBOLS, CUSTOM_GAME_STR
 from .models import Daily, Custom, Outline
 from .solver import solve, is_solved
 from .utils import encode
@@ -19,6 +20,9 @@ class GameView(TemplateView):
     model_class = None
 
     def get_game_index(self):
+        raise NotImplementedError
+
+    def get_canonical_url(self):
         raise NotImplementedError
 
     def get_context_data(self, **kwargs):
@@ -56,6 +60,7 @@ class GameView(TemplateView):
                                  nodes=[[(e, game.disabled_nodes.get(str(e), dict())) for e in range(i, i + size - 1)]
                                         for i in
                                         range(1, (size - 1) ** 2, size - 1)],
+                                 canonical_url=self.get_canonical_url(),
                                  moves_max_num=game.moves_min_num * 100,
                                  cw_symbol=CW_SYMBOLS[0],
                                  ccw_symbol=CCW_SYMBOLS[0]))
@@ -68,6 +73,9 @@ class CustomView(GameView):
 
     def get_game_index(self):
         return self.kwargs['slug']
+
+    def get_canonical_url(self):
+        return reverse('custom', args=(self.kwargs['slug'],))
 
 
 class DailyView(GameView):
@@ -96,6 +104,9 @@ class DailyView(GameView):
     def get_game_index(self):
         return self.game_index
 
+    def get_canonical_url(self):
+        return reverse('daily', args=(self.current_date,))
+
     def get_context_data(self, date=None, **kwargs):
         context_data = super().get_context_data(**kwargs)
         game_index = context_data['game'].index
@@ -109,7 +120,6 @@ class DailyView(GameView):
             next_puzzle_url = None if days_to_today < 1 else reverse('daily', kwargs=kwargs)
         context_data.update(dict(archived=date is not None,
                                  current_date=self.current_date.strftime(DATE_FORMAT),
-                                 canonical_url=reverse('daily', args=(self.current_date,)),
                                  previous_puzzle_url=None if game_index == 1 else reverse('daily', kwargs={
                                      'date': self.current_date - datetime.timedelta(days=1)}),
                                  next_puzzle_url=next_puzzle_url,
@@ -177,7 +187,123 @@ def track(request):
     if not settings.DEBUG:
         from django.core.mail import send_mail
         send_mail('Rotatly',
-                  str(request.GET),
+                  request.POST,
                   None,
                   [a[1] for a in settings.ADMINS])
     return JsonResponse({})
+
+
+def post_create(request):
+    if False and not request.user.is_authenticated:
+        return JsonResponse({'error': 'You should be logged in.'})
+
+    elements = (1, 2, 3, 4)
+
+    outline = []
+    mapping = {}
+    next_id = 0
+    for item in request.POST.get('outline', '').replace(' ', '').split(','):
+        if item not in mapping:
+            mapping[item] = next_id
+            next_id += 1
+        outline.append(mapping[item])
+
+    if len(outline) != 16:
+        return JsonResponse({'error': 'Incomplete outline.'})
+
+    if len(mapping) != 4:
+        return JsonResponse({'error': 'Invalid outline.'})
+
+    fixed_areas = {}
+    for item in request.POST.get('mapping', '').replace(' ', '').split(','):
+        try:
+            key, value = item.split(':')
+        except:
+            continue
+        else:
+            if key in mapping:
+                try:
+                    value = int(value)
+                    if not 1 <= value <= 4:
+                        raise Exception
+                except:
+                    continue
+                else:
+                    fixed_areas[mapping[key] + 1] = value
+    vals = list(fixed_areas.values())
+    vals_n = len(vals)
+    if vals_n != len(set(vals)):
+        return JsonResponse({'error': 'Invalid outline.'})
+    if vals_n == 3:
+        els = set(elements)
+        k = els.difference(fixed_areas.keys()).pop()
+        v = els.difference(vals).pop()
+        fixed_areas[k] = v
+    fixed_areas = {k: v for k, v in sorted(fixed_areas.items())}
+
+    board = []
+    for item in request.POST.get('board', '').replace(' ', '').split(','):
+        try:
+            n = int(item)
+            if not 1 <= n <= 4:
+                raise Exception
+            board.append(n)
+        except:
+            pass
+
+    if len(board) != 16:
+        return JsonResponse({'error': 'Incomplete board.'})
+
+    if any(len([c for c in board if c == e]) != 4 for e in elements):
+        return JsonResponse({'error': 'Invalid board.'})
+
+    nodes = []
+    for item in request.POST.get('nodes', '').replace(' ', '').split(','):
+        try:
+            n = int(item)
+            if not 1 <= n <= 9:
+                raise Exception
+            nodes.append(n)
+        except:
+            pass
+
+    nodes = {f"{n}": {"cw": True, "ccw": True} for n in sorted(set(nodes))}
+    if len(nodes) == 9:
+        return JsonResponse({'error': 'No active nodes.'})
+
+    m = {}
+    next_id = 0
+    encoded_board = []
+    for item in board:
+        if not item in m:
+            m[item] = next_id
+            next_id += 1
+        encoded_board.append(m[item])
+
+    outline = tuple(outline)
+    try:
+        outline_obj = Outline.objects.get(board=outline)
+    except Outline.DoesNotExist:
+        return JsonResponse({'error': 'Invalid outline.'})
+
+    board = tuple(board)
+    try:
+        game = Custom.objects.get(board=board, disabled_nodes=nodes, fixed_areas=fixed_areas, outline=outline_obj)
+    except Custom.DoesNotExist:
+        solution = solve(board=encode(board, fixed_areas, mode='encode'),
+                         outline=encode(outline_obj.board, fixed_areas, mode='outline'),
+                         disabled_nodes=nodes,
+                         fixed_areas=fixed_areas)
+        if solution is None:
+            return JsonResponse({'error': 'The puzzle is unsolvable.'})
+        n  = len(solution)
+        if n == 0:
+            return JsonResponse({'error': 'The puzzle is already solved.'})
+        game = Custom.objects.create(board=board,
+                                     disabled_nodes=nodes,
+                                     fixed_areas=fixed_areas,
+                                     outline=outline_obj,
+                                     encoded_board=encoded_board,
+                                     moves_min_num=n,
+                                     index=''.join(random.choices(CUSTOM_GAME_STR, k=7)))
+    return JsonResponse({'url': "https://www.rotatly.com" + reverse('custom', args=(game.index,))})

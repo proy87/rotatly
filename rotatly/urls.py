@@ -21,7 +21,7 @@ from django.urls import path
 from django.urls.converters import register_converter, StringConverter
 
 from .constants import CUSTOM_GAME_STR
-from .views import track, DailyView, CustomView, CreateView
+from .views import track, DailyView, CustomView, CreateView, post_create
 
 
 class DateConverter:
@@ -48,8 +48,8 @@ urlpatterns = [
     path('admin-r/', admin.site.urls),
     path('', DailyView.as_view(), name='daily'),
     path('create/', CreateView.as_view(), name='create'),
+    path('post-create/', post_create, name='post-create'),
     path('<yyyy-mm-dd:date>/', DailyView.as_view(), name='daily'),
     path('<alpha_num_7:slug>/', CustomView.as_view(), name='custom'),
     path('track/', track, name='track'),
-
 ]

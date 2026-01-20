@@ -5,6 +5,8 @@ game_grid = game_dom.querySelector('.outline-grid')
 outline_dom = document.querySelector('#outline')
 outline_board = outline_dom.querySelector('table')
 
+nodes = document.querySelectorAll('.node')
+
 N = outline_board.rows.length
 M = outline_board.rows[0].cells.length
 
@@ -28,6 +30,7 @@ remove_data = (el, palette)->
     el.classList.remove(color_class)
     window.show_element(palette.querySelector(".#{color_class}"))
   el.removeAttribute('data-class')
+  el.removeAttribute('data-index')
   el.removeAttribute('data-name')
   span = el.querySelector('span')
   if span
@@ -40,6 +43,7 @@ set_data = (target, source, palette)->
     name = source.getAttribute('data-name')
     target.classList.add(klass)
     target.setAttribute('data-class', klass)
+    target.setAttribute('data-index', source.getAttribute('data-index'))
     target.setAttribute('data-name', name)
     if name
       target.querySelector('span').innerHTML = name
@@ -363,7 +367,7 @@ interact('#outline table').dropzone(
   overlap: 0.8,
 )
 
-document.querySelectorAll('.node').forEach((node)->
+nodes.forEach((node)->
   node.addEventListener('click', ->
     node.classList.toggle('disabled')
   )
@@ -373,4 +377,69 @@ document.addEventListener('contextmenu', (evt)->
   class_list = evt.target.classList
   if class_list.contains('tetramino') or class_list.contains('board-item')
     evt.preventDefault()
+)
+error_field = document.getElementById('error-box')
+set_error = (error)->
+  error_field.innerHTML = error
+  window.show_element(error_field)
+  window.hide_element(response_field)
+  setTimeout(->
+    window.hide_element(error_field)
+  , 5000)
+
+response_field = document.getElementById('response-box')
+set_response = (response)->
+  response_field.innerHTML = response
+  window.show_element(response_field)
+  window.hide_element(error_field)
+
+document.getElementById('create-button').addEventListener('click', ->
+  window.hide_element(error_field)
+  outline = []
+  outline_dom.querySelectorAll('td').forEach((e)->
+    number = e.getAttribute('data-number')
+    if number
+      outline.push(number)
+  )
+  if false and outline.length != N * M
+    set_error('Incomplete outline.')
+    return
+
+  mapping = {}
+  document.querySelectorAll('.snapped').forEach((e)->
+    index = e.querySelector('.cell').getAttribute('data-index')
+    if index
+      mapping[e.getAttribute('data-number')] = index
+  )
+
+  board = []
+  game_dom.querySelectorAll('td').forEach((e)->
+    index = e.getAttribute('data-index')
+    if index
+      board.push(index)
+  )
+  if false and board.length != M * N
+    set_error('Incomplete board.')
+    return
+
+  disabled_nodes = []
+  nodes.forEach((n)->
+    if n.classList.contains('disabled')
+      disabled_nodes.push(n.getAttribute('data-value'))
+  )
+  if false and disabled_nodes.length == (M - 1) * (N - 1)
+    set_error('No active nodes.')
+    return
+
+  send_request('/post-create/', {
+    outline: outline.join(','),
+    mapping: ("#{k}:#{v}" for k, v of mapping).join(','),
+    board: board.join(','),
+    nodes: disabled_nodes.join(',')
+  }, 'POST', (data)->
+    if data['error']
+      set_error(data['error'])
+    if data['url']
+      set_response(data['url'])
+  )
 )

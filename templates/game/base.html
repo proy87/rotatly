@@ -132,7 +132,7 @@
 {% endblock %}
 {% block js %}
     <script>
-        let game_index = {{ game.index }};
+        let game_index = "{{ game.index }}";
         let moves_max_num = {{ moves_max_num }};
         let moves_min_num = {{ game.moves_min_num }};
         let outline = {{ outline_dumped }};

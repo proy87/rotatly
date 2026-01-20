@@ -16,7 +16,10 @@ def encode(s: Sequence[Any], fixed_areas: dict, mode: str='full') -> tuple[int, 
     pattern = []
     next_id = 1
     values = list(fixed_areas.values())
-    encode_applied = any(ch < 0 for ch in s)
+    try:
+        encode_applied = any(ch < 0 for ch in s)
+    except TypeError:
+        encode_applied = False
     for ch in s:
         if ch not in mapping:
             if mode == 'outline':

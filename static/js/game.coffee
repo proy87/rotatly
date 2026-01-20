@@ -183,7 +183,7 @@ animate = (value, row, col, cw, undo = false, demo = false, callback = null) ->
             block = document.getElementById("non-solve-text")
           #window.show_element(block)
 
-          window.get_request(track_url, {
+          window.send_request(track_url, {
             game_index: game_index, init_time: (start_time - visit_time) / 1000,
             game_time: (end_time - start_time) / 1000, moves: moves.join(''), length: number_of_moves
           })
@@ -424,7 +424,7 @@ document.getElementById('copy-result').addEventListener('click', ->
       window.hide_element(toast)
     , 2000)
   )
-  window.get_request(track_url, {
+  window.send_request(track_url, {
       game_index: game_index,
       init_time: (start_time - visit_time) / 1000,
       game_time: (end_time - start_time) / 1000,

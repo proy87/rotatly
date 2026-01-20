@@ -17,14 +17,38 @@
     }
   };
 
-  window.get_request = async function(url, data) {
-    var k, params, v;
+  window.send_request = async function(url, data, method = 'POST', callback = null) {
+    var body, headers, k, params, params_str, v;
     params = [];
     for (k in data) {
       v = data[k];
       params.push(`${k}=${v}`);
     }
-    return (await fetch(url + '?' + params.join('&')));
+    params_str = params.join('&');
+    body = null;
+    headers = null;
+    if (method === 'POST') {
+      headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': csrf_token
+      };
+      body = params_str;
+    } else {
+      url += `?${params_str}`;
+    }
+    return (await fetch(url, {
+      method: method,
+      headers: headers,
+      body: body
+    }).then(function(r) {
+      if (r.ok) {
+        return r.json();
+      }
+    }).then(function(data) {
+      if (callback) {
+        return callback(data);
+      }
+    }));
   };
 
 }).call(this);
