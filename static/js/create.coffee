@@ -357,9 +357,7 @@ interact('.tetramino').draggable(
     )
   ]
 ).styleCursor(false)
-document.addEventListener('click', (evt)->
-  console.log(evt.target)
-)
+
 interact('#outline table').dropzone(
   accept: '.tetramino'
   overlap: 0.8,

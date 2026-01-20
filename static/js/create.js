@@ -715,10 +715,6 @@
     ]
   }).styleCursor(false);
 
-  document.addEventListener('click', function(evt) {
-    return console.log(evt.target);
-  });
-
   interact('#outline table').dropzone({
     accept: '.tetramino',
     overlap: 0.8
