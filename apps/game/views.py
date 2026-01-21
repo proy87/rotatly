@@ -10,10 +10,11 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 
 from apps.game.board import init_borders, Cell
-from apps.game.constants import START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYMBOLS, CCW_SYMBOLS, CUSTOM_GAME_STR
+from apps.game.constants import (START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYMBOLS, CCW_SYMBOLS, CUSTOM_GAME_STR,
+                                 CUSTOM_GAME_SLUG_LENGTH)
+from apps.game.utils import encode
 from .models import Daily, Custom, Outline
 from .solver import solve, is_solved
-from apps.game.utils import encode
 
 
 class GameView(TemplateView):
@@ -60,7 +61,7 @@ class GameView(TemplateView):
                                  nodes=[[(e, game.disabled_nodes.get(str(e), dict())) for e in range(i, i + size - 1)]
                                         for i in
                                         range(1, (size - 1) ** 2, size - 1)],
-                                 canonical_url=self.get_canonical_url(),
+                                 canonical_url=settings.SITE_DOMAIN + self.get_canonical_url(),
                                  moves_max_num=game.moves_min_num * 100,
                                  cw_symbol=CW_SYMBOLS[0],
                                  ccw_symbol=CCW_SYMBOLS[0]))
@@ -78,9 +79,8 @@ class CustomView(GameView):
         return reverse('custom', args=(self.kwargs['slug'],))
 
 
-class DailyView(GameView):
-    template_name = 'game/daily.html'
-    model_class = Daily
+class DailyMixin:
+    viewname = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -101,6 +101,19 @@ class DailyView(GameView):
             self.game_index = days_passed
             self.current_date = self.today_date
 
+    def get_context_data(self, date=None, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data.update(dict(current_date=self.current_date.strftime(DATE_FORMAT),
+                                 min_date_js=(START_DATE + datetime.timedelta(days=1)).strftime(JS_DATE_FORMAT),
+                                 max_date_js=self.today_date.strftime(JS_DATE_FORMAT),
+                                 current_date_js=self.current_date.strftime(JS_DATE_FORMAT), ))
+        return context_data
+
+
+class DailyView(DailyMixin, GameView):
+    template_name = 'game/daily.html'
+    model_class = Daily
+
     def get_game_index(self):
         return self.game_index
 
@@ -109,7 +122,7 @@ class DailyView(GameView):
 
     def get_context_data(self, date=None, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        game_index = context_data['game'].index
+        game_index = self.get_game_index()
         if date is None:
             next_puzzle_url = None
         else:
@@ -119,13 +132,9 @@ class DailyView(GameView):
                 kwargs['date'] = self.current_date + datetime.timedelta(days=1)
             next_puzzle_url = None if days_to_today < 1 else reverse('daily', kwargs=kwargs)
         context_data.update(dict(archived=date is not None,
-                                 current_date=self.current_date.strftime(DATE_FORMAT),
                                  previous_puzzle_url=None if game_index == 1 else reverse('daily', kwargs={
                                      'date': self.current_date - datetime.timedelta(days=1)}),
-                                 next_puzzle_url=next_puzzle_url,
-                                 min_date_js=(START_DATE + datetime.timedelta(days=1)).strftime(JS_DATE_FORMAT),
-                                 max_date_js=self.today_date.strftime(JS_DATE_FORMAT),
-                                 current_date_js=self.current_date.strftime(JS_DATE_FORMAT), ))
+                                 next_puzzle_url=next_puzzle_url, ))
         return context_data
 
 
@@ -296,7 +305,7 @@ def post_create(request):
                          fixed_areas=fixed_areas)
         if solution is None:
             return JsonResponse({'error': 'The puzzle is unsolvable.'})
-        n  = len(solution)
+        n = len(solution)
         if n == 0:
             return JsonResponse({'error': 'The puzzle is already solved.'})
         game = Custom.objects.create(board=board,
@@ -305,5 +314,5 @@ def post_create(request):
                                      outline=outline_obj,
                                      encoded_board=encoded_board,
                                      moves_min_num=n,
-                                     index=''.join(random.choices(CUSTOM_GAME_STR, k=7)))
-    return JsonResponse({'url': "https://www.rotatly.com" + reverse('custom', args=(game.index,))})
+                                     index=''.join(random.choices(CUSTOM_GAME_STR, k=CUSTOM_GAME_SLUG_LENGTH)))
+    return JsonResponse({'url': settings.SITE_DOMAIN + reverse('custom', args=(game.index,))})

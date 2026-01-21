@@ -29,6 +29,8 @@ ADMINS = (
     ('Admin', os.getenv("ADMIN_EMAIL")),
 )
 
+SITE_DOMAIN = 'https://www.rotatly.com'
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
