@@ -3,7 +3,7 @@ from collections import deque
 
 from collections.abc import Sequence, Iterable
 from typing import Any
-from .utils import encode
+from apps.game.utils import encode
 
 
 class Block:

@@ -1,5 +1,7 @@
 import datetime
-CUSTOM_GAME_STR='abcdefghkmnpqrstuvwxyz123456789'
+
+CUSTOM_GAME_STR = 'abcdefghkmnpqrstuvwxyz123456789'
+CUSTOM_GAME_SLUG_LENGTH = 7
 
 CW_SYMBOLS = '↻→R'
 CCW_SYMBOLS = '↺←L'

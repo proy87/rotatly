@@ -37,13 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rotatly',
+    'apps.accounts.apps.AccountsConfig',
+    'apps.game.apps.GameConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'rotatly.middlewares.RedirectToWWWMiddleware',
+    'apps.core.middlewares.RedirectToWWWMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -105,7 +106,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SERVER_EMAIL = os.getenv('SERVER_EMAIL')
 

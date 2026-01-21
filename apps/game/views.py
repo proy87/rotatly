@@ -9,11 +9,11 @@ from django.http import Http404, JsonResponse
 from django.urls import reverse
 from django.views.generic import TemplateView
 
-from .board import init_borders, Cell
-from .constants import START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYMBOLS, CCW_SYMBOLS, CUSTOM_GAME_STR
+from apps.game.board import init_borders, Cell
+from apps.game.constants import START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYMBOLS, CCW_SYMBOLS, CUSTOM_GAME_STR
 from .models import Daily, Custom, Outline
 from .solver import solve, is_solved
-from .utils import encode
+from apps.game.utils import encode
 
 
 class GameView(TemplateView):
