@@ -11,10 +11,7 @@ def encode(s: Sequence[Any], fixed_areas: dict, for_outline: bool=False) -> tupl
     pattern = []
     next_id = 1
     values = list(fixed_areas.values())
-    try:
-        encode_applied = any(ch < 0 for ch in s)
-    except TypeError:
-        encode_applied = False
+    encode_applied = any(isinstance(ch, int) and ch < 0 for ch in s)
     for ch in s:
         if ch not in mapping:
             if for_outline:
