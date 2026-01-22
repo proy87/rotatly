@@ -15,7 +15,7 @@ class Cell:
         if for_outline:
             self.display_name = ''
         else:
-            self.display_name = self.names_dict[-name if name < 0 else name]
+            self.display_name = self.names_dict[name]
         self.border_dict = border_dict
         self.cell_size = f'var(--cell-size)'
         self.thickness = 'round(down, var(--grid-thickness), 2px)'
@@ -26,8 +26,7 @@ class Cell:
         if self.for_outline:
             return self.colors_dict[-self.name] if self.name < 0 else ''
         else:
-            key = -self.name if self.name < 0 else self.name
-            return self.colors_dict.get(key, '')
+            return '' if self.name == 0 else self.colors_dict[self.name]
 
     @property
     def border_styles(self) -> Sequence[str]:

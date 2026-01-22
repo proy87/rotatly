@@ -107,7 +107,7 @@ def is_solved(start: Sequence[Any], goal: Sequence[Any], moves: Sequence[tuple[i
             start = rotate_block(start, block.indices, fixed_areas, cw)
         else:
             return False
-    return start == encode(goal, fixed_areas, mode='outline')
+    return start == encode(goal, fixed_areas, for_outline=True)
 
 
 def solve(board: tuple[int, ...], outline: tuple[int, ...], disabled_nodes: dict, fixed_areas: dict) -> Sequence[

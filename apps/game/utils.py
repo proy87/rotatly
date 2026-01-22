@@ -6,12 +6,7 @@ from collections.abc import Sequence, Iterable
 from typing import Any
 
 
-def encode(s: Sequence[Any], fixed_areas: dict, mode: str='full') -> tuple[int, ...]:
-    """
-    mode = 'outline' # encodes outline
-    mode = 'encode' # encodes only fixed areas
-    mode = 'full' # full encoding
-    """
+def encode(s: Sequence[Any], fixed_areas: dict, for_outline: bool=False) -> tuple[int, ...]:
     mapping = {}
     pattern = []
     next_id = 1
@@ -22,19 +17,16 @@ def encode(s: Sequence[Any], fixed_areas: dict, mode: str='full') -> tuple[int, 
         encode_applied = False
     for ch in s:
         if ch not in mapping:
-            if mode == 'outline':
+            if for_outline:
                 if next_id in fixed_areas:
                     mapping[ch] = -fixed_areas[next_id]
                 else:
                     mapping[ch] = next_id
             else:
-                if mode == 'encode':
-                    mapping[ch] = -ch if ch in values else ch
+                if encode_applied:
+                    mapping[ch] = ch if ch < 0 else next_id
                 else:
-                    if encode_applied:
-                        mapping[ch] = ch if ch < 0 else next_id
-                    else:
-                        mapping[ch] = -ch if ch in values else next_id
+                    mapping[ch] = -ch if ch in values else next_id
             next_id += 1
         pattern.append(mapping[ch])
     return tuple(pattern)

@@ -40,7 +40,7 @@ class GameView(TemplateView):
         outline = game.outline
 
         board = encode(game.board, game.fixed_areas_as_int)
-        outline_board = encode(outline.board, game.fixed_areas_as_int, mode='outline')
+        outline_board = encode(outline.board, game.fixed_areas_as_int, for_outline=True)
 
         if settings.DEBUG:
             solution = solve(board=board,
@@ -51,8 +51,7 @@ class GameView(TemplateView):
                 solution = ' '.join(f'{i}{(CW_SYMBOLS if v == 'CW' else CCW_SYMBOLS)[0]}' for i, v in solution)
             print(solution)
 
-        bordered_board = init_borders(outline=outline_board,
-                                      board=encode(game.board, game.fixed_areas_as_int, mode='encode'))
+        bordered_board = init_borders(outline=outline_board, board=game.board)
         bordered_outline = init_borders(outline=outline_board)
         context_data.update(dict(size=size,
                                  game=game,
@@ -305,7 +304,7 @@ def post_create(request):
         game = Custom.objects.get(board=board, disabled_nodes=nodes, fixed_areas=fixed_areas, outline=outline_obj)
     except Custom.DoesNotExist:
         solution = solve(board=encode(board, fixed_areas),
-                         outline=encode(outline_obj.board, fixed_areas, mode='outline'),
+                         outline=encode(outline_obj.board, fixed_areas, for_outline=True),
                          disabled_nodes={int(k): v for k, v in nodes.items()},
                          fixed_areas=fixed_areas)
         if solution is None:
