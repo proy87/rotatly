@@ -1,8 +1,8 @@
 import math
 from collections import deque
-
 from collections.abc import Sequence, Iterable
 from typing import Any
+
 from apps.game.utils import encode
 
 
@@ -16,8 +16,6 @@ class Block:
     @classmethod
     def get_blocks(cls, n: int, m: int, disabled_nodes: dict):
         def get_key(index, key):
-            if index not in disabled_nodes:
-                index = str(index)
             return disabled_nodes.get(index, {}).get(key, False)
 
         blocks = [(i, i + 1, i + m, i + m + 1) for i in range(m * (n - 1)) if (i + 1) % m]
@@ -25,31 +23,35 @@ class Block:
                 enumerate(blocks, start=1)]
 
 
-def rotate_block(state: tuple[int, ...], block_indices: tuple[int, int, int, int], fixed_areas:dict, cw: bool = True) -> tuple:
+def rotate_block(state: tuple[int, ...], block_indices: tuple[int, int, int, int], fixed_areas: dict | None = None,
+                 cw: bool = True) -> tuple:
     s = list(state)
     i, j, k, l = block_indices
     if cw:
         s[i], s[j], s[l], s[k] = s[k], s[i], s[j], s[l]
     else:
         s[i], s[j], s[l], s[k] = s[j], s[l], s[k], s[i]
-    return encode(s, fixed_areas)
+
+    return tuple(s) if fixed_areas is None else encode(s, fixed_areas)
 
 
-def neighbors(state: tuple[int, ...], blocks: Sequence[Block], fixed_areas:dict, reverse: bool = False) -> Iterable[tuple]:
+def neighbors(state: tuple[int, ...], blocks: Sequence[Block], fixed_areas: dict, reverse: bool = False) -> Iterable[
+    tuple]:
     for block in blocks:
         if reverse:
             if block.allow_ccw:
-                yield rotate_block(state, block.indices,fixed_areas, True), (block.index, 'CW')
+                yield rotate_block(state, block.indices, fixed_areas, True), (block.index, 'CW')
             if block.allow_cw:
-                yield rotate_block(state, block.indices,fixed_areas, False), (block.index, 'CCW')
+                yield rotate_block(state, block.indices, fixed_areas, False), (block.index, 'CCW')
         else:
             if block.allow_cw:
-                yield rotate_block(state, block.indices,fixed_areas, True), (block.index, 'CW')
+                yield rotate_block(state, block.indices, fixed_areas, True), (block.index, 'CW')
             if block.allow_ccw:
-                yield rotate_block(state, block.indices,fixed_areas, False), (block.index, 'CCW')
+                yield rotate_block(state, block.indices, fixed_areas, False), (block.index, 'CCW')
 
 
-def bfs(start: tuple[int,...], goal: tuple[int,...], blocks: Sequence[Block], fixed_areas:dict) -> Sequence[tuple] | None:
+def bfs(start: tuple[int, ...], goal: tuple[int, ...], blocks: Sequence[Block], fixed_areas: dict) -> Sequence[
+                                                                                                          tuple] | None:
     max_path_length = 25
 
     if start == goal:
@@ -93,7 +95,6 @@ def bfs(start: tuple[int,...], goal: tuple[int,...], blocks: Sequence[Block], fi
     return None  # unsolvable
 
 
-
 def is_solved(start: Sequence[Any], goal: Sequence[Any], moves: Sequence[tuple[int, bool]],
               fixed_areas: dict, disabled_nodes: dict) -> bool:
     n = int(math.sqrt(len(start)))
@@ -109,7 +110,8 @@ def is_solved(start: Sequence[Any], goal: Sequence[Any], moves: Sequence[tuple[i
     return start == encode(goal, fixed_areas, mode='outline')
 
 
-def solve(board: tuple[int,...], outline: tuple[int,...], disabled_nodes: dict, fixed_areas:dict) -> Sequence[tuple] | None:
+def solve(board: tuple[int, ...], outline: tuple[int, ...], disabled_nodes: dict, fixed_areas: dict) -> Sequence[
+                                                                                                            tuple] | None:
     n = int(math.sqrt(len(board)))
     blocks = Block.get_blocks(n, n, disabled_nodes)
     return bfs(board, outline, blocks, fixed_areas)

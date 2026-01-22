@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.functional import cached_property
 
 
 class Outline(models.Model):
@@ -13,6 +14,14 @@ class Game(models.Model):
     disabled_nodes = models.JSONField(default=dict, blank=True)
     outline = models.ForeignKey(Outline, on_delete=models.CASCADE)
     fixed_areas = models.JSONField(default=dict, blank=True)
+
+    @cached_property
+    def disabled_nodes_as_int(self):
+        return {int(k): v for k, v in self.disabled_nodes.items()}
+
+    @cached_property
+    def fixed_areas_as_int(self):
+        return {int(k): int(v) for k, v in self.fixed_areas.items()}
 
     class Meta:
         abstract = True

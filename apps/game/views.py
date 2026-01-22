@@ -35,22 +35,24 @@ class GameView(TemplateView):
             game = self.model_class.objects.select_related('outline').get(index=self.get_game_index())
         except self.model_class.DoesNotExist:
             raise Http404
-        game.fixed_areas = {int(k): int(v) for k, v in game.fixed_areas.items()}
+
         size = int(math.sqrt(len(game.board)))
         outline = game.outline
-        board = encode(game.board, game.fixed_areas, mode='encode')
-        outline_board = encode(outline.board, game.fixed_areas, mode='outline')
+
+        board = encode(game.board, game.fixed_areas_as_int)
+        outline_board = encode(outline.board, game.fixed_areas_as_int, mode='outline')
 
         if settings.DEBUG:
-            solution = solve(board=encode(game.board, game.fixed_areas),
+            solution = solve(board=board,
                              outline=outline_board,
-                             disabled_nodes=game.disabled_nodes,
-                             fixed_areas=game.fixed_areas)
+                             disabled_nodes=game.disabled_nodes_as_int,
+                             fixed_areas=game.fixed_areas_as_int)
             if solution:
                 solution = ' '.join(f'{i}{(CW_SYMBOLS if v == 'CW' else CCW_SYMBOLS)[0]}' for i, v in solution)
             print(solution)
 
-        bordered_board = init_borders(outline=outline_board, board=board)
+        bordered_board = init_borders(outline=outline_board,
+                                      board=encode(game.board, game.fixed_areas_as_int, mode='encode'))
         bordered_outline = init_borders(outline=outline_board)
         context_data.update(dict(size=size,
                                  game=game,
@@ -59,9 +61,9 @@ class GameView(TemplateView):
                                  outline_dumped=json.dumps(outline_board),
                                  pre_moves=pre_moves,
                                  pre_moves_dumped=json.dumps(pre_moves),
-                                 is_solved=is_solved(board, outline_board, pre_moves, game.fixed_areas,
-                                                     game.disabled_nodes),
-                                 nodes=[[(e, game.disabled_nodes.get(str(e), dict())) for e in range(i, i + size - 1)]
+                                 is_solved=is_solved(board, outline_board, pre_moves,
+                                                     game.fixed_areas_as_int, game.disabled_nodes_as_int),
+                                 nodes=[[(e, game.disabled_nodes_as_int.get(e, dict())) for e in range(i, i + size - 1)]
                                         for i in
                                         range(1, (size - 1) ** 2, size - 1)],
                                  canonical_url=settings.SITE_DOMAIN + self.get_canonical_url(),
@@ -302,9 +304,9 @@ def post_create(request):
     try:
         game = Custom.objects.get(board=board, disabled_nodes=nodes, fixed_areas=fixed_areas, outline=outline_obj)
     except Custom.DoesNotExist:
-        solution = solve(board=encode(board, fixed_areas, mode='encode'),
+        solution = solve(board=encode(board, fixed_areas),
                          outline=encode(outline_obj.board, fixed_areas, mode='outline'),
-                         disabled_nodes=nodes,
+                         disabled_nodes={int(k): v for k, v in nodes.items()},
                          fixed_areas=fixed_areas)
         if solution is None:
             return JsonResponse({'error': 'The puzzle is unsolvable.'})
