@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% load static %}
+{% block meta_title %}Profile | Rotatly{% endblock %}
+{% block css %}
+    <link href="{% static "css/profile.css" %}" rel="stylesheet">
+{% endblock %}
+{% block content %}
+    <section class="profile-screen">
+        <!-- Header -->
+        <header class="profile-header">
+            <a href="{% url 'daily' %}" class="profile-back-btn">
+                <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                <span>Back</span>
+            </a>
+
+            <h1 class="profile-title">Profile</h1>
+
+            <div class="profile-user">
+                <i class="fa-regular fa-user profile-user-icon" aria-hidden="true"></i>
+                <span class="profile-username">{% if user.is_authenticated %}{{ user.username }}{% else %}Guest{% endif %}</span>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="profile-tabs">
+            <button class="profile-tab profile-tab--active" type="button" data-tab="daily">
+                Daily Puzzle
+            </button>
+            <button class="profile-tab" type="button" data-tab="custom">
+                Custom Puzzle
+            </button>
+        </div>
+
+        <!-- Search -->
+        <div class="profile-search">
+            <input
+                class="profile-search-input"
+                type="text"
+                id="search-date"
+                placeholder="Search by date"
+                autocomplete="off"
+            >
+            <i class="fa-regular fa-calendar profile-search-icon" aria-hidden="true"></i>
+        </div>
+
+        <!-- Puzzle List -->
+        <div class="profile-list" id="puzzle-list">
+            <!-- Entries will be rendered by JavaScript -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="profile-empty" id="empty-state" style="display: none;">
+            <i class="fa-solid fa-puzzle-piece profile-empty-icon" aria-hidden="true"></i>
+            <p class="profile-empty-text">No puzzles found.</p>
+            <p class="profile-empty-subtext">Start playing to track your progress!</p>
+        </div>
+    </section>
+{% endblock %}
+{% block js %}
+    <script>
+        // Mock data - replace with actual API data from Django context
+        const puzzleData = {
+            daily: [
+                {
+                    id: '1',
+                    date: 'January 12, 2026',
+                    dateRaw: '2026-01-12',
+                    bestMoves: 12,
+                    bestSeconds: 120,
+                    attempts: [
+                        { id: 1, moves: 12, seconds: 120 }
+                    ]
+                },
+                {
+                    id: '2',
+                    date: 'January 13, 2026',
+                    dateRaw: '2026-01-13',
+                    bestMoves: 8,
+                    bestSeconds: 145,
+                    attempts: [
+                        { id: 1, moves: 8, seconds: 120 },
+                        { id: 2, moves: 12, seconds: 144 },
+                        { id: 3, moves: 13, seconds: 166 },
+                        { id: 4, moves: 13, seconds: 155 },
+                        { id: 5, moves: 16, seconds: 162 }
+                    ]
+                },
+                {
+                    id: '3',
+                    date: 'January 14, 2026',
+                    dateRaw: '2026-01-14',
+                    bestMoves: 8,
+                    bestSeconds: 120,
+                    attempts: [
+                        { id: 1, moves: 8, seconds: 120 }
+                    ]
+                },
+                {
+                    id: '4',
+                    date: 'January 15, 2026',
+                    dateRaw: '2026-01-15',
+                    bestMoves: 8,
+                    bestSeconds: 120,
+                    attempts: [
+                        { id: 1, moves: 8, seconds: 120 }
+                    ]
+                },
+                {
+                    id: '5',
+                    date: 'January 16, 2026',
+                    dateRaw: '2026-01-16',
+                    bestMoves: 8,
+                    bestSeconds: 120,
+                    attempts: [
+                        { id: 1, moves: 8, seconds: 120 }
+                    ]
+                },
+                {
+                    id: '6',
+                    date: 'January 19, 2026',
+                    dateRaw: '2026-01-19',
+                    bestMoves: 8,
+                    bestSeconds: 120,
+                    attempts: [
+                        { id: 1, moves: 8, seconds: 120 }
+                    ]
+                },
+                {
+                    id: '7',
+                    date: 'January 24, 2026',
+                    dateRaw: '2026-01-24',
+                    bestMoves: 8,
+                    bestSeconds: 120,
+                    attempts: [
+                        { id: 1, moves: 8, seconds: 120 }
+                    ]
+                },
+                {
+                    id: '8',
+                    date: 'January 12, 2026',
+                    dateRaw: '2026-01-12',
+                    bestMoves: 8,
+                    bestSeconds: 120,
+                    attempts: [
+                        { id: 1, moves: 8, seconds: 120 }
+                    ]
+                }
+            ],
+            custom: []
+        };
+    </script>
+    <script src="{% static 'js/profile.js' %}"></script>
+{% endblock %}

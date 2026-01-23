@@ -1,23 +1,25 @@
 import datetime
 import json
 import math
-import random
 import re
 
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404, JsonResponse
 from django.urls import reverse
 from django.views.generic import TemplateView
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 from apps.game.board import init_borders, Cell
-from apps.game.constants import (START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYMBOLS, CCW_SYMBOLS, CUSTOM_GAME_STR,
-                                 CUSTOM_GAME_SLUG_LENGTH)
-from apps.game.utils import encode
-from .models import Daily, Custom, Outline
+from apps.game.constants import (START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYMBOLS, CCW_SYMBOLS)
+from apps.game.creation import create_custom_puzzle, get_or_create_default_outline, get_or_create_daily_puzzle, normalize_create_payload
+from apps.game.utils import encode, generate_target_preview
+from .models import Daily, Custom
 from .solver import solve, is_solved
 
 
-class GameView(TemplateView):
+class GameView(LoginRequiredMixin, TemplateView):
     model_class = None
 
     def get_game_index(self):
@@ -26,16 +28,17 @@ class GameView(TemplateView):
     def get_canonical_url(self):
         raise NotImplementedError
 
+    def get_game(self):
+        """Get the game object. Can be overridden by subclasses for custom behavior."""
+        return self.model_class.objects.select_related('outline').get(index=self.get_game_index())
+
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         moves_re = re.findall(fr'(?<!\d)([1-9]|[1-9][0-9])(?!\d)\s*([{CW_SYMBOLS}{CCW_SYMBOLS}])',
                               self.request.GET.get('moves', ''))
         pre_moves = [(int(k), v in CW_SYMBOLS) for k, v in moves_re]
-        try:
-            game = self.model_class.objects.select_related('outline').get(index=self.get_game_index())
-        except self.model_class.DoesNotExist:
-            raise Http404
-
+        game = self.model_class.objects.select_related('outline').get(index=self.get_game_index())
+        game.fixed_areas = {int(k): int(v) for k, v in game.fixed_areas.items()}
         size = int(math.sqrt(len(game.board)))
         outline = game.outline
 
@@ -51,8 +54,16 @@ class GameView(TemplateView):
                 solution = ' '.join(f'{i}{(CW_SYMBOLS if v == 'CW' else CCW_SYMBOLS)[0]}' for i, v in solution)
             print(solution)
 
-        bordered_board = init_borders(outline=outline_board, board=game.board)
-        bordered_outline = init_borders(outline=outline_board)
+        # Generate target preview for showing the goal state
+        target_preview_board = generate_target_preview(
+            board=game.board,
+            outline=outline_board,
+            fixed_areas=game.fixed_areas,
+        )
+        # Pass target_preview_board as outline_colors so board outlines match target colors
+        bordered_board = init_borders(outline=outline_board, board=board, outline_colors=target_preview_board)
+        bordered_outline = init_borders(outline=outline_board, outline_colors=target_preview_board)
+        target_preview = init_borders(outline=outline_board, board=target_preview_board, outline_colors=target_preview_board)
         context_data.update(dict(size=size,
                                  game=game,
                                  board=bordered_board,
@@ -62,10 +73,11 @@ class GameView(TemplateView):
                                  pre_moves_dumped=json.dumps(pre_moves),
                                  is_solved=is_solved(board, outline_board, pre_moves,
                                                      game.fixed_areas_as_int, game.disabled_nodes_as_int),
-                                 nodes=[[(e, game.disabled_nodes_as_int.get(e, dict())) for e in range(i, i + size - 1)]
-                                        for i in
-                                        range(1, (size - 1) ** 2, size - 1)],
-                                 canonical_url=settings.SITE_DOMAIN + self.get_canonical_url(),
+                                nodes=[[(e, game.disabled_nodes_as_int.get(e, dict())) for e in range(i, i + size - 1)]
+                                       for i in
+                                       range(1, (size - 1) ** 2, size - 1)],
+                                target_preview=target_preview,
+                                canonical_url=settings.SITE_DOMAIN + self.get_canonical_url(),
                                  moves_max_num=game.moves_min_num * 100,
                                  cw_symbol=CW_SYMBOLS[0],
                                  ccw_symbol=CCW_SYMBOLS[0]))
@@ -124,6 +136,13 @@ class DailyView(DailyMixin, GameView):
     def get_canonical_url(self):
         return reverse('daily', args=(self.current_date,))
 
+    def get_game(self):
+        """Override to auto-create daily puzzle if it doesn't exist."""
+        game = get_or_create_daily_puzzle(self.get_game_index())
+        if game is None:
+            raise Http404()
+        return game
+
     def get_context_data(self, date=None, **kwargs):
         context_data = super().get_context_data(**kwargs)
         game_index = self.get_game_index()
@@ -142,13 +161,13 @@ class DailyView(DailyMixin, GameView):
         return context_data
 
 
-class CreateView(TemplateView):
+class CreateView(LoginRequiredMixin, TemplateView):
     template_name = 'game/create.html'
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        outlines = Outline.objects.all()
-        size2 = len(outlines[0].board)
+        outline = get_or_create_default_outline()
+        size2 = len(outline.board)
         size = int(math.sqrt(size2))
         context_data.update(
             size=size,
@@ -209,103 +228,121 @@ def track(request):
 def post_create(request):
     if False and not request.user.is_authenticated:
         return JsonResponse({'error': 'You should be logged in.'})
-
-    elements = (1, 2, 3, 4)
-
-    outline = []
-    mapping = {}
-    next_id = 0
-    for item in request.POST.get('outline', '').replace(' ', '').split(','):
-        if item not in mapping:
-            mapping[item] = next_id
-            next_id += 1
-        outline.append(mapping[item])
-
-    if len(outline) != 16:
-        return JsonResponse({'error': 'Incomplete outline.'})
-
-    if len(mapping) != 4:
-        return JsonResponse({'error': 'Invalid outline.'})
-
-    fixed_areas = {}
+    outline_items = [item for item in request.POST.get('outline', '').replace(' ', '').split(',') if item]
+    fixed_areas_items = {}
     for item in request.POST.get('fixed_areas', '').replace(' ', '').split(','):
-        try:
-            key, value = item.split(':')
-        except:
+        if not item:
             continue
-        else:
-            if key in mapping:
-                try:
-                    value = int(value)
-                    if not 1 <= value <= 4:
-                        raise Exception
-                except:
-                    continue
-                else:
-                    fixed_areas[mapping[key] + 1] = value
-    vals = list(fixed_areas.values())
-    vals_n = len(vals)
-    if vals_n != len(set(vals)):
-        return JsonResponse({'error': 'Invalid outline.'})
-    if vals_n == 3:
-        els = set(elements)
-        k = els.difference(fixed_areas.keys()).pop()
-        v = els.difference(vals).pop()
-        fixed_areas[k] = v
-    fixed_areas = {k: v for k, v in sorted(fixed_areas.items())}
-
-    board = []
-    for item in request.POST.get('board', '').replace(' ', '').split(','):
         try:
-            n = int(item)
-            if not 1 <= n <= 4:
-                raise Exception
-            board.append(n)
-        except:
-            pass
+            key, value = item.split(':', 1)
+        except ValueError:
+            continue
+        fixed_areas_items[key] = value
+    board_items = [item for item in request.POST.get('board', '').replace(' ', '').split(',') if item]
+    node_items = [item for item in request.POST.get('nodes', '').replace(' ', '').split(',') if item]
 
-    if len(board) != 16:
-        return JsonResponse({'error': 'Incomplete board.'})
+    outline, board, fixed_areas, nodes, error = normalize_create_payload(
+        outline_items=outline_items,
+        board_items=board_items,
+        fixed_areas_items=fixed_areas_items,
+        disabled_node_items=node_items,
+    )
+    if error:
+        return JsonResponse({'error': error})
 
-    if any(len([c for c in board if c == e]) != 4 for e in elements):
-        return JsonResponse({'error': 'Invalid board.'})
+    game, error = create_custom_puzzle(outline, board, fixed_areas, nodes)
+    if error:
+        return JsonResponse({'error': error})
 
-    nodes = []
-    for item in request.POST.get('nodes', '').replace(' ', '').split(','):
-        try:
-            n = int(item)
-            if not 1 <= n <= 9:
-                raise Exception
-            nodes.append(n)
-        except:
-            pass
+    return JsonResponse({'url': settings.SITE_DOMAIN + reverse('custom', args=(game.index,))})
 
-    nodes = {f"{n}": {"cw": True, "ccw": True} for n in sorted(set(nodes))}
-    if len(nodes) == 9:
-        return JsonResponse({'error': 'No active nodes.'})
 
-    m = {}
-    next_id = 0
-    encoded_board = []
-    for item in board:
-        if not item in m:
-            m[item] = next_id
-            next_id += 1
-        encoded_board.append(m[item])
+def _get_daily_game(date: datetime.datetime | None):
+    release_offset_hours = 0 if settings.DEBUG else 5
+    today_date = datetime.datetime.now() - datetime.timedelta(hours=release_offset_hours)
+    days_passed = (today_date - START_DATE).days
+    if date is None:
+        current_date = today_date
+        game_index = days_passed
+    else:
+        current_date = date
+        game_index = (current_date - START_DATE).days
+        if not 0 < game_index <= days_passed:
+            raise Http404()
+    # Auto-create daily puzzle if it doesn't exist (handles new day start)
+    game = get_or_create_daily_puzzle(game_index)
+    if game is None:
+        raise Http404()
+    return game, current_date, today_date
 
-    outline = tuple(outline)
+
+@require_http_methods(["GET"])
+def api_puzzle(request, date: datetime.datetime | None = None):
     try:
-        outline_obj = Outline.objects.get(board=outline)
-    except Outline.DoesNotExist:
-        return JsonResponse({'error': 'Invalid outline.'})
+        game, current_date, today_date = _get_daily_game(date)
+    except Http404:
+        return JsonResponse({'error': 'Puzzle not found for this date.'}, status=404)
+    fixed_areas = {int(k): int(v) for k, v in game.fixed_areas.items()}
+    board = list(game.board)
+    outline_raw = list(game.outline.board)
+    outline_encoded = list(encode(outline_raw, fixed_areas, mode='outline'))
+    target_preview = generate_target_preview(board, outline_encoded, fixed_areas)
+
+    min_date = (START_DATE + datetime.timedelta(days=1)).strftime(JS_DATE_FORMAT)
+    max_date = today_date.strftime(JS_DATE_FORMAT)
+    date_iso = current_date.strftime(JS_DATE_FORMAT)
+
+    return JsonResponse({
+        'index': game.index,
+        'board': board,
+        'outline': outline_encoded,
+        'targetPreview': target_preview,
+        'minMoves': game.moves_min_num,
+        'disabledNodes': game.disabled_nodes,
+        'fixedAreas': fixed_areas,
+        'date': current_date.strftime(DATE_FORMAT),
+        'dateIso': date_iso,
+        'minDateIso': min_date,
+        'maxDateIso': max_date,
+    })
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_solve(request):
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+    except (TypeError, ValueError):
+        return JsonResponse({'error': 'Invalid JSON payload.'}, status=400)
+
+    board = payload.get('board')
+    outline = payload.get('outline')
+    disabled_nodes = payload.get('disabledNodes') or {}
+    fixed_areas = payload.get('fixedAreas') or {}
+
+    if not isinstance(board, list) or not isinstance(outline, list):
+        return JsonResponse({'error': 'Board and outline must be arrays.'}, status=400)
+    if len(board) != len(outline):
+        return JsonResponse({'error': 'Board and outline sizes do not match.'}, status=400)
+
+    try:
+        board_values = [int(v) for v in board]
+        outline_values = [int(v) for v in outline]
+    except (TypeError, ValueError):
+        return JsonResponse({'error': 'Board and outline must contain numbers.'}, status=400)
+
+    try:
+        fixed_areas = {int(k): int(v) for k, v in fixed_areas.items()}
+    except (TypeError, ValueError, AttributeError):
+        return JsonResponse({'error': 'Fixed areas are invalid.'}, status=400)
 
     board = tuple(board)
     try:
         game = Custom.objects.get(board=board, disabled_nodes=nodes, fixed_areas=fixed_areas, outline=outline_obj)
     except Custom.DoesNotExist:
-        solution = solve(board=encode(board, fixed_areas),
-                         outline=encode(outline_obj.board, fixed_areas, for_outline=True),
-                         disabled_nodes={int(k): v for k, v in nodes.items()},
+        solution = solve(board=encode(board, fixed_areas, mode='encode'),
+                         outline=encode(outline_obj.board, fixed_areas, mode='outline'),
+                         disabled_nodes=nodes,
                          fixed_areas=fixed_areas)
         if solution is None:
             return JsonResponse({'error': 'The puzzle is unsolvable.'})

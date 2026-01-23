@@ -21,6 +21,8 @@ one_less_move_dom = document.getElementById('one-less-move')
 moves_num_dom = document.getElementById('moves-num')
 active_nodes_dom = [...document.querySelectorAll('.node.active')]
 shareable_text_dom = document.getElementById('shareable-text')
+stats_initial_dom = document.getElementById('stats-initial')
+stats_playing_dom = document.getElementById('stats-playing')
 puzzle_date_dom = document.getElementById('puzzle-date')
 today_date = null
 if puzzle_date_dom
@@ -167,6 +169,12 @@ animate = (value, row, col, cw, undo = false, demo = false, callback = null) ->
         if number_of_moves == 1 and not undo
           start_time = new Date()
         moves_made_num_dom.innerHTML = number_of_moves
+        if number_of_moves > 0
+          window.hide_element(stats_initial_dom)
+          window.show_element(stats_playing_dom)
+        else
+          window.show_element(stats_initial_dom)
+          window.hide_element(stats_playing_dom)
         solved = check()
         if not demo and (number_of_moves >= moves_max_num or solved)
           end_time = new Date()

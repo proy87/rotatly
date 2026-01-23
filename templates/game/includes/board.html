@@ -1,3 +1,12 @@
+{% if not skip_grid %}
+<div class="board-outline-grid">
+    {% for row in board %}
+        {% for cell in row %}
+            <div class="board-outline-cell" style="{{ cell.outline_border_style }}"></div>
+        {% endfor %}
+    {% endfor %}
+</div>
+{% endif %}
 <table>
     {% for row in board %}
         <tr>
@@ -5,21 +14,10 @@
                 <td {% if not is_outline %}id="cell-{{ forloop.parentloop.counter0 }}-{{ forloop.counter0 }}"
                     data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}"{% endif %}
                     data-value="{{ cell.name }}"
-                    {% if cell.color_class %}class="{% if not is_outline %}cell {% endif %}{{ cell.color_class }}"{% endif %}>
-                    {% if not is_outline %}<span style="display: inline-block; width: calc(var(--cell-width) * 0.9);color:black;">{{ cell.display_name }}</span>{% endif %}
+                    class="cell game-tile{% if cell.color_class %} {{ cell.color_class }}{% endif %}{% if is_outline and cell.connection_classes %} {{ cell.connection_classes }}{% endif %}">
+                    {% if not is_outline %}<span class="tile-label">{{ cell.display_name }}</span>{% endif %}
                 </td>
             {% endfor %}
         </tr>
     {% endfor %}
 </table>
-<div class="outline-grid">
-    {% if not skip_grid %}
-        {% for row in board %}
-            {% for cell in row %}
-                {% for v in cell.border_styles %}
-                    <div style="{{ v }}"></div>
-                {% endfor %}
-            {% endfor %}
-        {% endfor %}
-    {% endif %}
-</div>

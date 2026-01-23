@@ -1,0 +1,466 @@
+#content-container {
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+/* ===== BASE AUTH SCREEN STYLES ===== */
+.login-screen,
+.signup-screen,
+.reset-screen,
+.reset-email-screen,
+.new-password-screen {
+  --form-width: 358px;
+  --logo-size: 48px;
+  --logo-gap: 8px;
+  --logo-font-size: 48px;
+  --logo-line-height: 56px;
+  --body-gap: 64px;
+  --page-padding-top: 64px;
+  --page-padding-side: 16px;
+  --page-padding-bottom: 80px;
+  background: #fffbeb;
+  color: #62351d;
+  font-family: 'Mulish', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+  width: 100%;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--page-padding-top) var(--page-padding-side)
+    var(--page-padding-bottom);
+}
+
+@media (min-width: 1024px) {
+  .login-screen,
+  .signup-screen,
+  .reset-screen,
+  .reset-email-screen,
+  .new-password-screen {
+    --form-width: 480px;
+    --logo-size: 60px;
+    --logo-gap: 12px;
+    --logo-font-size: 56px;
+    --logo-line-height: 64px;
+    --body-gap: 100px;
+    --page-padding-top: 100px;
+    --page-padding-side: 24px;
+    --page-padding-bottom: 120px;
+  }
+}
+
+/* ===== HEADER STYLES ===== */
+.login-header,
+.signup-header,
+.reset-header,
+.reset-email-header,
+.new-password-header {
+  display: flex;
+  align-items: center;
+  gap: var(--logo-gap);
+}
+
+.logo-mark {
+  position: relative;
+  width: var(--logo-size);
+  height: var(--logo-size);
+}
+
+.logo-text {
+  font-size: var(--logo-font-size);
+  font-weight: 800;
+  line-height: var(--logo-line-height);
+  color: #90634b;
+}
+
+/* ===== BODY STYLES ===== */
+.login-body,
+.signup-body,
+.reset-body,
+.reset-email-body,
+.new-password-body {
+  margin-top: var(--body-gap);
+  width: min(100%, var(--form-width));
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.login-body,
+.signup-body,
+.new-password-body {
+  gap: 16px;
+}
+
+.reset-body {
+  gap: 24px;
+}
+
+.reset-email-body {
+  align-items: center;
+  gap: 16px;
+}
+
+/* ===== TITLE STYLES ===== */
+.login-title,
+.signup-title,
+.reset-title,
+.reset-email-title,
+.new-password-title {
+  margin: 0 0 24px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+  color: #62351d;
+  text-align: center;
+}
+
+.reset-title,
+.reset-email-title,
+.new-password-title {
+  margin: 0;
+}
+
+/* ===== FORM STYLES ===== */
+.login-form,
+.signup-form,
+.reset-form,
+.new-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-field,
+.signup-field,
+.new-password-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  color: #62351d;
+}
+
+.field-input {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #fef3c6;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0 16px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #62351d;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: #ffd230;
+  box-shadow: 0 0 0 2px rgba(255, 210, 48, 0.3);
+}
+
+.field-input::placeholder {
+  color: #90634b;
+}
+
+/* ===== PASSWORD TOGGLE ===== */
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap .field-input {
+  padding-right: 44px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #62351d;
+}
+
+.password-toggle:focus {
+  outline: none;
+}
+
+.password-toggle-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  line-height: 1;
+  color: inherit;
+}
+
+/* ===== HINT BUTTON ===== */
+.field-hint-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  color: #62351d;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.field-hint-button:focus {
+  outline: none;
+  text-decoration: underline;
+}
+
+/* ===== SUBMIT BUTTONS ===== */
+.login-button,
+.signup-button,
+.reset-button,
+.reset-email-button,
+.new-password-button {
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-radius: 12px;
+  background: #ffeda4;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  color: #62351d;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.login-button:hover,
+.signup-button:hover,
+.reset-button:hover,
+.reset-email-button:hover,
+.new-password-button:hover {
+  opacity: 0.9;
+}
+
+.login-button:disabled,
+.signup-button:disabled,
+.reset-button:disabled,
+.reset-email-button:disabled,
+.new-password-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ===== FORM MESSAGE ===== */
+.form-message {
+  margin-top: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: center;
+}
+
+.form-message[hidden] {
+  display: none;
+}
+
+.form-message--error {
+  color: #b42318;
+}
+
+.form-message--success {
+  color: #1a7f37;
+}
+
+/* ===== FOOTER LINKS ===== */
+.login-footer,
+.signup-footer {
+  margin-top: 24px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  color: #90634b;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.link-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #90634b;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.link-button:focus {
+  outline: none;
+  text-decoration: underline;
+}
+
+/* ===== RESET PASSWORD SCREEN ===== */
+.reset-text {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+
+.reset-subtitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #90634b;
+}
+
+.reset-back {
+  align-self: center;
+  font-size: 18px;
+}
+
+/* ===== RESET EMAIL SCREEN ===== */
+.reset-email-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #ffeda4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #62351d;
+}
+
+.reset-email-icon i {
+  font-size: 20px;
+}
+
+.reset-email-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+}
+
+.reset-email-subtitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #90634b;
+}
+
+.reset-email-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.reset-email-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #90634b;
+}
+
+.reset-email-timer i {
+  font-size: 14px;
+}
+
+.reset-email-back {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  color: #62351d;
+  text-decoration: none;
+}
+
+/* ===== NEW PASSWORD SUCCESS ===== */
+.new-password-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.new-password-success-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: #fef3c6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #62351d;
+}
+
+.new-password-success-check {
+  width: 30px;
+  height: 30px;
+  font-size: 30px;
+}
+
+.new-password-success-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+  color: #62351d;
+}
+
+.new-password-success-subtitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #90634b;
+}
+
+.new-password-success-back {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  background: #ffeda4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 24px;
+  color: #62351d;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.new-password-success-back:hover {
+  opacity: 0.9;
+}

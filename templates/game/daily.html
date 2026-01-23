@@ -13,30 +13,32 @@
 {% endblock %}
 {% block title %}Rotatly #{{ game.index }}{% endblock %}
 {% block calendar %}
-    <div id="date">{{ current_date }}</div>
-    <div class="text-center my-3">
+    <button class="date-picker" type="button" aria-label="Select date">
         <input
-                type="date"
-                id="puzzle-date"
-                class="form-control d-inline-block"
-                style="max-width: 220px;"
-                min="{{ min_date_js }}"
-                max="{{ max_date_js }}"
-                value="{{ current_date_js }}"
+            type="date"
+            id="puzzle-date"
+            class="date-native-input"
+            min="{{ min_date_js }}"
+            max="{{ max_date_js }}"
+            value="{{ current_date_js }}"
         >
-    </div>
+        <span class="date-text">{{ current_date }}</span>
+        <i class="fa-regular fa-calendar date-icon" aria-hidden="true"></i>
+    </button>
 {% endblock %}
 {% block prev_next_navigation %}
-    <div class="puzzle-nav px-3 my-4">
+    <div class="puzzle-nav">
         {% if previous_puzzle_url %}
-            <a href="{{ previous_puzzle_url }}" class="btn btn-outline-secondary">
-                <i class="fa fa-arrow-left me-2"></i>Previous Puzzle
+            <a href="{{ previous_puzzle_url }}" class="puzzle-nav-button">
+                <i class="fa-solid fa-arrow-left puzzle-nav-icon" aria-hidden="true"></i>
+                <span>Previous Puzzle</span>
             </a>
         {% endif %}
 
         {% if next_puzzle_url %}
-            <a href="{{ next_puzzle_url }}" class="btn btn-outline-secondary">
-                Next Puzzle <i class="fa fa-arrow-right ms-2"></i>
+            <a href="{{ next_puzzle_url }}" class="puzzle-nav-button">
+                <span>Next Puzzle</span>
+                <i class="fa-solid fa-arrow-right puzzle-nav-icon" aria-hidden="true"></i>
             </a>
         {% endif %}
     </div>
