@@ -2,7 +2,7 @@
 db.json
 media/
 static_production/
-
+figma-file.json
 # OS
 .DS_Store
 Thumbs.db
