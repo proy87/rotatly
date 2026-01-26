@@ -51,7 +51,8 @@ class GameView(TemplateView):
                 solution = ' '.join(f'{i}{(CW_SYMBOLS if v == 'CW' else CCW_SYMBOLS)[0]}' for i, v in solution)
             print(solution)
 
-        bordered_board = init_borders(outline=outline_board, board=game.board)
+        vals = list(game.fixed_areas_as_int.values())
+        bordered_board = init_borders(outline=outline_board, board=[-ch if ch in vals else ch for ch in game.board])
         bordered_outline = init_borders(outline=outline_board)
         context_data.update(dict(size=size,
                                  game=game,
