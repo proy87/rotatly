@@ -241,6 +241,9 @@
               stats_playing_dom.querySelector('.stats-status').innerHTML = number_of_moves === moves_min_num ? 'Perfect Solve! 🧠✨' : 'Solved! 🧩';
             }
             window.send_request(track_url, {
+              event: 'finish',
+              solved: solved,
+              puzzle_type: puzzle_type,
               game_index: game_index,
               init_time: (start_time - visit_time) / 1000,
               game_time: (end_time - start_time) / 1000,
@@ -565,6 +568,9 @@
       }, 2000);
     });
     return window.send_request(track_url, {
+      event: 'share',
+      solved: check(),
+      puzzle_type: puzzle_type,
       game_index: game_index,
       init_time: (start_time - visit_time) / 1000,
       game_time: (end_time - start_time) / 1000,

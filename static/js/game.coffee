@@ -192,6 +192,9 @@ animate = (value, row, col, cw, undo = false, demo = false, callback = null) ->
           #window.show_element(block)
 
           window.send_request(track_url, {
+            event: 'finish',
+            solved: solved,
+            puzzle_type: puzzle_type,
             game_index: game_index, init_time: (start_time - visit_time) / 1000,
             game_time: (end_time - start_time) / 1000, moves: moves.join(''), length: number_of_moves
           })
@@ -433,6 +436,9 @@ document.getElementById('copy-result').addEventListener('click', ->
     , 2000)
   )
   window.send_request(track_url, {
+      event: 'share',
+      solved: check(),
+      puzzle_type: puzzle_type,
       game_index: game_index,
       init_time: (start_time - visit_time) / 1000,
       game_time: (end_time - start_time) / 1000,

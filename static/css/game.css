@@ -341,42 +341,76 @@
   width: 100%;
   max-width: var(--grid-size);
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 16px;
   margin-bottom: 24px;
+}
+
+.game-hero-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
 @media (min-width: 1024px) {
   .game-hero {
     max-width: 800px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .game-hero-left {
+    align-items: center;
+    width: 100%;
   }
 }
 
 .puzzle-title {
   margin: 0;
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 800;
-  line-height: 44px;
+  line-height: 36px;
   color: #62351d;
-  text-align: center;
+  text-align: left;
   width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .puzzle-title {
+    font-size: 36px;
+    line-height: 44px;
+    text-align: center;
+  }
 }
 
 .date-picker {
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 48px;
-  padding: 0 16px;
+  height: 44px;
+  padding: 0 14px;
   background: #ffffff;
   border: 1px solid #fef3c6;
   border-radius: 12px;
   cursor: pointer;
-  width: 320px;
+  width: auto;
+  max-width: 100%;
   justify-content: flex-start;
   position: relative;
   overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .date-picker {
+    height: 48px;
+    padding: 0 16px;
+    width: 320px;
+  }
 }
 
 .date-native-input {
@@ -389,13 +423,20 @@
 }
 
 .date-text {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
-  line-height: 24px;
+  line-height: 20px;
   color: #90634b;
   flex: 0 0 auto;
   text-align: left;
   white-space: nowrap;
+}
+
+@media (min-width: 1024px) {
+  .date-text {
+    font-size: 16px;
+    line-height: 24px;
+  }
 }
 
 .date-icon {
@@ -403,8 +444,15 @@
   height: 20px;
   color: #62351d;
   flex: 0 0 auto;
-  margin-left: auto;
-  font-size: 18px;
+  margin-left: 8px;
+  font-size: 16px;
+}
+
+@media (min-width: 1024px) {
+  .date-icon {
+    font-size: 18px;
+    margin-left: auto;
+  }
 }
 
 /* ===== TARGET OUTLINE ===== */
@@ -412,26 +460,48 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .target-outline {
+    gap: 8px;
+  }
 }
 
 .target-label {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 16px;
   color: #90634b;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .target-label {
+    font-weight: 500;
+  }
 }
 
 .target-preview {
-  width: 128px;
-  height: 128px;
+  /* Height = title (36px) + gap (12px) + date picker (44px) = 92px */
+  --preview-size: 92px;
+  /* Override --tile-size for this context - used by inline styles from Python */
+  --tile-size: calc(var(--preview-size) / var(--board-size, 4));
+  
+  width: var(--preview-size);
+  height: var(--preview-size);
   position: relative;
   border-radius: 8px;
-  overflow: visible;
-  background: transparent;
-  /* Scale variables for 128px / 4 = 32px cells */
-  --tile-size: 32px;
-  --tile-inner: 26px;
+  overflow: hidden;
+  background: #fffbeb;
+}
+
+@media (min-width: 1024px) {
+  .target-preview {
+    --preview-size: 128px;
+  }
 }
 
 .target-preview .outline-container {
@@ -441,8 +511,8 @@
 }
 
 .target-preview table {
-  width: 128px !important;
-  height: 128px !important;
+  width: var(--preview-size) !important;
+  height: var(--preview-size) !important;
   table-layout: fixed !important;
   position: relative;
   z-index: 1;
@@ -454,8 +524,8 @@
 }
 
 .target-preview td {
-  width: 32px !important;
-  height: 32px !important;
+  width: var(--tile-size) !important;
+  height: var(--tile-size) !important;
   padding: 0 !important;
   background: transparent !important;
   overflow: visible !important;
@@ -468,16 +538,22 @@
   position: relative !important;
 }
 
+/* Gap between different-colored regions, no gap within same-colored regions */
+.target-preview td.cell,
+.target-preview td.game-tile {
+  background: transparent !important;
+}
+
 .target-preview td.cell::before,
 .target-preview td.game-tile::before {
   content: '';
   position: absolute;
-  top: 2.5px;
-  left: 2.5px;
-  width: 27px;
-  height: 27px;
+  /* Base: small gap on all sides */
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
   background-color: #e5e7eb;
-  border-radius: 4px;
   z-index: 1;
 }
 
@@ -486,99 +562,25 @@
 .target-preview td.blue::before { background-color: #51a2ff !important; }
 .target-preview td.purple::before { background-color: #c27aff !important; }
 
-/* === Smooth tile connections for target preview === */
-/* Connected tiles extend toward connected edges while keeping 2.5px gap on non-connected edges */
-/* This creates 5px spacing between separate shapes (2.5 + 2.5) */
-
-/* Vertical edge extensions */
-.target-preview td.conn-top:not(.conn-bottom)::before {
+/* === Extend tiles toward same-colored neighbors (remove gap on connected sides) === */
+/* conn-top: extend to top edge */
+.target-preview td.conn-top::before {
   top: 0 !important;
-  height: 29.5px !important;
-}
-.target-preview td.conn-bottom:not(.conn-top)::before {
-  height: 29.5px !important;
-}
-.target-preview td.conn-top.conn-bottom::before {
-  top: 0 !important;
-  height: 32px !important;
 }
 
-/* Horizontal edge extensions */
-.target-preview td.conn-left:not(.conn-right)::before {
+/* conn-bottom: extend to bottom edge */
+.target-preview td.conn-bottom::before {
+  bottom: 0 !important;
+}
+
+/* conn-left: extend to left edge */
+.target-preview td.conn-left::before {
   left: 0 !important;
-  width: 29.5px !important;
-}
-.target-preview td.conn-right:not(.conn-left)::before {
-  width: 29.5px !important;
-}
-.target-preview td.conn-left.conn-right::before {
-  left: 0 !important;
-  width: 32px !important;
 }
 
-/* Single direction connections - border-radius on unconnected corners */
-/* conn-top only: bottom corners rounded */
-.target-preview td.conn-top:not(.conn-bottom):not(.conn-left):not(.conn-right)::before {
-  border-radius: 0 0 4px 4px;
-}
-
-/* conn-bottom only: top corners rounded */
-.target-preview td.conn-bottom:not(.conn-top):not(.conn-left):not(.conn-right)::before {
-  border-radius: 4px 4px 0 0;
-}
-
-/* conn-left only: right corners rounded */
-.target-preview td.conn-left:not(.conn-top):not(.conn-bottom):not(.conn-right)::before {
-  border-radius: 0 4px 4px 0;
-}
-
-/* conn-right only: left corners rounded */
-.target-preview td.conn-right:not(.conn-top):not(.conn-bottom):not(.conn-left)::before {
-  border-radius: 4px 0 0 4px;
-}
-
-/* Two direction connections */
-/* conn-top + conn-bottom (vertical strip): no radius */
-.target-preview td.conn-top.conn-bottom:not(.conn-left):not(.conn-right)::before {
-  border-radius: 0;
-}
-
-/* conn-left + conn-right (horizontal strip): no radius */
-.target-preview td.conn-left.conn-right:not(.conn-top):not(.conn-bottom)::before {
-  border-radius: 0;
-}
-
-/* conn-top + conn-left: only BR rounded */
-.target-preview td.conn-top.conn-left:not(.conn-bottom):not(.conn-right)::before {
-  border-radius: 0 0 4px 0;
-}
-
-/* conn-top + conn-right: only BL rounded */
-.target-preview td.conn-top.conn-right:not(.conn-bottom):not(.conn-left)::before {
-  border-radius: 0 0 0 4px;
-}
-
-/* conn-bottom + conn-left: only TR rounded */
-.target-preview td.conn-bottom.conn-left:not(.conn-top):not(.conn-right)::before {
-  border-radius: 0 4px 0 0;
-}
-
-/* conn-bottom + conn-right: only TL rounded */
-.target-preview td.conn-bottom.conn-right:not(.conn-top):not(.conn-left)::before {
-  border-radius: 4px 0 0 0;
-}
-
-/* Three direction connections - all have 0 radius */
-.target-preview td.conn-top.conn-bottom.conn-left:not(.conn-right)::before,
-.target-preview td.conn-top.conn-bottom.conn-right:not(.conn-left)::before,
-.target-preview td.conn-top.conn-left.conn-right:not(.conn-bottom)::before,
-.target-preview td.conn-bottom.conn-left.conn-right:not(.conn-top)::before {
-  border-radius: 0;
-}
-
-/* All four directions connected */
-.target-preview td.conn-top.conn-bottom.conn-left.conn-right::before {
-  border-radius: 0;
+/* conn-right: extend to right edge */
+.target-preview td.conn-right::before {
+  right: 0 !important;
 }
 
 /* Target preview outline grid */
@@ -587,12 +589,12 @@
   top: 0;
   left: 0;
   display: grid;
-  grid-template-columns: repeat(4, 32px);
-  grid-template-rows: repeat(4, 32px);
-  width: 128px;
-  height: 128px;
+  grid-template-columns: repeat(var(--board-size, 4), var(--tile-size));
+  grid-template-rows: repeat(var(--board-size, 4), var(--tile-size));
+  width: var(--preview-size);
+  height: var(--preview-size);
   pointer-events: none;
-  z-index: 0;
+  z-index: 2;
 }
 
 .target-preview .board-outline-cell {
@@ -606,14 +608,24 @@
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
   gap: 4px;
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  line-height: 20px;
+  line-height: 18px;
   color: #90634b;
-  text-align: center;
+  text-align: left;
+}
+
+@media (min-width: 1024px) {
+  .moves-hint {
+    justify-content: center;
+    text-align: center;
+    font-size: 14px;
+    line-height: 20px;
+  }
 }
 
 .moves-hint-text {

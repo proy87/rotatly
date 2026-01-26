@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load static %}
+{% block meta_title %}Privacy Policy | Rotatly{% endblock %}
+{% block css %}
+    <link href="{% static "css/privacy.css" %}?v=2" rel="stylesheet">
+{% endblock %}
+{% block content %}
+    <section class="privacy-screen">
+        <!-- Mobile Header -->
+        <header class="privacy-mobile-header">
+            <a class="privacy-mobile-brand" href="{% url 'daily' %}" aria-label="Rotatly home">
+                <svg class="privacy-mobile-logo" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M24.5 20.5L24.5 19.75C24.5 17.9551 25.9551 16.5 27.75 16.5C29.5449 16.5 31 17.9551 31 19.75L31 27C31 29.2091 29.2091 31 27 31L11.75 31C9.95507 31 8.5 29.5449 8.5 27.75C8.5 25.9551 9.95507 24.5 11.75 24.5L20.5 24.5C22.7091 24.5 24.5 22.7091 24.5 20.5Z" fill="#C27AFF"/>
+                    <path d="M27 1H11.75C9.95507 1 8.5 2.45507 8.5 4.25C8.5 6.04493 9.95507 7.5 11.75 7.5H20.5C22.7091 7.5 24.5 9.29086 24.5 11.5V12.25C24.5 14.0449 25.9551 15.5 27.75 15.5C29.5449 15.5 31 14.0449 31 12.25V5C31 2.79086 29.2091 1 27 1Z" fill="#FF6467"/>
+                    <path d="M1 4.25V27.75C1 29.5449 2.45507 31 4.25 31C6.04493 31 7.5 29.5449 7.5 27.75V4.25C7.5 2.45507 6.04493 1 4.25 1C2.45507 1 1 2.45508 1 4.25Z" fill="#FFE065"/>
+                    <path d="M9.07444 16.7325L10.3685 11.9029C10.9403 9.76902 13.1336 8.50269 15.2675 9.07446L20.0971 10.3686C22.231 10.9403 23.4973 13.1337 22.9256 15.2675L21.6315 20.0972C21.0597 22.231 18.8664 23.4974 16.7325 22.9256L11.9029 21.6315C9.769 21.0597 8.50267 18.8664 9.07444 16.7325Z" fill="#51A2FF"/>
+                </svg>
+                <span class="privacy-mobile-title">Rotatly</span>
+            </a>
+            <a href="{% url 'daily' %}" class="privacy-mobile-back-btn">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M7.5 9L4.5 6L7.5 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Back</span>
+            </a>
+        </header>
+
+        <div class="privacy-container">
+            <!-- Desktop Header -->
+            <header class="privacy-header">
+                <a href="{% url 'daily' %}" class="privacy-back-btn">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M7.5 9L4.5 6L7.5 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Back</span>
+                </a>
+                <h1 class="privacy-title">Privacy Policy</h1>
+            </header>
+
+            <!-- Content -->
+            <div class="privacy-content">
+                <h1 class="privacy-content-title">Privacy Policy</h1>
+                <p class="privacy-intro">
+                    This Privacy Policy describes how we collect, use, and protect your information when you use our website and services.
+                </p>
+
+                <!-- Section 1 -->
+                <section class="privacy-section">
+                    <h2 class="privacy-section-title">1. Information We Collect</h2>
+                    <ul class="privacy-list">
+                        <li>Name, email address, and contact details</li>
+                        <li>Usage data, such as pages visited and time spent on the website</li>
+                        <li>Technical information, including IP address, browser type, and device information</li>
+                    </ul>
+                </section>
+
+                <!-- Section 2 -->
+                <section class="privacy-section">
+                    <h2 class="privacy-section-title">2. How We Use Your Information</h2>
+                    <p class="privacy-text">The information we collect may be used to:</p>
+                    <ul class="privacy-list">
+                        <li>Provide and maintain our services</li>
+                        <li>Improve user experience and website functionality</li>
+                        <li>Communicate with users regarding updates or support</li>
+                        <li>Analyze usage trends and performance</li>
+                    </ul>
+                </section>
+
+                <!-- Section 3 -->
+                <section class="privacy-section">
+                    <h2 class="privacy-section-title">3. Cookies and Tracking Technologies</h2>
+                    <p class="privacy-text">
+                        We use cookies and similar tracking technologies to enhance your experience. Cookies help us understand how users interact with our website and allow us to improve our services.
+                    </p>
+                    <p class="privacy-text">
+                        You can choose to disable cookies through your browser settings.
+                    </p>
+                </section>
+
+                <!-- Section 4 -->
+                <section class="privacy-section">
+                    <h2 class="privacy-section-title">4. Data Sharing and Disclosure</h2>
+                    <p class="privacy-text">
+                        We do not sell or rent your personal information to third parties.<br>
+                        Your information may be shared only in the following cases:
+                    </p>
+                    <ul class="privacy-list">
+                        <li>With trusted service providers who assist in operating our website</li>
+                        <li>When required by law or legal process</li>
+                        <li>To protect our rights, property, or safety</li>
+                    </ul>
+                </section>
+
+                <!-- Section 5 -->
+                <section class="privacy-section">
+                    <h2 class="privacy-section-title">5. Data Security</h2>
+                    <p class="privacy-text">
+                        We take reasonable measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the Internet is 100% secure.
+                    </p>
+                </section>
+
+                <!-- Section 6 -->
+                <section class="privacy-section">
+                    <h2 class="privacy-section-title">6. Third-Party Links</h2>
+                    <p class="privacy-text">
+                        Our website may contain links to third-party websites. We are not responsible for the privacy practices or content of those external sites.
+                    </p>
+                </section>
+
+                <!-- Section 7 -->
+                <section class="privacy-section">
+                    <h2 class="privacy-section-title">7. User Rights</h2>
+                    <p class="privacy-text">You may have the right to:</p>
+                    <ul class="privacy-list">
+                        <li>Access the personal data we hold about you</li>
+                        <li>Request correction or deletion of your information</li>
+                        <li>Withdraw consent where applicable</li>
+                    </ul>
+                    <p class="privacy-text">
+                        To exercise these rights, please contact us using the information below.
+                    </p>
+                </section>
+
+                <!-- Section 8 -->
+                <section class="privacy-section">
+                    <h2 class="privacy-section-title">8. Changes to This Privacy Policy</h2>
+                    <p class="privacy-text">
+                        We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated revision date.
+                    </p>
+                </section>
+            </div>
+
+            <!-- Footer -->
+            <footer class="privacy-footer">
+                <p class="privacy-footer-text">
+                    If you have any questions about this Privacy Policy, please contact us.
+                </p>
+            </footer>
+        </div>
+    </section>
+{% endblock %}

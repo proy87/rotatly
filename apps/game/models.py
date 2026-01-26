@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils.functional import cached_property
 
@@ -33,3 +34,20 @@ class Daily(Game):
 
 class Custom(Game):
     index = models.CharField(max_length=8, db_index=True)
+
+
+class PuzzleAttempt(models.Model):
+    DAILY = 'daily'
+    CUSTOM = 'custom'
+    PUZZLE_TYPES = (
+        (DAILY, 'Daily'),
+        (CUSTOM, 'Custom'),
+    )
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='puzzle_attempts')
+    puzzle_type = models.CharField(max_length=10, choices=PUZZLE_TYPES)
+    daily = models.ForeignKey(Daily, on_delete=models.CASCADE, related_name='attempts', null=True, blank=True)
+    custom = models.ForeignKey(Custom, on_delete=models.CASCADE, related_name='attempts', null=True, blank=True)
+    moves = models.PositiveIntegerField()
+    seconds = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)

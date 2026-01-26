@@ -353,8 +353,9 @@
   color: #62351d;
 }
 
-.reset-email-icon i {
-  font-size: 20px;
+.reset-email-icon svg {
+  width: 20px;
+  height: 20px;
 }
 
 .reset-email-text {

@@ -18,7 +18,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from apps.accounts.views import LoginView, SignupView, ResetView, ResetEmailView, NewPasswordView, ProfileView
+from apps.accounts.views import (
+    LoginView, SignupView, ResetView, ResetEmailView, NewPasswordView, 
+    ProfileView, LeaderboardView, PrivacyView
+)
 
 urlpatterns = [
     path('admin-r/', admin.site.urls),
@@ -28,6 +31,8 @@ urlpatterns = [
     path('reset-email/', ResetEmailView.as_view(), name='reset-email'),
     path('reset-password/', NewPasswordView.as_view(), name='reset-password'),
     path('profile/', ProfileView.as_view(), name='profile'),
+    path('leaderboard/', LeaderboardView.as_view(), name='leaderboard'),
+    path('privacy/', PrivacyView.as_view(), name='privacy'),
     path('api/auth/', include('apps.accounts.urls')),
     path('', include('apps.game.urls')),
 ]

@@ -93,7 +93,10 @@
               return
             }
             setMessage(message, 'success', 'Welcome back!')
-            window.location.href = '/'
+            // Redirect to the 'next' URL if present, otherwise go to home
+            const params = new URLSearchParams(window.location.search)
+            const nextUrl = params.get('next') || '/'
+            window.location.href = nextUrl
           } catch {
             setMessage(message, 'error', 'Unable to reach the server. Try again soon.')
           } finally {

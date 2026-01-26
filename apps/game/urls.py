@@ -5,6 +5,7 @@ from django.urls.converters import register_converter, StringConverter
 
 from .constants import CUSTOM_GAME_STR, CUSTOM_GAME_SLUG_LENGTH
 from .views import track, DailyView, CustomView, CreateView, post_create, api_puzzle, api_solve
+from apps.accounts.views import api_leaderboard_daily, api_leaderboard_custom
 
 
 class DateConverter:
@@ -31,6 +32,8 @@ urlpatterns = [
     path('api/puzzle/', api_puzzle, name='api-puzzle'),
     path('api/puzzle/<yyyy-mm-dd:date>/', api_puzzle, name='api-puzzle-date'),
     path('api/solve/', api_solve, name='api-solve'),
+    path('api/leaderboard/daily/<yyyy-mm-dd:date>/', api_leaderboard_daily, name='api-leaderboard-daily'),
+    path('api/leaderboard/custom/', api_leaderboard_custom, name='api-leaderboard-custom'),
     path('', DailyView.as_view(), name='daily'),
     path('create/', CreateView.as_view(), name='create'),
     path('post-create/', post_create, name='post-create'),

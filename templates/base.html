@@ -14,10 +14,220 @@
     >
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="{% static "css/site.css" %}" rel="stylesheet">
     {% block css %}{% endblock %}
 </head>
 <body>
+{% block site_header %}
+    <header class="site-header" aria-label="Site header">
+        <div class="site-header-inner">
+            <a class="site-brand" href="{% url 'daily' %}" aria-label="Rotatly home">
+                <svg
+                    class="site-logo"
+                    width="100%"
+                    height="100%"
+                    viewBox="0 0 32 32"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    focusable="false"
+                >
+                    <path
+                        d="M24.5 20.5L24.5 19.75C24.5 17.9551 25.9551 16.5 27.75 16.5C29.5449 16.5 31 17.9551 31 19.75L31 27C31 29.2091 29.2091 31 27 31L11.75 31C9.95507 31 8.5 29.5449 8.5 27.75C8.5 25.9551 9.95507 24.5 11.75 24.5L20.5 24.5C22.7091 24.5 24.5 22.7091 24.5 20.5Z"
+                        fill="#C27AFF"
+                    />
+                    <path
+                        d="M27 1H11.75C9.95507 1 8.5 2.45507 8.5 4.25C8.5 6.04493 9.95507 7.5 11.75 7.5H20.5C22.7091 7.5 24.5 9.29086 24.5 11.5V12.25C24.5 14.0449 25.9551 15.5 27.75 15.5C29.5449 15.5 31 14.0449 31 12.25V5C31 2.79086 29.2091 1 27 1Z"
+                        fill="#FF6467"
+                    />
+                    <path
+                        d="M1 4.25V27.75C1 29.5449 2.45507 31 4.25 31C6.04493 31 7.5 29.5449 7.5 27.75V4.25C7.5 2.45507 6.04493 1 4.25 1C2.45507 1 1 2.45508 1 4.25Z"
+                        fill="#FFE065"
+                    />
+                    <path
+                        d="M9.07444 16.7325L10.3685 11.9029C10.9403 9.76902 13.1336 8.50269 15.2675 9.07446L20.0971 10.3686C22.231 10.9403 23.4973 13.1337 22.9256 15.2675L21.6315 20.0972C21.0597 22.231 18.8664 23.4974 16.7325 22.9256L11.9029 21.6315C9.769 21.0597 8.50267 18.8664 9.07444 16.7325Z"
+                        fill="#51A2FF"
+                    />
+                </svg>
+                <span class="site-title">Rotatly</span>
+            </a>
+            <nav class="site-nav" aria-label="Primary navigation">
+                <a class="site-nav-button" href="{% url 'create' %}">
+                    <svg
+                        class="site-nav-icon"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                    >
+                        <path
+                            d="M11.6666 14.1667H16.6666M14.1666 11.6667V16.6667M3.33325 4.16668C3.33325 3.94566 3.42105 3.7337 3.57733 3.57742C3.73361 3.42114 3.94557 3.33334 4.16659 3.33334H7.49992C7.72093 3.33334 7.93289 3.42114 8.08917 3.57742C8.24545 3.7337 8.33325 3.94566 8.33325 4.16668V7.50001C8.33325 7.72102 8.24545 7.93299 8.08917 8.08927C7.93289 8.24555 7.72093 8.33334 7.49992 8.33334H4.16659C3.94557 8.33334 3.73361 8.24555 3.57733 8.08927C3.42105 7.93299 3.33325 7.72102 3.33325 7.50001V4.16668ZM11.6666 4.16668C11.6666 3.94566 11.7544 3.7337 11.9107 3.57742C12.0669 3.42114 12.2789 3.33334 12.4999 3.33334H15.8333C16.0543 3.33334 16.2662 3.42114 16.4225 3.57742C16.5788 3.7337 16.6666 3.94566 16.6666 4.16668V7.50001C16.6666 7.72102 16.5788 7.93299 16.4225 8.08927C16.2662 8.24555 16.0543 8.33334 15.8333 8.33334H12.4999C12.2789 8.33334 12.0669 8.24555 11.9107 8.08927C11.7544 7.93299 11.6666 7.72102 11.6666 7.50001V4.16668ZM3.33325 12.5C3.33325 12.279 3.42105 12.067 3.57733 11.9108C3.73361 11.7545 3.94557 11.6667 4.16659 11.6667H7.49992C7.72093 11.6667 7.93289 11.7545 8.08917 11.9108C8.24545 12.067 8.33325 12.279 8.33325 12.5V15.8333C8.33325 16.0544 8.24545 16.2663 8.08917 16.4226C7.93289 16.5789 7.72093 16.6667 7.49992 16.6667H4.16659C3.94557 16.6667 3.73361 16.5789 3.57733 16.4226C3.42105 16.2663 3.33325 16.0544 3.33325 15.8333V12.5Z"
+                            stroke="#62351D"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                    <span>Create Puzzle</span>
+                </a>
+                <a class="site-nav-button" href="{% url 'leaderboard' %}">
+                    <svg
+                        class="site-nav-icon"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                    >
+                        <g clip-path="url(#clip0_leaderboard_nav)">
+                            <path d="M10.0002 13.3333C5.20026 13.3333 4.34994 8.54961 4.19931 4.75538C4.1574 3.69997 4.13645 3.17226 4.53289 2.68402C4.92932 2.19577 5.40379 2.11572 6.35273 1.95561C7.28945 1.79756 8.51392 1.66666 10.0002 1.66666C11.4865 1.66666 12.711 1.79756 13.6477 1.95561C14.5966 2.11572 15.0711 2.19577 15.4675 2.68402C15.864 3.17226 15.843 3.69997 15.8011 4.75538C15.6505 8.54961 14.8002 13.3333 10.0002 13.3333Z" stroke="#62351D" stroke-width="1.5"/>
+                            <path d="M15.8333 4.16666L16.6238 4.43016C17.4488 4.70518 17.8613 4.84269 18.0973 5.17006C18.3332 5.49743 18.3332 5.93226 18.3332 6.80194L18.3332 6.86238C18.3332 7.57966 18.3332 7.93831 18.1605 8.23174C17.9879 8.52516 17.6743 8.69934 17.0473 9.04769L14.5833 10.4167" stroke="#62351D" stroke-width="1.5"/>
+                            <path d="M4.1667 4.16666L3.37618 4.43016C2.55113 4.70518 2.13861 4.84269 1.90266 5.17006C1.66671 5.49743 1.66673 5.93226 1.66675 6.80194L1.66675 6.86238C1.66677 7.57966 1.66678 7.93831 1.83944 8.23174C2.01209 8.52516 2.32561 8.69934 2.95262 9.04769L5.4167 10.4167" stroke="#62351D" stroke-width="1.5"/>
+                            <path d="M10 14.1667V15.8333" stroke="#62351D" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M12.9166 18.3333H7.08325L7.36594 16.9199C7.44384 16.5304 7.78585 16.25 8.18309 16.25H11.8167C12.214 16.25 12.556 16.5304 12.6339 16.9199L12.9166 18.3333Z" stroke="#62351D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M15 18.3333H5" stroke="#62351D" stroke-width="1.5" stroke-linecap="round"/>
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_leaderboard_nav">
+                                <rect width="20" height="20" fill="white"/>
+                            </clipPath>
+                        </defs>
+                    </svg>
+                    <span>Leaderboard</span>
+                </a>
+                <a class="site-nav-button" href="{% url 'profile' %}">
+                    <svg
+                        class="site-nav-icon"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                    >
+                        <path
+                            d="M5 17.5V15.8333C5 14.9493 5.35119 14.1014 5.97631 13.4763C6.60143 12.8512 7.44928 12.5 8.33333 12.5H11.6667C12.5507 12.5 13.3986 12.8512 14.0237 13.4763C14.6488 14.1014 15 14.9493 15 15.8333V17.5M6.66667 5.83333C6.66667 6.71739 7.01786 7.56523 7.64298 8.19036C8.2681 8.81548 9.11594 9.16667 10 9.16667C10.8841 9.16667 11.7319 8.81548 12.357 8.19036C12.9821 7.56523 13.3333 6.71739 13.3333 5.83333C13.3333 4.94928 12.9821 4.10143 12.357 3.47631C11.7319 2.85119 10.8841 2.5 10 2.5C9.11594 2.5 8.2681 2.85119 7.64298 3.47631C7.01786 4.10143 6.66667 4.94928 6.66667 5.83333Z"
+                            stroke="#62351D"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                    <span>Profile</span>
+                </a>
+                <div class="site-nav-divider" aria-hidden="true"></div>
+                <button class="site-nav-button site-nav-button--logout" type="button" data-logout>
+                    <svg
+                        class="site-nav-icon"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                    >
+                        <path
+                            d="M11.6667 6.66668V5.00001C11.6667 4.55798 11.4911 4.13406 11.1785 3.8215C10.866 3.50894 10.442 3.33334 10 3.33334H4.16667C3.72464 3.33334 3.30072 3.50894 2.98816 3.8215C2.67559 4.13406 2.5 4.55798 2.5 5.00001V15C2.5 15.442 2.67559 15.866 2.98816 16.1785C3.30072 16.4911 3.72464 16.6667 4.16667 16.6667H10C10.442 16.6667 10.866 16.4911 11.1785 16.1785C11.4911 15.866 11.6667 15.442 11.6667 15V13.3333M5.83333 10H17.5M17.5 10L15 7.50001M17.5 10L15 12.5"
+                            stroke="white"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                    <span>Logout</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+{% endblock %}
 <div id="content-container">{{ debug }}{% block content %}{% endblock %}</div>
+{% block site_footer %}
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            <div class="site-footer-left">
+                <span class="site-footer-text">All rights reserved 2026</span>
+                <span class="site-footer-divider" aria-hidden="true"></span>
+                <a class="site-footer-link" href="{% url 'privacy' %}">Privacy Policy</a>
+            </div>
+            <div class="site-footer-icons" aria-label="Footer actions">
+                <a
+                    class="site-footer-icon-button"
+                    href="mailto:support@rotatly.com"
+                    aria-label="Mail"
+                >
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                    >
+                        <path
+                            d="M2.5 5.83329C2.5 5.39127 2.67559 4.96734 2.98816 4.65478C3.30072 4.34222 3.72464 4.16663 4.16667 4.16663H15.8333C16.2754 4.16663 16.6993 4.34222 17.0118 4.65478C17.3244 4.96734 17.5 5.39127 17.5 5.83329M2.5 5.83329V14.1666C2.5 14.6087 2.67559 15.0326 2.98816 15.3451C3.30072 15.6577 3.72464 15.8333 4.16667 15.8333H15.8333C16.2754 15.8333 16.6993 15.6577 17.0118 15.3451C17.3244 15.0326 17.5 14.6087 17.5 14.1666V5.83329M2.5 5.83329L10 10.8333L17.5 5.83329"
+                            stroke="#62351D"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                </a>
+                <button class="site-footer-icon-button" type="button" aria-label="Share">
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                    >
+                        <path
+                            d="M7.25 8.91666L12.75 6.08332M7.25 11.0833L12.75 13.9167M2.5 10C2.5 10.663 2.76339 11.2989 3.23223 11.7678C3.70107 12.2366 4.33696 12.5 5 12.5C5.66304 12.5 6.29893 12.2366 6.76777 11.7678C7.23661 11.2989 7.5 10.663 7.5 10C7.5 9.33696 7.23661 8.70107 6.76777 8.23223C6.29893 7.76339 5.66304 7.5 5 7.5C4.33696 7.5 3.70107 7.76339 3.23223 8.23223C2.76339 8.70107 2.5 9.33696 2.5 10ZM12.5 5C12.5 5.66304 12.7634 6.29893 13.2322 6.76777C13.7011 7.23661 14.337 7.5 15 7.5C15.663 7.5 16.2989 7.23661 16.7678 6.76777C17.2366 6.29893 17.5 5.66304 17.5 5C17.5 4.33696 17.2366 3.70107 16.7678 3.23223C16.2989 2.76339 15.663 2.5 15 2.5C14.337 2.5 13.7011 2.76339 13.2322 3.23223C12.7634 3.70107 12.5 4.33696 12.5 5ZM12.5 15C12.5 15.663 12.7634 16.2989 13.2322 16.7678C13.7011 17.2366 14.337 17.5 15 17.5C15.663 17.5 16.2989 17.2366 16.7678 16.7678C17.2366 16.2989 17.5 15.663 17.5 15C17.5 14.337 17.2366 13.7011 16.7678 13.2322C16.2989 12.7634 15.663 12.5 15 12.5C14.337 12.5 13.7011 12.7634 13.2322 13.2322C12.7634 13.7011 12.5 14.337 12.5 15Z"
+                            stroke="#62351D"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                </button>
+                <a
+                    class="site-footer-icon-button"
+                    href="https://github.com/proy87/rotatly"
+                    target="_blank"
+                    rel="noopener"
+                    aria-label="GitHub"
+                >
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                    >
+                        <path
+                            d="M7.5 15.8333C3.91667 17 3.91667 13.75 2.5 13.3333M12.5 17.5V14.5833C12.5 13.75 12.5833 13.4166 12.0833 12.9166C14.4167 12.6666 16.6667 11.75 16.6667 7.91663C16.6657 6.92076 16.2771 5.96438 15.5833 5.24996C15.9087 4.38493 15.8788 3.42632 15.5 2.58329C15.5 2.58329 14.5833 2.33329 12.5833 3.66663C10.8894 3.22545 9.11064 3.22545 7.41667 3.66663C5.41667 2.33329 4.5 2.58329 4.5 2.58329C4.12123 3.42632 4.09128 4.38493 4.41667 5.24996C3.72288 5.96438 3.33435 6.92076 3.33333 7.91663C3.33333 11.75 5.58333 12.6666 7.91667 12.9166C7.41667 13.4166 7.41667 13.9166 7.5 14.5833V17.5"
+                            stroke="#62351D"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+{% endblock %}
 {% block modal %}{% endblock %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Google tag (gtag.js) -->
@@ -32,6 +242,23 @@
 </script>
 <script src="https://analytics.ahrefs.com/analytics.js" data-key="ZBTtGX9G1uAqsJnnTjITuQ" async></script>
 <script>let csrf_token='{{ csrf_token }}';</script>
+<script>
+(function() {
+    document.querySelectorAll('[data-logout]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            fetch('/api/auth/logout/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(function() {
+                window.location.href = '/login/';
+            }).catch(function() {
+                window.location.href = '/login/';
+            });
+        });
+    });
+})();
+</script>
 {% block js %}{% endblock %}
 </body>
 </html>

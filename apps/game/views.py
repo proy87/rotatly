@@ -15,7 +15,7 @@ from apps.game.board import init_borders, Cell
 from apps.game.constants import (START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYMBOLS, CCW_SYMBOLS)
 from apps.game.creation import create_custom_puzzle, get_or_create_default_outline, get_or_create_daily_puzzle, normalize_create_payload
 from apps.game.utils import encode, generate_target_preview
-from .models import Daily, Custom
+from .models import Daily, Custom, PuzzleAttempt
 from .solver import solve, is_solved
 
 
@@ -37,7 +37,7 @@ class GameView(LoginRequiredMixin, TemplateView):
         moves_re = re.findall(fr'(?<!\d)([1-9]|[1-9][0-9])(?!\d)\s*([{CW_SYMBOLS}{CCW_SYMBOLS}])',
                               self.request.GET.get('moves', ''))
         pre_moves = [(int(k), v in CW_SYMBOLS) for k, v in moves_re]
-        game = self.model_class.objects.select_related('outline').get(index=self.get_game_index())
+        game = self.get_game()
         game.fixed_areas = {int(k): int(v) for k, v in game.fixed_areas.items()}
         size = int(math.sqrt(len(game.board)))
         outline = game.outline
@@ -64,8 +64,10 @@ class GameView(LoginRequiredMixin, TemplateView):
         bordered_board = init_borders(outline=outline_board, board=board, outline_colors=target_preview_board)
         bordered_outline = init_borders(outline=outline_board, outline_colors=target_preview_board)
         target_preview = init_borders(outline=outline_board, board=target_preview_board, outline_colors=target_preview_board)
+        puzzle_type = 'daily' if self.model_class is Daily else 'custom'
         context_data.update(dict(size=size,
                                  game=game,
+                                 game_index_json=json.dumps(game.index),
                                  board=bordered_board,
                                  outline=bordered_outline,
                                  outline_dumped=json.dumps(outline_board),
@@ -80,7 +82,8 @@ class GameView(LoginRequiredMixin, TemplateView):
                                 canonical_url=settings.SITE_DOMAIN + self.get_canonical_url(),
                                  moves_max_num=game.moves_min_num * 100,
                                  cw_symbol=CW_SYMBOLS[0],
-                                 ccw_symbol=CCW_SYMBOLS[0]))
+                                 ccw_symbol=CCW_SYMBOLS[0],
+                                 puzzle_type=puzzle_type))
         return context_data
 
 
@@ -215,14 +218,72 @@ class CreateView(LoginRequiredMixin, TemplateView):
         return context_data
 
 
+def _to_bool(value) -> bool:
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {'1', 'true', 'yes', 'y', 'on'}
+
+
+def _to_int(value, default=0) -> int:
+    try:
+        return max(0, int(round(float(value))))
+    except (TypeError, ValueError):
+        return default
+
+
+@require_http_methods(["POST"])
 def track(request):
+    payload = request.POST or {}
     if not settings.DEBUG:
         from django.core.mail import send_mail
         send_mail('Rotatly',
-                  request.POST,
+                  str(payload),
                   None,
                   [a[1] for a in settings.ADMINS])
-    return JsonResponse({})
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': True})
+
+    event = (payload.get('event') or '').strip().lower()
+    solved = _to_bool(payload.get('solved'))
+    if event != 'finish' or not solved:
+        return JsonResponse({'ok': True})
+
+    puzzle_type = (payload.get('puzzle_type') or '').strip().lower()
+    moves = _to_int(payload.get('length'))
+    seconds = _to_int(payload.get('game_time'))
+    game_index = payload.get('game_index')
+
+    if puzzle_type == PuzzleAttempt.DAILY:
+        try:
+            index = int(game_index)
+        except (TypeError, ValueError):
+            return JsonResponse({'ok': True})
+        game = Daily.objects.filter(index=index).first()
+        if game is None:
+            return JsonResponse({'ok': True})
+        PuzzleAttempt.objects.create(
+            user=request.user,
+            puzzle_type=PuzzleAttempt.DAILY,
+            daily=game,
+            moves=moves,
+            seconds=seconds,
+        )
+    elif puzzle_type == PuzzleAttempt.CUSTOM:
+        if not game_index:
+            return JsonResponse({'ok': True})
+        game = Custom.objects.filter(index=game_index).first()
+        if game is None:
+            return JsonResponse({'ok': True})
+        PuzzleAttempt.objects.create(
+            user=request.user,
+            puzzle_type=PuzzleAttempt.CUSTOM,
+            custom=game,
+            moves=moves,
+            seconds=seconds,
+        )
+
+    return JsonResponse({'ok': True})
 
 
 def post_create(request):
@@ -285,7 +346,7 @@ def api_puzzle(request, date: datetime.datetime | None = None):
     fixed_areas = {int(k): int(v) for k, v in game.fixed_areas.items()}
     board = list(game.board)
     outline_raw = list(game.outline.board)
-    outline_encoded = list(encode(outline_raw, fixed_areas, mode='outline'))
+    outline_encoded = list(encode(outline_raw, fixed_areas, for_outline=True))
     target_preview = generate_target_preview(board, outline_encoded, fixed_areas)
 
     min_date = (START_DATE + datetime.timedelta(days=1)).strftime(JS_DATE_FORMAT)
@@ -340,8 +401,8 @@ def api_solve(request):
     try:
         game = Custom.objects.get(board=board, disabled_nodes=nodes, fixed_areas=fixed_areas, outline=outline_obj)
     except Custom.DoesNotExist:
-        solution = solve(board=encode(board, fixed_areas, mode='encode'),
-                         outline=encode(outline_obj.board, fixed_areas, mode='outline'),
+        solution = solve(board=encode(board, fixed_areas),
+                         outline=encode(outline_obj.board, fixed_areas, for_outline=True),
                          disabled_nodes=nodes,
                          fixed_areas=fixed_areas)
         if solution is None:

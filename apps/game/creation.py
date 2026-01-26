@@ -147,8 +147,8 @@ def create_custom_puzzle(
     except Custom.DoesNotExist:
         pass
 
-    solution = solve(board=encode(board, fixed_areas, mode="encode"),
-                     outline=encode(outline_obj.board, fixed_areas, mode="outline"),
+    solution = solve(board=encode(board, fixed_areas),
+                     outline=encode(outline_obj.board, fixed_areas, for_outline=True),
                      disabled_nodes=disabled_nodes,
                      fixed_areas=fixed_areas)
     if solution is None:
@@ -189,8 +189,8 @@ def create_daily_puzzle(
         pass
 
     board = tuple(board)
-    solution = solve(board=encode(board, fixed_areas, mode="encode"),
-                     outline=encode(outline_obj.board, fixed_areas, mode="outline"),
+    solution = solve(board=encode(board, fixed_areas),
+                     outline=encode(outline_obj.board, fixed_areas, for_outline=True),
                      disabled_nodes=disabled_nodes,
                      fixed_areas=fixed_areas)
     if solution is None:

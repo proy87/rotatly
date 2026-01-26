@@ -1,3 +1,4 @@
+import datetime
 import json
 from urllib.parse import parse_qs
 
@@ -6,12 +7,16 @@ from django.contrib.auth import get_user_model, login as auth_login
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.http import JsonResponse
+from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 
+from apps.game.constants import DATE_FORMAT, JS_DATE_FORMAT, START_DATE
+from apps.game.models import PuzzleAttempt
 from .models import Gamer
 
 User = get_user_model()
@@ -35,6 +40,55 @@ def _read_payload(request) -> dict:
         except (TypeError, ValueError, UnicodeDecodeError):
             return {}
         return {key: values[0] if values else '' for key, values in parsed.items()}
+
+
+def _build_puzzle_data(attempts):
+    daily_entries = {}
+    custom_entries = {}
+
+    for attempt in attempts:
+        if attempt.puzzle_type == PuzzleAttempt.DAILY and attempt.daily_id:
+            entry_date = START_DATE + datetime.timedelta(days=attempt.daily.index)
+            entry_key = str(attempt.daily.index)
+            entry = daily_entries.setdefault(entry_key, {
+                'id': entry_key,
+                'date': entry_date.strftime(DATE_FORMAT),
+                'dateRaw': entry_date.strftime(JS_DATE_FORMAT),
+                'attempts': [],
+            })
+        elif attempt.puzzle_type == PuzzleAttempt.CUSTOM and attempt.custom_id:
+            entry_date = timezone.localtime(attempt.created_at)
+            entry_key = attempt.custom.index
+            entry = custom_entries.setdefault(entry_key, {
+                'id': entry_key,
+                'date': entry_date.strftime(DATE_FORMAT),
+                'dateRaw': entry_date.strftime(JS_DATE_FORMAT),
+                'attempts': [],
+            })
+        else:
+            continue
+
+        entry['attempts'].append({
+            'moves': attempt.moves,
+            'seconds': attempt.seconds,
+        })
+
+    def finalize(entries):
+        results = []
+        for entry in entries.values():
+            for idx, attempt in enumerate(entry['attempts'], start=1):
+                attempt['id'] = idx
+            best_attempt = min(entry['attempts'], key=lambda item: (item['moves'], item['seconds']))
+            entry['bestMoves'] = best_attempt['moves']
+            entry['bestSeconds'] = best_attempt['seconds']
+            results.append(entry)
+        results.sort(key=lambda item: item['dateRaw'], reverse=True)
+        return results
+
+    return {
+        'daily': finalize(daily_entries),
+        'custom': finalize(custom_entries),
+    }
 
 
 @csrf_exempt
@@ -170,18 +224,140 @@ class NewPasswordView(TemplateView):
     template_name = 'accounts/new_password.html'
 
 
-class ProfileView(TemplateView):
+class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/profile.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        if user.is_authenticated:
-            context['user'] = user
-            context['username'] = user.username
-            context['email'] = user.email
-            context['date_joined'] = user.date_joined
+        context['user'] = user
+        context['username'] = user.username
+        context['email'] = user.email
+        context['date_joined'] = user.date_joined
+        attempts = (PuzzleAttempt.objects
+                    .filter(user=user)
+                    .select_related('daily', 'custom')
+                    .order_by('created_at'))
+        puzzle_data = _build_puzzle_data(attempts)
+        context['puzzle_data'] = json.dumps(puzzle_data)
+        context['has_puzzles'] = len(puzzle_data['daily']) > 0
         return context
+
+
+class LeaderboardView(TemplateView):
+    template_name = 'accounts/leaderboard.html'
+
+
+class PrivacyView(TemplateView):
+    template_name = 'accounts/privacy.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from django.conf import settings
+        release_offset_hours = 0 if settings.DEBUG else 5
+        today_date = datetime.datetime.now() - datetime.timedelta(hours=release_offset_hours)
+        
+        context['min_date_js'] = (START_DATE + datetime.timedelta(days=1)).strftime(JS_DATE_FORMAT)
+        context['max_date_js'] = today_date.strftime(JS_DATE_FORMAT)
+        context['current_date_js'] = today_date.strftime(JS_DATE_FORMAT)
+        context['current_date'] = today_date.strftime(DATE_FORMAT)
+        return context
+
+
+@require_http_methods(["GET"])
+def api_leaderboard_daily(request, date: datetime.datetime):
+    """Get leaderboard for a specific daily puzzle."""
+    from apps.game.models import Daily
+    
+    game_index = (date - START_DATE).days
+    if game_index < 1:
+        return JsonResponse({'entries': []})
+    
+    # Get the daily puzzle
+    daily = Daily.objects.filter(index=game_index).first()
+    if not daily:
+        return JsonResponse({'entries': []})
+    
+    # Get best attempts for each user for this puzzle
+    # Using a subquery to get the best attempt per user
+    from django.db.models import Min, OuterRef, Subquery
+    
+    # Get all attempts for this puzzle
+    attempts = (PuzzleAttempt.objects
+                .filter(puzzle_type=PuzzleAttempt.DAILY, daily=daily)
+                .select_related('user'))
+    
+    # Group by user and get best result (lowest moves, then lowest seconds)
+    user_best = {}
+    for attempt in attempts:
+        user_id = attempt.user_id
+        if user_id not in user_best:
+            user_best[user_id] = {
+                'userId': user_id,
+                'username': attempt.user.username,
+                'moves': attempt.moves,
+                'seconds': attempt.seconds,
+            }
+        else:
+            current = user_best[user_id]
+            # Better if fewer moves, or same moves but less time
+            if (attempt.moves < current['moves'] or 
+                (attempt.moves == current['moves'] and attempt.seconds < current['seconds'])):
+                user_best[user_id] = {
+                    'userId': user_id,
+                    'username': attempt.user.username,
+                    'moves': attempt.moves,
+                    'seconds': attempt.seconds,
+                }
+    
+    # Sort by moves (ascending), then seconds (ascending)
+    entries = sorted(user_best.values(), key=lambda x: (x['moves'], x['seconds']))
+    
+    return JsonResponse({'entries': entries})
+
+
+@require_http_methods(["GET"])
+def api_leaderboard_custom(request):
+    """Get overall leaderboard for custom puzzles (best performers across all custom puzzles)."""
+    from django.db.models import Count, Min
+    
+    # Get users with their total custom puzzles completed and best average performance
+    attempts = (PuzzleAttempt.objects
+                .filter(puzzle_type=PuzzleAttempt.CUSTOM)
+                .select_related('user'))
+    
+    # Group by user and calculate stats
+    user_stats = {}
+    for attempt in attempts:
+        user_id = attempt.user_id
+        if user_id not in user_stats:
+            user_stats[user_id] = {
+                'userId': user_id,
+                'username': attempt.user.username,
+                'totalMoves': 0,
+                'totalSeconds': 0,
+                'puzzleCount': 0,
+            }
+        user_stats[user_id]['totalMoves'] += attempt.moves
+        user_stats[user_id]['totalSeconds'] += attempt.seconds
+        user_stats[user_id]['puzzleCount'] += 1
+    
+    # Calculate averages and prepare entries
+    entries = []
+    for stats in user_stats.values():
+        if stats['puzzleCount'] > 0:
+            entries.append({
+                'userId': stats['userId'],
+                'username': stats['username'],
+                'moves': round(stats['totalMoves'] / stats['puzzleCount']),
+                'seconds': round(stats['totalSeconds'] / stats['puzzleCount']),
+                'puzzleCount': stats['puzzleCount'],
+            })
+    
+    # Sort by average moves (ascending), then average seconds (ascending)
+    entries.sort(key=lambda x: (x['moves'], x['seconds']))
+    
+    return JsonResponse({'entries': entries})
 
 
 @csrf_exempt
