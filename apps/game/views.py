@@ -10,8 +10,7 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 
 from apps.game.board import init_borders, Cell
-from apps.game.constants import (START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYMBOLS, CCW_SYMBOLS, CUSTOM_GAME_STR,
-                                 CUSTOM_GAME_SLUG_LENGTH)
+from apps.game.constants import (START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CUSTOM_GAME_STR, CUSTOM_GAME_SLUG_LENGTH)
 from apps.game.utils import encode
 from .models import Daily, Custom, Outline
 from .solver import solve, is_solved, get_nodes
@@ -28,9 +27,6 @@ class GameView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        moves_re = re.findall(fr'(?<!\d)([1-9]|[1-9][0-9])(?!\d)\s*([{CW_SYMBOLS}{CCW_SYMBOLS}])',
-                              self.request.GET.get('moves', ''))
-        pre_moves = [(int(k), v in CW_SYMBOLS) for k, v in moves_re]
         try:
             game = self.model_class.objects.select_related('outline').get(index=self.get_game_index())
         except self.model_class.DoesNotExist:
@@ -41,6 +37,11 @@ class GameView(TemplateView):
         board = encode(game.board, game.fixed_areas_as_int)
         outline_board = encode(outline.board, game.fixed_areas_as_int, for_outline=True)
         nodes = get_nodes(size, size, game.disabled_nodes_as_dict)
+        symbols = set()
+        for node in nodes:
+            symbols.update([node.symbol, node.reverse_symbol])
+        moves_re = re.findall(fr'[1-9]\s*[{symbols}]', self.request.GET.get('moves', ''))
+        pre_moves = [(int(k), v) for k, v in moves_re]
         if settings.DEBUG:
             solution = solve(board=board,
                              outline=outline_board,
@@ -64,9 +65,7 @@ class GameView(TemplateView):
                                                      game.fixed_areas_as_int, game.disabled_nodes_as_dict),
                                  nodes=nodes,
                                  canonical_url=settings.SITE_DOMAIN + self.get_canonical_url(),
-                                 moves_max_num=game.moves_min_num * 100,
-                                 cw_symbol=CW_SYMBOLS[0],
-                                 ccw_symbol=CCW_SYMBOLS[0]))
+                                 moves_max_num=game.moves_min_num * 100))
         return context_data
 
 
@@ -150,7 +149,7 @@ class CreateView(TemplateView):
         size = int(math.sqrt(size2))
         context_data.update(
             size=size,
-            nodes=[[(e, dict()) for e in range(i, i + size - 1)] for i in range(1, (size - 1) ** 2, size - 1)],
+            nodes=get_nodes(size, size),
             empty_outline=init_borders([0] * size2),
             empty_board=init_borders([0] * size2, [0] * size2),
             names=[(i, Cell.names_dict[i], c) for i, c in Cell.colors_dict.items()],

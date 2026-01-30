@@ -1,0 +1,13 @@
+<div class="node{% if not hidden %} active{% endif %} {{ classes }}"
+     style="left: {{ left }}; top: {{ top }};"
+     data-name="{{ node.name }}"
+     data-index="{{ node.index }}"
+     data-allow-direct="{% if node.allow_direct %}true{% else %}false{% endif %}"
+     data-allow-reverse="{% if node.allow_reverse %}true{% else %}false{% endif %}"
+     data-source="{{ node.source_indices_as_str }}"
+     data-target="{{ node.target_indices_as_str }}"
+     data-symbol="{{ node.symbol }}"
+     data-reverse-symbol="{{ node.reverse_symbol }}"
+     {% if direction %}data-direction="{{ direction }}"{% endif %}>
+    {{ node.index }}
+</div>

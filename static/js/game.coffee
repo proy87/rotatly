@@ -39,37 +39,46 @@ hold_duration = 500
 is_sliding = false
 slided_cells = []
 
-rotate = (row, col, cw)->
-  top_left = document.getElementById("cell-#{row}-#{col}")
-  top_right = document.getElementById("cell-#{row}-#{col + 1}")
-  bottom_left = document.getElementById("cell-#{row + 1}-#{col}")
-  bottom_right = document.getElementById("cell-#{row + 1}-#{col + 1}")
-  a = top_left.innerHTML
-  b = top_right.innerHTML
-  c = bottom_left.innerHTML
-  d = bottom_right.innerHTML
-  top_left.innerHTML = if cw then c else b
-  top_right.innerHTML = if cw then a else d
-  bottom_left.innerHTML = if cw then d else a
-  bottom_right.innerHTML = if cw then b else c
+is_rotate_node = (node)->
+  return node.getAttribute('data-name') == 'rotate'
 
-  a = top_left.className
-  b = top_right.className
-  c = bottom_left.className
-  d = bottom_right.className
-  top_left.className = if cw then c else b
-  top_right.className = if cw then a else d
-  bottom_left.className = if cw then d else a
-  bottom_right.className = if cw then b else c
+get_cells_from_indices = (indices) ->
+  cells = []
+  for index in indices
+    row = Math.floor(index / M)
+    col = index % M
+    cells.push(document.getElementById("cell-#{row}-#{col}"))
+  return cells
 
-  a = top_left.getAttribute('data-value')
-  b = top_right.getAttribute('data-value')
-  c = bottom_left.getAttribute('data-value')
-  d = bottom_right.getAttribute('data-value')
-  top_left.setAttribute('data-value', if cw then c else b)
-  top_right.setAttribute('data-value', if cw then a else d)
-  bottom_left.setAttribute('data-value', if cw then d else a)
-  bottom_right.setAttribute('data-value', if cw then b else c)
+get_source_indices = (node, direct)->
+  arr = node.getAttribute("data-#{if direct then 'source' else 'target'}").split(',')
+  return arr.map((item) ->
+    parseInt(item))
+
+get_target_indices = (node, direct)->
+  arr = node.getAttribute("data-#{if direct then 'target' else 'source'}").split(',')
+  return arr.map((item) ->
+    parseInt(item))
+
+get_source_cells = (node, direct) ->
+  return get_cells_from_indices(get_source_indices(node, direct))
+
+get_target_cells = (node, direct) ->
+  return get_cells_from_indices(get_target_indices(node, direct))
+
+rotate = (node, direct)->
+  htmls = []
+  classes = []
+  values = []
+  for cell in get_source_cells(node, direct)
+    htmls.push(cell.innerHTML)
+    classes.push(cell.className)
+    values.push(cell.getAttribute('data-value'))
+
+  for cell, i in get_target_cells(node, direct)
+    cell.innerHTML = htmls[i]
+    cell.className = classes[i]
+    cell.setAttribute('data-value', values[i])
 
 check = ->
   for index in [0...N * M]
@@ -128,35 +137,37 @@ set_shareable_text = ->
 
 set_shareable_text()
 
-animate = (value, row, col, cw, undo = false, demo = false, callback = null) ->
+animate = (node, direct, undo = false, demo = false, callback = null) ->
   if in_animation
     return
   in_animation = true
   animated = true
-  tl = document.getElementById("cell-#{row}-#{col}")
-  tr = document.getElementById("cell-#{row}-#{col + 1}")
-  br = document.getElementById("cell-#{row + 1}-#{col + 1}")
-  bl = document.getElementById("cell-#{row + 1}-#{col}")
-
   finished = 0
-  cells = [tl, tr, br, bl]
+  cells = get_target_cells(node, true)
+  node_name = node.getAttribute('data-name')
+  if is_rotate_node(node)
+    classes = [(if direct then 'move-right' else 'move-down'), (if direct then 'move-down' else 'move-left'),
+      (if direct then 'move-left' else 'move-up'), (if direct then 'move-up' else 'move-right')]
+  else if node_name == 'horizontal'
+    classes = ((if direct then 'move-right' else 'move-left') for i in [0...cells.length])
+  else if node_name == 'vertical'
+    classes = ((if direct then 'move-down' else 'move-up') for i in [0...cells.length])
+
   transition_callback = (e)->
     if e.propertyName == 'transform'
       finished += 1
       if finished == cells.length
-        for c in cells
+        for c, idx in cells
           c.classList.remove('animate')
           c.classList.add('non-animate')
           c.removeEventListener('transitionend', transition_callback)
-        tl.classList.remove(if cw then 'move-right' else 'move-down')
-        tr.classList.remove(if cw then 'move-down' else 'move-left')
-        br.classList.remove(if cw then 'move-left' else 'move-up')
-        bl.classList.remove(if cw then 'move-up' else 'move-right')
+          c.classList.remove(classes[idx])
         for c in cells
           c.offsetHeight
-        rotate(row, col, cw)
+        rotate(node, direct)
         if not undo
-          moves.push("#{value}#{if cw then cw_symbol else ccw_symbol}")
+          symbol = node.getAttribute("data#{if direct then '' else '-reverse'}-symbol")
+          moves.push("#{node.getAttribute('data-index')}#{symbol}")
           moves_sequence_dom.innerHTML = if moves.length then moves.join(' ') else 'no moves'
           if not demo
             undo_button.removeAttribute('disabled')
@@ -193,26 +204,26 @@ animate = (value, row, col, cw, undo = false, demo = false, callback = null) ->
         if callback
           callback()
 
-  for cell in cells
+  for cell, idx in cells
     cell.classList.remove('non-animate')
     cell.classList.add('animate')
     cell.addEventListener('transitionend', transition_callback)
+    cell.classList.add(classes[idx])
 
-  tl.classList.add(if cw then 'move-right' else 'move-down')
-  tr.classList.add(if cw then 'move-down' else 'move-left')
-  br.classList.add(if cw then 'move-left' else 'move-up')
-  bl.classList.add(if cw then 'move-up' else 'move-right')
 
 undo = (callback)->
   if moves.length > 0
     elem = moves.pop()
     moves_sequence_dom.innerHTML = if moves.length then moves.join(' ') else 'no moves'
-    value = elem.slice(0, -1)
-    node = active_nodes_dom.filter((n)-> n.getAttribute('data-value') == "#{value}")[0]
+    index = elem.slice(0, -1)
+    direction = elem.slice(-1)
+    node = active_nodes_dom.filter((n)->
+      if n.getAttribute('data-index') == "#{index}"
+        if n.getAttribute('data-symbol') == direction or n.getAttribute('data-reverse-symbol') == direction
+          return true
+    )[0]
     if node
-      row = parseInt(node.getAttribute('data-row'))
-      col = parseInt(node.getAttribute('data-col'))
-      animate(value, row, col, elem.slice(-1) != cw_symbol, true, false, if callback then callback else undo)
+      animate(node, direction != node.getAttribute('data-symbol'), true, false, if callback then callback else undo)
 
 make_move = ->
   setTimeout(->
@@ -220,13 +231,17 @@ make_move = ->
       undo_button.setAttribute('disabled', true)
       restart_button.setAttribute('disabled', true)
       elem = pre_moves.shift()
-      value = elem[0]
-      cw = elem[1]
-      node = active_nodes_dom.filter((n)-> n.getAttribute('data-value') == "#{value}" and n.getAttribute(if cw then 'data-cw' else 'data-ccw') == "true")[0]
+      index = elem[0]
+      direction = elem[1]
+      node = active_nodes_dom.filter((n)->
+        if n.getAttribute('data-index') == "#{index}"
+          if n.getAttribute('data-symbol') == direction and n.getAttribute('data-allow-direct') == 'true'
+            return true
+          if n.getAttribute('data-reverse-symbol') == direction and n.getAttribute('data-allow-reverse') == 'true'
+            return true
+      )[0]
       if node
-        row = parseInt(node.getAttribute('data-row'))
-        col = parseInt(node.getAttribute('data-col'))
-        animate(value, row, col, cw, false, true, make_move)
+        animate(node, direction == node.getAttribute('data-symbol'), false, true, make_move)
       else
         in_demo = false
         undo_button.removeAttribute('disabled')
@@ -241,22 +256,20 @@ if pre_moves.length > 0
   in_demo = true
   make_move()
 
-active_nodes_dom.forEach((node)->
-  value = parseInt(node.getAttribute('data-value'))
-  row = parseInt(node.getAttribute('data-row'))
-  col = parseInt(node.getAttribute('data-col'))
+active_nodes_dom.filter((n)-> is_rotate_node(n)).forEach((node)->
   node.addEventListener('click', ->
     if not animated
-      animate(value, row, col, true)
+      animate(this, true)
   )
   node.addEventListener('pointerdown', ->
+    n = this
     if not in_animation
       animated = false
       hold_timer = setTimeout(->
         clearTimeout(hold_timer)
         hold_timer = null
         if not animated
-          animate(value, row, col, false)
+          animate(n, false)
       , hold_duration
       )
   )
@@ -267,15 +280,18 @@ active_nodes_dom.forEach((node)->
   )
 )
 
+active_nodes_dom.filter((n)-> not is_rotate_node(n)).forEach((node)->
+  node.addEventListener('click', ->
+    animate(this, node.getAttribute('data-direction') == node.getAttribute('data-symbol'))
+  )
+)
+
 document.addEventListener('contextmenu', (evt)->
   node = evt.target
   if board.contains(node)
     evt.preventDefault()
-    if not animated and active_nodes_dom.includes(node)
-      value = parseInt(node.getAttribute('data-value'))
-      row = parseInt(node.getAttribute('data-row'))
-      col = parseInt(node.getAttribute('data-col'))
-      animate(value, row, col, false)
+    if not animated and is_rotate_node(node) and active_nodes_dom.includes(node)
+      animate(node, false)
 )
 
 undo_button.addEventListener('click', ->
@@ -322,50 +338,26 @@ validate = ->
   return true
 
 get_node_and_direction = ->
-  possible_nodes = [1..(N - 1) * (M - 1)]
-  direction = []
-  for idx in [0...slided_cells.length]
-    cell = slided_cells[idx]
+  if slided_cells.length != 3
+    return null
+
+  indices = []
+  for cell in slided_cells
     row = parseInt(cell.getAttribute('data-row'))
     col = parseInt(cell.getAttribute('data-col'))
-    if idx > 0
-      prev_cell = slided_cells[idx - 1]
-      prev_row = parseInt(prev_cell.getAttribute('data-row'))
-      prev_col = parseInt(prev_cell.getAttribute('data-col'))
-      if prev_row - row == 1
-        direction.push('up')
-      else if prev_row - row == -1
-        direction.push('down')
-      else if prev_col - col == 1
-        direction.push('left')
-      else if prev_col - col == -1
-        direction.push('right')
+    indices.push(row * M + col)
 
-    current_nodes = []
-    for i in [0, -1]
-      for j in [0, -1]
-        elem = active_nodes_dom.filter((n) -> n.getAttribute('data-row') == "#{row + i}" and n.getAttribute('data-col') == "#{col + j}")[0]
-        if elem
-          current_nodes.push(parseInt(elem.getAttribute('data-value')))
-    possible_nodes = possible_nodes.filter((v)->current_nodes.indexOf(v) >= 0)
-  nn = possible_nodes.length
-  if nn == 0
-    return false
-  if possible_nodes.length == 1
-    v = possible_nodes[0]
-    if direction.length > 1
-      if direction[0] == 'up'
-        return [v, direction[1] == 'right']
-      if direction[0] == 'down'
-        return [v, direction[1] == 'left']
-      if direction[0] == 'left'
-        return [v, direction[1] == 'up']
-      if direction[0] == 'right'
-        return [v, direction[1] == 'down']
-    else
-      return null
-  else
-    return null
+  indices_str = indices.join(',')
+  for node in active_nodes_dom
+    node_indices = get_target_indices(node, true)
+    node_indices = node_indices.concat(node_indices)
+    if node_indices.join(',').includes(indices_str)
+      return [node, true]
+
+    node_indices.reverse()
+    if node_indices.join(',').includes(indices_str)
+      return [node, false]
+
 
 table.addEventListener("pointerdown", (e)->
   if not game_completed and not in_demo
@@ -386,13 +378,10 @@ table.addEventListener("pointermove", (e)->
           node_and_direction = get_node_and_direction()
           if node_and_direction != null
             if node_and_direction
-              value = node_and_direction[0]
-              cw = node_and_direction[1]
-              node = active_nodes_dom.filter((n)-> n.getAttribute('data-value') == "#{value}" and n.getAttribute(if cw then 'data-cw' else 'data-ccw') == "true")[0]
-              if node
-                row = parseInt(node.getAttribute('data-row'))
-                col = parseInt(node.getAttribute('data-col'))
-                animate(value, row, col, cw)
+              node = node_and_direction[0]
+              direct = node_and_direction[1]
+              if node and node.getAttribute("data-allow-#{if direct then 'direct' else 'reverse'}") == 'true'
+                animate(node, direct)
             is_sliding = false
             slided_cells = []
         else

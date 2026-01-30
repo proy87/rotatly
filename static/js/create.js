@@ -795,10 +795,10 @@
     disabled_nodes = [];
     nodes.forEach(function(n) {
       if (n.classList.contains('disabled')) {
-        return disabled_nodes.push(n.getAttribute('data-value'));
+        return disabled_nodes.push(`${n.getAttribute('data-index')}${n.getAttribute('data-direction') || ''}`);
       }
     });
-    if (disabled_nodes.length === (M - 1) * (N - 1)) {
+    if (disabled_nodes.length === (M - 1) * (N - 1) + M + N) {
       set_error('No active nodes.');
       return;
     }

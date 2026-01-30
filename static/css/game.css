@@ -222,6 +222,7 @@ table td {
 #game-container {
   --cell-size: calc(var(--scale) * var(--base-board-cell-size));
   --grid-thickness: calc(var(--cell-size) / 12);
+  margin: calc(var(--cell-size) / 2.5);
 }
 
 .outline-container {
@@ -259,13 +260,9 @@ table td {
 /* nodes */
 .node {
   position: absolute;
-  width: calc(var(--cell-size) / 3);
-  height: calc(var(--cell-size) / 3);
   font-size: 12px;
   background: #4da3ff;
-  border-radius: 50%;
   cursor: pointer;
-  transform: translate(-50%, -50%);
   display: none;
   align-items: center;
   justify-content: center;
@@ -280,6 +277,40 @@ table td {
 
 .node:hover {
   background: #6bb4ff;
+}
+
+.rotate {
+  width: calc(var(--cell-size) / 3);
+  height: calc(var(--cell-size) / 3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.outer-arrow {
+  --arrow-width: calc(var(--cell-size) / 2);
+  --arrow-height: calc(var(--cell-size) / 4);
+  width: var(--arrow-width);
+  height: var(--arrow-height);
+}
+
+.arrow-up {
+  clip-path: polygon(0 100%, 100% 100%, 50% 0%);
+}
+
+.arrow-down {
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.arrow-left {
+  --arrow-width: calc(var(--cell-size) / 4);
+  --arrow-height: calc(var(--cell-size) / 2);
+  clip-path: polygon(100% 0, 100% 100%, 0 50%);
+}
+
+.arrow-right {
+  --arrow-width: calc(var(--cell-size) / 4);
+  --arrow-height: calc(var(--cell-size) / 2);
+  clip-path: polygon(0 0, 0 100%, 100% 50%);
 }
 
 /* animations */

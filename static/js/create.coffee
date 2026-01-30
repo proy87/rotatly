@@ -425,9 +425,9 @@ document.getElementById('create-button').addEventListener('click', ->
   disabled_nodes = []
   nodes.forEach((n)->
     if n.classList.contains('disabled')
-      disabled_nodes.push(n.getAttribute('data-value'))
+      disabled_nodes.push("#{n.getAttribute('data-index')}#{n.getAttribute('data-direction') or ''}")
   )
-  if disabled_nodes.length == (M - 1) * (N - 1)
+  if disabled_nodes.length == (M - 1) * (N - 1) + M + N
     set_error('No active nodes.')
     return
 

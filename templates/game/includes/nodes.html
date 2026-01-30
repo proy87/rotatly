@@ -1,37 +1,35 @@
 {% for node in nodes %}
-    {% if node.class_name == 'vertical' %}
-        {% widthratio 100 size node.index0 as left %}
+    {% if node.name == 'vertical' %}
+        {% widthratio 100 size node.col0 as left %}
         {% if node.allow_reverse %}
-            <div class="outer-arrow arrow-up"
-                 style="left: {{ left }}%; top: calc((-1) * var(--cell-size) / 2 - 7px);">{{ node.index }}</div>
+            {% include './node.html' with left="calc((var(--cell-size) - var(--arrow-width)) / 2 + "|add:left|add:"%)" top="calc((-1) * var(--arrow-height) - var(--grid-thickness))" classes="outer-arrow arrow-up" direction=node.reverse_symbol %}
         {% endif %}
         {% if node.allow_direct %}
-            {% widthratio 100 size node.index0 as left %}
-            <div class="outer-arrow arrow-down"
-                 style="left: {{ left }}%; top: calc(var(--cell-size) * {{ size }} + 7px);">{{ node.index }}</div>
+            {% with size_str=size|stringformat:"s" %}
+                {% with top="calc(var(--cell-size) * "|add:size_str|add:" + var(--grid-thickness))" %}
+                    {% include './node.html' with left="calc((var(--cell-size) - var(--arrow-width)) / 2 + "|add:left|add:"%)" classes="outer-arrow arrow-down" direction=node.symbol %}
+                {% endwith %}
+            {% endwith %}
         {% endif %}
-    {% endif %}
-    {% if node.class_name == 'horizontal' %}
-        {% widthratio 100 size node.index0 as top %}
+    {% elif node.name == 'horizontal' %}
+        {% widthratio 100 size node.row0 as top %}
         {% if node.allow_reverse %}
-            <div class="outer-arrow arrow-left"
-                 style="left: calc((-1) * var(--cell-size) / 2 - 7px); top: {{ top }}%;">{{ node.index }}</div>
+            {% include './node.html' with left="calc((-1) * var(--arrow-width) - var(--grid-thickness))" top="calc((var(--cell-size) - var(--arrow-height)) / 2 + "|add:top|add:"%)" classes="outer-arrow arrow-left" direction=node.reverse_symbol %}
         {% endif %}
         {% if node.allow_reverse %}
-            {% widthratio 100 size node.index0 as top %}
-            <div class="outer-arrow arrow-right"
-                 style="left: calc(var(--cell-size) * {{ size }} + 7px); top: {{ top }}%;">{{ node.index }}</div>
+            {% with size_str=size|stringformat:"s" %}
+                {% with left="calc(var(--cell-size) * "|add:size_str|add:" + var(--grid-thickness))" %}
+                    {% include './node.html' with top="calc((var(--cell-size) - var(--arrow-height)) / 2 + "|add:top|add:"%)" classes="outer-arrow arrow-right" direction=node.symbol %}
+                {% endwith %}
+            {% endwith %}
         {% endif %}
-    {% endif %}
-    {% if False %}
-        {% widthratio 100 size forloop.counter as left %}
-        {% widthratio 100 size forloop.counter as top %}
-        <div class="node{% if not blocked.cw or not blocked.ccw %} active{% endif %}"
-             style="left: {{ left }}%; top: {{ top }}%"
-             data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}"
-             data-value="{{ node }}"
-             data-cw="{% if blocked.cw %}false{% else %}true{% endif %}"
-             data-ccw="{% if blocked.ccw %}false{% else %}true{% endif %}">{{ node }}
-        </div>
+    {% else %}
+        {% widthratio 100 size node.row as top %}
+        {% widthratio 100 size node.col as left %}
+        {% if node.allow_direct and node.allow_reverse %}
+            {% include './node.html' with left=left|add:"%" top=top|add:"%" classes="rotate" hidden=False %}
+        {% else %}
+            {% include './node.html' with left=left|add:"%" top=top|add:"%" classes="rotate" hidden=True %}
+        {% endif %}
     {% endif %}
 {% endfor %}

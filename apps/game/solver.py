@@ -13,14 +13,14 @@ class InvalidMoveException(Exception):
 class Node:
     symbol = None
     reverse_symbol = None
-    type = ''
 
-    def __init__(self, index, indices: Iterable[int], allow_direct: bool = True, allow_reverse: bool = True):
+    def __init__(self, index, indices: Iterable[int], cols:int, allow_direct: bool = True, allow_reverse: bool = True):
         self.index = index
         self.index0 = index - 1
         self.indices = indices
         self.allow_direct = allow_direct
         self.allow_reverse = allow_reverse
+        self.cols = cols
 
     def get_source_indices(self):
         raise NotImplementedError
@@ -43,8 +43,32 @@ class Node:
             s[index] = value
         return tuple(s)
 
-    def class_name(self):
+    def name(self):
         return self.__class__.__name__.lower()
+
+    @property
+    def row0(self):
+        raise NotImplementedError
+
+    @property
+    def col0(self):
+        raise NotImplementedError
+
+    @property
+    def row(self):
+        return self.row0 + 1
+
+    @property
+    def col(self):
+        return self.col0 + 1
+
+    @property
+    def source_indices_as_str(self):
+        return ','.join(str(s) for s in self.get_source_indices())
+
+    @property
+    def target_indices_as_str(self):
+        return ','.join(str(s) for s in self.get_target_indices())
 
 
 class Rotate(Node):
@@ -53,7 +77,15 @@ class Rotate(Node):
 
     def get_source_indices(self):
         i, j, k, l = self.indices
-        return k, i, l, j
+        return l, i, j, k
+
+    @property
+    def row0(self):
+        return self.index0 // (self.cols - 1)
+
+    @property
+    def col0(self):
+        return self.index0 % (self.cols - 1)
 
 
 class Horizontal(Node):
@@ -64,22 +96,40 @@ class Horizontal(Node):
         indices = list(self.indices)
         return [indices[-1]] + indices[:-1]
 
+    @property
+    def row0(self):
+        return self.index0
+
+    @property
+    def col0(self):
+        return 0
+
+
 class Vertical(Horizontal):
     symbol = '↓'
     reverse_symbol = '↑'
 
+    @property
+    def row0(self):
+        return 0
 
-def get_nodes(n: int, m: int, disabled_nodes: dict) -> Sequence[Node]:
+    @property
+    def col0(self):
+        return self.index0
+
+
+def get_nodes(n: int, m: int, disabled_nodes: dict | None = None) -> Sequence[Node]:
+    disabled_nodes = disabled_nodes or {}
     def _create_class(klass, ins, idx, s=0):
         disallow_direct, disallow_reverse = disabled_nodes.get(idx + s + 1, (False, False))
-        return klass(idx + 1, ins, not disallow_direct, not disallow_reverse)
+        return klass(idx + 1, ins, m, not disallow_direct, not disallow_reverse)
 
     nodes = []
     index = 0
     # rotate cw and ccw
     for i in range(m * (n - 1)):
         if (i + 1) % m:
-            nodes.append(_create_class(Rotate, (i, i + 1, i + m, i + m + 1), index))
+            nodes.append(_create_class(Rotate, (i, i + 1, i + m + 1, i + m), index))
             index += 1
 
     shift = (m - 1) * (n - 1)
@@ -116,7 +166,7 @@ def neighbors(state: tuple[int, ...], nodes: Sequence[Node], fixed_areas: dict, 
 
 
 def bfs(start: tuple[int, ...], goal: tuple[int, ...], nodes: Sequence[Node], fixed_areas: dict) -> Sequence[
-                                                                                                          tuple] | None:
+                                                                                                        tuple] | None:
     max_path_length = 25
 
     if start == goal:
@@ -174,5 +224,6 @@ def is_solved(start: Sequence[Any], goal: Sequence[Any], moves: Sequence[tuple[i
     return start == encode(goal, fixed_areas, for_outline=True)
 
 
-def solve(board: tuple[int, ...], outline: tuple[int, ...], nodes: Sequence[Node], fixed_areas: dict) -> Sequence[                                                                                                tuple] | None:
+def solve(board: tuple[int, ...], outline: tuple[int, ...], nodes: Sequence[Node], fixed_areas: dict) -> Sequence[
+                                                                                                             tuple] | None:
     return bfs(board, outline, nodes, fixed_areas)
