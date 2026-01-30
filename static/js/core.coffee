@@ -9,6 +9,14 @@ window.show_element = (el)->
   if display == 'none'
     el.style.display = el.getAttribute('data-display') or 'block'
 
+get_cookie = (name) ->
+  if document.cookie and document.cookie != ''
+    cookies = document.cookie.split(';')
+    for i in [0...cookies.length]
+      cookie = cookies[i].trim()
+      if cookie.substring(0, name.length + 1) == (name + '=')
+        return decodeURIComponent(cookie.substring(name.length + 1))
+
 window.send_request = (url, data, method = 'POST', callback = null)->
   params = []
   for k, v of data
@@ -19,7 +27,7 @@ window.send_request = (url, data, method = 'POST', callback = null)->
   if method == 'POST'
     headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'X-CSRFToken': csrf_token
+      'X-CSRFToken': get_cookie('csrftoken')
     }
     body = params_str
   else

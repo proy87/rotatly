@@ -230,6 +230,10 @@ table td {
   --grid-thickness: 5px;
 }
 
+#game-container table {
+  overflow: hidden;
+}
+
 #game-container td {
   cursor: pointer;
   width: var(--cell-size);

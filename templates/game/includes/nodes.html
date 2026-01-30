@@ -16,7 +16,7 @@
         {% if node.allow_reverse %}
             {% include './node.html' with left="calc((-1) * var(--arrow-width) - var(--grid-thickness))" top="calc((var(--cell-size) - var(--arrow-height)) / 2 + "|add:top|add:"%)" classes="outer-arrow arrow-left" direction=node.reverse_symbol %}
         {% endif %}
-        {% if node.allow_reverse %}
+        {% if node.allow_direct %}
             {% with size_str=size|stringformat:"s" %}
                 {% with left="calc(var(--cell-size) * "|add:size_str|add:" + var(--grid-thickness))" %}
                     {% include './node.html' with top="calc((var(--cell-size) - var(--arrow-height)) / 2 + "|add:top|add:"%)" classes="outer-arrow arrow-right" direction=node.symbol %}

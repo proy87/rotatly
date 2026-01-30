@@ -3,6 +3,7 @@ import json
 import math
 import random
 import re
+from collections import defaultdict
 
 from django.conf import settings
 from django.http import Http404, JsonResponse
@@ -13,7 +14,7 @@ from apps.game.board import init_borders, Cell
 from apps.game.constants import (START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CUSTOM_GAME_STR, CUSTOM_GAME_SLUG_LENGTH)
 from apps.game.utils import encode
 from .models import Daily, Custom, Outline
-from .solver import solve, is_solved, get_nodes
+from .solver import solve, is_solved, get_nodes, Horizontal, Vertical
 
 
 class GameView(TemplateView):
@@ -267,18 +268,42 @@ def post_create(request):
     if any(len([c for c in board if c == e]) != 4 for e in elements):
         return JsonResponse({'error': 'Invalid board.'})
 
-    nodes = []
+    nodes = defaultdict(dict)
     for item in request.POST.get('nodes', '').replace(' ', '').split(','):
-        try:
-            n = int(item)
-            if not 1 <= n <= 9:
-                raise Exception
-            nodes.append(n)
-        except:
-            pass
+        if len(item) == 1:
+            try:
+                n = int(item)
+                if not 1 <= n <= 9:
+                    raise Exception
+                nodes[n] = {"direct": True, "reverse": True}
+            except:
+                pass
+        elif len(item) == 2:
+            digit, direction = item
+            try:
+                n = int(digit)
+                if not 1 <= n <= 4:
+                    raise Exception
+            except:
+                pass
+            else:
+                if direction == Vertical.symbol:
+                    nodes[n + 9]['direct'] = True
+                elif direction == Vertical.reverse_symbol:
+                    nodes[n + 9]['reverse'] = True
+                elif direction == Horizontal.symbol:
+                    nodes[n + 9 + 4]['direct'] = True
+                elif direction == Horizontal.reverse_symbol:
+                    nodes[n + 9 + 4]['reverse'] = True
 
-    nodes = {f"{n}": {"cw": True, "ccw": True} for n in sorted(set(nodes))}
-    if len(nodes) == 9:
+    nodes = [(k, v.get('direct', False), v.get('reverse', False)) for k, v in sorted(nodes.items(), key=lambda o: o[0])]
+    inactive = 0
+    for a, b, c in nodes:
+        if b:
+            inactive += 1
+        if c:
+            inactive += 1
+    if inactive == 9 + 4 + 4:
         return JsonResponse({'error': 'No active nodes.'})
 
     m = {}
@@ -300,20 +325,21 @@ def post_create(request):
     try:
         game = Custom.objects.get(board=board, disabled_nodes=nodes, fixed_areas=fixed_areas, outline=outline_obj)
     except Custom.DoesNotExist:
+        game = Custom(board=board,
+                      disabled_nodes=nodes,
+                      fixed_areas=fixed_areas,
+                      outline=outline_obj,
+                      encoded_board=encoded_board,
+                      index=''.join(random.choices(CUSTOM_GAME_STR, k=CUSTOM_GAME_SLUG_LENGTH)))
         solution = solve(board=encode(board, fixed_areas),
                          outline=encode(outline_obj.board, fixed_areas, for_outline=True),
-                         disabled_nodes={int(k): v for k, v in nodes.items()},
+                         nodes=get_nodes(4, 4, game.disabled_nodes_as_dict),
                          fixed_areas=fixed_areas)
         if solution is None:
             return JsonResponse({'error': 'The puzzle is unsolvable.'})
         n = len(solution)
         if n == 0:
             return JsonResponse({'error': 'The puzzle is already solved.'})
-        game = Custom.objects.create(board=board,
-                                     disabled_nodes=nodes,
-                                     fixed_areas=fixed_areas,
-                                     outline=outline_obj,
-                                     encoded_board=encoded_board,
-                                     moves_min_num=n,
-                                     index=''.join(random.choices(CUSTOM_GAME_STR, k=CUSTOM_GAME_SLUG_LENGTH)))
+        game.moves_min_num = n
+        game.save()
     return JsonResponse({'url': settings.SITE_DOMAIN + reverse('custom', args=(game.index,))})

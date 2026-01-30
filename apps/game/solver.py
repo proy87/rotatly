@@ -5,11 +5,6 @@ from typing import Any
 
 from apps.game.utils import encode
 
-
-class InvalidMoveException(Exception):
-    pass
-
-
 class Node:
     symbol = None
     reverse_symbol = None
@@ -29,8 +24,6 @@ class Node:
         return self.indices
 
     def move(self, s, direct: bool = True) -> tuple[int, ...]:
-        if (direct and not self.allow_direct) or (not direct and not self.allow_reverse):
-            raise InvalidMoveException
         s = list(s)
         if direct:
             source_indices = self.get_source_indices()

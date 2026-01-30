@@ -634,8 +634,8 @@
     onmove: function(evt) {
       var el, x, y;
       el = evt.target;
-      x = (parseFloat(el.dataset.x) || 0) + evt.dx;
-      y = (parseFloat(el.dataset.y) || 0) + evt.dy;
+      x = Math.round((parseFloat(el.dataset.x) || 0) + evt.dx);
+      y = Math.round((parseFloat(el.dataset.y) || 0) + evt.dy);
       el.style.transform = `translate(${x}px, ${y}px) rotate(var(--rotation, 0))`;
       el.dataset.x = x;
       return el.dataset.y = y;
@@ -798,7 +798,7 @@
         return disabled_nodes.push(`${n.getAttribute('data-index')}${n.getAttribute('data-direction') || ''}`);
       }
     });
-    if (disabled_nodes.length === (M - 1) * (N - 1) + M + N) {
+    if (disabled_nodes.length === (M - 1) * (N - 1) + 2 * M + 2 * N) {
       set_error('No active nodes.');
       return;
     }
