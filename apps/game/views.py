@@ -14,7 +14,7 @@ from apps.game.constants import (START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CW_SYM
                                  CUSTOM_GAME_SLUG_LENGTH)
 from apps.game.utils import encode
 from .models import Daily, Custom, Outline
-from .solver import solve, is_solved
+from .solver import solve, is_solved, get_nodes
 
 
 class GameView(TemplateView):
@@ -35,20 +35,19 @@ class GameView(TemplateView):
             game = self.model_class.objects.select_related('outline').get(index=self.get_game_index())
         except self.model_class.DoesNotExist:
             raise Http404
-
         size = int(math.sqrt(len(game.board)))
         outline = game.outline
 
         board = encode(game.board, game.fixed_areas_as_int)
         outline_board = encode(outline.board, game.fixed_areas_as_int, for_outline=True)
-
+        nodes = get_nodes(size, size, game.disabled_nodes_as_dict)
         if settings.DEBUG:
             solution = solve(board=board,
                              outline=outline_board,
-                             disabled_nodes=game.disabled_nodes_as_int,
+                             nodes=nodes,
                              fixed_areas=game.fixed_areas_as_int)
             if solution:
-                solution = ' '.join(f'{i}{(CW_SYMBOLS if v == 'CW' else CCW_SYMBOLS)[0]}' for i, v in solution)
+                solution = ' '.join(f'{i}{v}' for i, v in solution)
             print(solution)
 
         vals = list(game.fixed_areas_as_int.values())
@@ -62,10 +61,8 @@ class GameView(TemplateView):
                                  pre_moves=pre_moves,
                                  pre_moves_dumped=json.dumps(pre_moves),
                                  is_solved=is_solved(board, outline_board, pre_moves,
-                                                     game.fixed_areas_as_int, game.disabled_nodes_as_int),
-                                 nodes=[[(e, game.disabled_nodes_as_int.get(e, dict())) for e in range(i, i + size - 1)]
-                                        for i in
-                                        range(1, (size - 1) ** 2, size - 1)],
+                                                     game.fixed_areas_as_int, game.disabled_nodes_as_dict),
+                                 nodes=nodes,
                                  canonical_url=settings.SITE_DOMAIN + self.get_canonical_url(),
                                  moves_max_num=game.moves_min_num * 100,
                                  cw_symbol=CW_SYMBOLS[0],

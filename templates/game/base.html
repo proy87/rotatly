@@ -1,6 +1,54 @@
 {% extends './../base.html' %}
 {% load static %}
-{% block css %}<link href="{% static "css/game.min.css" %}" rel="stylesheet">{% endblock %}
+{% block css %}<link href="{% static "css/game.min.css" %}" rel="stylesheet">
+
+<style>
+.outer-arrow {
+    position: absolute;
+    width: var(--cell-size);
+    height: calc(var(--cell-size) / 2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+    color: white;
+    cursor: pointer;
+    background-color: black;
+
+}
+.outer-arrow:hover{
+    background-color: red;
+}
+
+/* UP */
+.arrow-up {
+    clip-path: polygon(0 100%, 100% 100%, 50% 0%);
+
+}
+
+/* DOWN */
+.arrow-down {
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+/* LEFT */
+.arrow-left {
+    width: calc(var(--cell-size) / 2);
+    height: var(--cell-size);
+    clip-path: polygon(100% 0, 100% 100%, 0 50%);
+}
+
+/* RIGHT */
+.arrow-right {
+    width: calc(var(--cell-size) / 2);
+    height: var(--cell-size);
+    clip-path: polygon(0 0, 0 100%, 100% 50%);
+}
+
+
+</style>
+{% endblock %}
 {% block content %}
     <h1>{% block title %}{% endblock %}</h1>
     {% block calendar %}{% endblock %}

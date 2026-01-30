@@ -1,7 +1,31 @@
-{% for row in nodes %}
-    {% for node, blocked in row %}
+{% for node in nodes %}
+    {% if node.class_name == 'vertical' %}
+        {% widthratio 100 size node.index0 as left %}
+        {% if node.allow_reverse %}
+            <div class="outer-arrow arrow-up"
+                 style="left: {{ left }}%; top: calc((-1) * var(--cell-size) / 2 - 7px);">{{ node.index }}</div>
+        {% endif %}
+        {% if node.allow_direct %}
+            {% widthratio 100 size node.index0 as left %}
+            <div class="outer-arrow arrow-down"
+                 style="left: {{ left }}%; top: calc(var(--cell-size) * {{ size }} + 7px);">{{ node.index }}</div>
+        {% endif %}
+    {% endif %}
+    {% if node.class_name == 'horizontal' %}
+        {% widthratio 100 size node.index0 as top %}
+        {% if node.allow_reverse %}
+            <div class="outer-arrow arrow-left"
+                 style="left: calc((-1) * var(--cell-size) / 2 - 7px); top: {{ top }}%;">{{ node.index }}</div>
+        {% endif %}
+        {% if node.allow_reverse %}
+            {% widthratio 100 size node.index0 as top %}
+            <div class="outer-arrow arrow-right"
+                 style="left: calc(var(--cell-size) * {{ size }} + 7px); top: {{ top }}%;">{{ node.index }}</div>
+        {% endif %}
+    {% endif %}
+    {% if False %}
         {% widthratio 100 size forloop.counter as left %}
-        {% widthratio 100 size forloop.parentloop.counter as top %}
+        {% widthratio 100 size forloop.counter as top %}
         <div class="node{% if not blocked.cw or not blocked.ccw %} active{% endif %}"
              style="left: {{ left }}%; top: {{ top }}%"
              data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}"
@@ -9,5 +33,5 @@
              data-cw="{% if blocked.cw %}false{% else %}true{% endif %}"
              data-ccw="{% if blocked.ccw %}false{% else %}true{% endif %}">{{ node }}
         </div>
-    {% endfor %}
+    {% endif %}
 {% endfor %}

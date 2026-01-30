@@ -16,8 +16,8 @@ class Game(models.Model):
     fixed_areas = models.JSONField(default=dict, blank=True)
 
     @cached_property
-    def disabled_nodes_as_int(self):
-        return {int(k): v for k, v in self.disabled_nodes.items()}
+    def disabled_nodes_as_dict(self):
+        return {k[0]: k[1:] for k in self.disabled_nodes}
 
     @cached_property
     def fixed_areas_as_int(self):
