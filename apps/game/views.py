@@ -10,11 +10,11 @@ from django.http import Http404, JsonResponse
 from django.urls import reverse
 from django.views.generic import TemplateView
 
-from apps.game.board import init_borders, Cell
-from apps.game.constants import (START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CUSTOM_GAME_STR, CUSTOM_GAME_SLUG_LENGTH)
-from apps.game.utils import encode
+from .board import init_borders, Cell, Horizontal, Vertical, get_nodes
+from .constants import (START_DATE, DATE_FORMAT, JS_DATE_FORMAT, CUSTOM_GAME_STR, CUSTOM_GAME_SLUG_LENGTH)
+from .utils import encode
 from .models import Daily, Custom, Outline
-from .solver import solve, is_solved, get_nodes, Horizontal, Vertical
+from .solver import solve, is_solved
 
 
 class GameView(TemplateView):
@@ -117,7 +117,7 @@ class DailyView(DailyMixin, GameView):
     model_class = Daily
 
     def get_game_index(self):
-        return self.game_index
+        return self.game_index + 9
 
     def get_canonical_url(self):
         return reverse('daily', args=(self.current_date,))

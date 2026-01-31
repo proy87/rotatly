@@ -1,25 +1,25 @@
 {% for node in nodes %}
     {% if node.name == 'vertical' %}
-        {% widthratio 100 size node.col0 as left %}
+        {% widthratio 100 size node.col as left %}
         {% if node.allow_reverse %}
-            {% include './node.html' with left="calc((var(--cell-size) - var(--arrow-width)) / 2 + "|add:left|add:"%)" top="calc((-1) * var(--arrow-height) - var(--grid-thickness))" classes="outer-arrow arrow-up" direction=node.reverse_symbol %}
+            {% include './node.html' with left="calc(((-1) * var(--cell-size) - var(--arrow-width)) / 2 + "|add:left|add:"%)" top="calc((-1) * var(--arrow-height) - var(--grid-thickness))" classes="outer-arrow arrow-up" direction=node.reverse_symbol %}
         {% endif %}
         {% if node.allow_direct %}
             {% with size_str=size|stringformat:"s" %}
                 {% with top="calc(var(--cell-size) * "|add:size_str|add:" + var(--grid-thickness))" %}
-                    {% include './node.html' with left="calc((var(--cell-size) - var(--arrow-width)) / 2 + "|add:left|add:"%)" classes="outer-arrow arrow-down" direction=node.symbol %}
+                    {% include './node.html' with left="calc(((-1) * var(--cell-size) - var(--arrow-width)) / 2 + "|add:left|add:"%)" classes="outer-arrow arrow-down" direction=node.symbol %}
                 {% endwith %}
             {% endwith %}
         {% endif %}
     {% elif node.name == 'horizontal' %}
-        {% widthratio 100 size node.row0 as top %}
+        {% widthratio 100 size node.row as top %}
         {% if node.allow_reverse %}
-            {% include './node.html' with left="calc((-1) * var(--arrow-width) - var(--grid-thickness))" top="calc((var(--cell-size) - var(--arrow-height)) / 2 + "|add:top|add:"%)" classes="outer-arrow arrow-left" direction=node.reverse_symbol %}
+            {% include './node.html' with left="calc((-1) * var(--arrow-width) - var(--grid-thickness))" top="calc(((-1) * var(--cell-size) - var(--arrow-height)) / 2 + "|add:top|add:"%)" classes="outer-arrow arrow-left" direction=node.reverse_symbol %}
         {% endif %}
         {% if node.allow_direct %}
             {% with size_str=size|stringformat:"s" %}
                 {% with left="calc(var(--cell-size) * "|add:size_str|add:" + var(--grid-thickness))" %}
-                    {% include './node.html' with top="calc((var(--cell-size) - var(--arrow-height)) / 2 + "|add:top|add:"%)" classes="outer-arrow arrow-right" direction=node.symbol %}
+                    {% include './node.html' with top="calc(((-1) * var(--cell-size) - var(--arrow-height)) / 2 + "|add:top|add:"%)" classes="outer-arrow arrow-right" direction=node.symbol %}
                 {% endwith %}
             {% endwith %}
         {% endif %}
