@@ -117,7 +117,7 @@ class DailyView(DailyMixin, GameView):
     model_class = Daily
 
     def get_game_index(self):
-        return self.game_index + 9
+        return self.game_index
 
     def get_canonical_url(self):
         return reverse('daily', args=(self.current_date,))
