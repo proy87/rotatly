@@ -1,3 +1,11 @@
+get_cookie = (name) ->
+  if document.cookie and document.cookie != ''
+    cookies = document.cookie.split(';')
+    for i in [0...cookies.length]
+      cookie = cookies[i].trim()
+      if cookie.substring(0, name.length + 1) == (name + '=')
+        return decodeURIComponent(cookie.substring(name.length + 1))
+
 window.hide_element = (el)->
   display = window.getComputedStyle(el, null).display
   if display != 'none'
@@ -8,14 +16,6 @@ window.show_element = (el)->
   display = window.getComputedStyle(el, null).display
   if display == 'none'
     el.style.display = el.getAttribute('data-display') or 'block'
-
-get_cookie = (name) ->
-  if document.cookie and document.cookie != ''
-    cookies = document.cookie.split(';')
-    for i in [0...cookies.length]
-      cookie = cookies[i].trim()
-      if cookie.substring(0, name.length + 1) == (name + '=')
-        return decodeURIComponent(cookie.substring(name.length + 1))
 
 window.send_request = (url, data, method = 'POST', callback = null)->
   params = []
