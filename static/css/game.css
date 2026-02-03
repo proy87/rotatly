@@ -261,11 +261,20 @@ table td {
   transition: none;
 }
 
+.cell span {
+  display: inline-block;
+  width: calc(var(--cell-width) * 0.9);
+  z-index: 1000;
+  position: relative;
+  font-size: 30px;
+  color: black;
+}
+
 /* nodes */
 .node {
   position: absolute;
   font-size: 12px;
-  background: #4da3ff;
+  background: #f8c052;
   cursor: pointer;
   display: none;
   align-items: center;
@@ -280,7 +289,7 @@ table td {
 }
 
 .node:hover {
-  background: #6bb4ff;
+  background: #e8b63f;
 }
 
 .rotate {
@@ -335,23 +344,23 @@ table td {
 }
 
 .red {
-  background-color: rgba(255, 0, 0, 0.3) !important;
+  background-color: rgba(255, 0, 0, 0.5) !important;
 }
 
 .green {
-  background-color: rgba(0, 255, 0, 0.3) !important;
+  background-color: rgba(0, 255, 0, 0.5) !important;
 }
 
 .blue {
-  background-color: rgba(0, 0, 255, 0.3) !important;
+  background-color: rgba(0, 0, 255, 0.5) !important;
 }
 
 .purple {
-  background-color: rgba(128, 0, 128, 0.3) !important;
+  background-color: rgba(128, 0, 128, 0.5) !important;
 }
 
 .magenta {
-  background-color: rgba(255, 0, 255, 0.3) !important;
+  background-color: rgba(255, 0, 255, 0.5) !important;
 }
 
 /*# sourceMappingURL=game.css.map */

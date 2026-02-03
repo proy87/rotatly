@@ -78,7 +78,7 @@
       index = indices[j];
       row = Math.floor(index / M);
       col = index % M;
-      cells.push(document.getElementById(`cell-${row}-${col}`));
+      cells.push(document.getElementById(`cell-${row}-${col}`).querySelector('span'));
     }
     return cells;
   };
@@ -117,7 +117,7 @@
       cell = ref[j];
       htmls.push(cell.innerHTML);
       classes.push(cell.className);
-      values.push(cell.getAttribute('data-value'));
+      values.push(cell.parentElement.getAttribute('data-value'));
     }
     ref1 = get_target_cells(node, direct);
     results = [];
@@ -125,7 +125,7 @@
       cell = ref1[i];
       cell.innerHTML = htmls[i];
       cell.className = classes[i];
-      results.push(cell.setAttribute('data-value', values[i]));
+      results.push(cell.parentElement.setAttribute('data-value', values[i]));
     }
     return results;
   };
@@ -576,7 +576,7 @@
   document.getElementById('share-icon').addEventListener('click', function() {
     var container;
     container = document.getElementById('share-container');
-    container.parentNode.insertBefore(container, document.getElementById('target-outline-container'));
+    container.parentNode.insertBefore(container, document.getElementById('fixed-areas'));
     return container.insertBefore(shareable_text_dom, document.getElementById('copy-result'));
   });
 
