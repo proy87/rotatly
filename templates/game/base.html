@@ -50,7 +50,7 @@
         </div>
     </div>
     {% endif %}
-    <div style="font-size: 20px; margin: 25px auto 10px" id="fixed-areas">
+    <div style="font-size: 20px; margin: 25px auto 10px;display:none;" id="fixed-areas">
     {% for letter, klass in fixed_areas.items %}
         <div class="{{ klass }}" style="display: inline-block; width: 30px; height: 30px;">{{ letter }}</div>
     {% endfor %}
