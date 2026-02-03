@@ -222,7 +222,6 @@ table td {
 #game-container {
   --cell-size: calc(var(--scale) * var(--base-board-cell-size));
   --grid-thickness: calc(var(--cell-size) / 12);
-  margin: calc(var(--cell-size) / 2.5);
 }
 
 .outline-container {
