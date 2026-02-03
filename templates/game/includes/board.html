@@ -6,7 +6,7 @@
                     data-row="{{ forloop.parentloop.counter0 }}" data-col="{{ forloop.counter0 }}"{% endif %}
                     data-value="{{ cell.cell.name }}"
                     {% if cell.outline.color_class %}class="{% if not is_outline %}cell {% endif %}{{ cell.outline.color_class }}"{% endif %}>
-                    {% if not is_outline %}<span>{{ cell.cell.display_name }}</span>{% endif %}
+                    {% if not is_outline %}<span><span style="color: {{ cell.cell.color_class }};opacity: 0.7;">{{ cell.cell.display_name }}</span></span>{% endif %}
                 </td>
             {% endfor %}
         </tr>
