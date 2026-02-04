@@ -91,7 +91,7 @@ table td {
 .node {
   position: absolute;
   font-size: 12px;
-  background: #f8c052;
+  background: rgba(95,130,185);
   cursor: pointer;
   display: none;
   align-items: center;
@@ -106,12 +106,12 @@ table td {
 }
 
 .node:hover {
-  background: #e8b63f;
+  background: rgb(150, 175, 225);
 }
 
 .rotate {
-  width: calc(var(--cell-size) / 3);
-  height: calc(var(--cell-size) / 3);
+  width: calc(var(--cell-size) / 3.5);
+  height: calc(var(--cell-size) / 3.5);
   border-radius: 50%;
   transform: translate(-50%, -50%);
 }
@@ -160,25 +160,29 @@ table td {
   transform: translateY(calc(-1 * var(--cell-size)));
 }
 
+:root{
+  --red-color: rgba(175,85,85);
+  --green-color: rgba(95,160,125);
+  --blue-color: rgb(175, 155, 85);
+  --purple-color: rgba(150,110,185);
+}
+
 .red {
-  background-color: rgba(255, 0, 0, 0.5) !important;
+  background-color: rgba(215, 130, 130) !important;
 }
 
 .green {
-  background-color: rgba(0, 255, 0, 0.5) !important;
+  background-color: rgba(150, 205, 175) !important;
 }
 
 .blue {
-  background-color: rgba(0, 0, 255, 0.5) !important;
+  background-color: rgb(225, 215, 155) !important;
 }
 
 .purple {
-  background-color: rgba(128, 0, 128, 0.5) !important;
+  background-color: rgba(195, 165, 225) !important;
 }
 
-.magenta {
-  background-color: rgba(255, 0, 255, 0.5) !important;
-}
 
 
 
