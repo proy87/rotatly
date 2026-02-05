@@ -7,22 +7,22 @@ class Cell:
     colors_dict = {i: c for i, c in enumerate(('red', 'green', 'blue', 'purple'), start=1)}
     names_dict = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 0: ''}
 
-    def __init__(self, row: int, col: int, for_outline: bool, border_dict: dict, name: int = 0):
+    def __init__(self, row: int, col: int, outline: int | None, border_dict: dict, name: int = 0):
         self.row = row
         self.col = col
         self.name = name
-        if for_outline:
+        if outline is None:
             self.display_name = ''
         else:
             self.display_name = self.names_dict[abs(name)]
         self.border_dict = border_dict
         self.cell_size = f'var(--cell-size)'
         self.thickness = 'round(down, var(--grid-thickness), 2px)'
-        self.for_outline = for_outline
+        self.outline = outline
 
     @property
     def color_class(self) -> str:
-        if self.for_outline:
+        if self.outline is None:
             return self.colors_dict[-self.name] if self.name < 0 else ''
         else:
             return '' if self.name == 0 else self.colors_dict[abs(self.name)]
@@ -54,7 +54,12 @@ class Cell:
                             width=length,
                             top=f'{offset_y} + {self.cell_size}',
                             left=offset_x))
-        return [''.join(f'{key}:calc({value});' for key, value in item.items()) for item in lst]
+        if self.outline is not None:
+            color_class =  '' if self.outline == 0 else self.colors_dict[abs(self.outline)]
+        else:
+            color_class = self.color_class
+        color_class = f'background-color: var(--{color_class}-color);' if color_class else ''
+        return [''.join(f'{key}:calc({value});' for key, value in item.items()) + color_class for item in lst]
 
 
 def init_borders(outline: Sequence[Any], board: Sequence[Any] | None = None) -> Sequence[Cell]:
@@ -80,7 +85,7 @@ def init_borders(outline: Sequence[Any], board: Sequence[Any] | None = None) -> 
             current_row.append(
                 Cell(row_index, col_index,
                      name=digit,
-                     for_outline=board is None,
+                     outline=None if board is None else outline[row_index][col_index],
                      border_dict=cell_border))
         cells.append(current_row)
     return cells
@@ -90,7 +95,7 @@ class Node:
     symbol = None
     reverse_symbol = None
 
-    def __init__(self, index, indices: Iterable[int], cols:int, allow_direct: bool = True, allow_reverse: bool = True):
+    def __init__(self, index, indices: Iterable[int], cols: int, allow_direct: bool = True, allow_reverse: bool = True):
         self.index = index
         self.indices = indices
         self.allow_direct = allow_direct
@@ -185,6 +190,7 @@ class Vertical(Horizontal):
 
 def get_nodes(n: int, m: int, disabled_nodes: dict | None = None) -> Sequence[Node]:
     disabled_nodes = disabled_nodes or {}
+
     def _create_class(klass, ins, idx, s=0):
         disallow_direct, disallow_reverse = disabled_nodes.get(idx + s + 1, (False, False))
         return klass(idx + 1, ins, m, not disallow_direct, not disallow_reverse)

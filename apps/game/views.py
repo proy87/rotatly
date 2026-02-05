@@ -54,15 +54,9 @@ class GameView(TemplateView):
         vals = list(game.fixed_areas_as_int.values())
         bordered_board = init_borders(outline=outline_board, board=[-ch if ch in vals else ch for ch in game.board])
         bordered_outline = init_borders(outline=outline_board)
-        class NewCell:
-            def __init__(self, cell, outline):
-                self.cell = cell
-                self.outline = outline
-        new_board = [NewCell(c, o) for c, o in zip([c for r in bordered_board for c in r], [c for r in bordered_outline for c in r])]
-
         context_data.update(dict(size=size,
                                  game=game,
-                                 board=[new_board[4*i:4*i+4] for i in range(4)],
+                                 board=bordered_board,
                                  outline=bordered_outline,
                                  fixed_areas={Cell.names_dict[v]: Cell.colors_dict[v] for v in sorted(vals)},
                                  outline_dumped=json.dumps(outline_board),

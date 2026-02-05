@@ -1,6 +1,13 @@
 @use "core";
 @use "misc";
 
+:root{
+  --red-color: rgba(175,85,85);
+  --green-color: rgba(95,160,125);
+  --blue-color: rgb(175, 155, 85);
+  --purple-color: rgba(150,110,185);
+}
+
 table {
   border-collapse: collapse;
   width: 100%;
@@ -14,6 +21,9 @@ table td {
   font-family: sans-serif;
   background: white;
   position: relative;
+}
+.outline-container td{
+  border: none;
 }
 
 .flex-container {
@@ -38,12 +48,12 @@ table td {
 
 #game-container {
   --cell-size: calc(var(--scale) * var(--base-board-cell-size));
-  --grid-thickness: calc(var(--cell-size) / 12);
+  --grid-thickness: 5px;
 }
 
 .outline-container {
   --cell-size: calc(var(--scale) * var(--base-outline-cell-size));
-  --grid-thickness: 5px;
+  --grid-thickness: 2px;
 }
 
 #game-container table{
@@ -160,19 +170,12 @@ table td {
   transform: translateY(calc(-1 * var(--cell-size)));
 }
 
-:root{
-  --red-color: rgba(175,85,85);
-  --green-color: rgba(95,160,125);
-  --blue-color: rgb(175, 155, 85);
-  --purple-color: rgba(150,110,185);
-}
-
 .red {
-  background-color: rgba(215, 130, 130) !important;
+  background-color: rgb(215, 130, 130) !important;
 }
 
 .green {
-  background-color: rgba(150, 205, 175) !important;
+  background-color: rgb(150, 205, 175) !important;
 }
 
 .blue {
@@ -180,7 +183,7 @@ table td {
 }
 
 .purple {
-  background-color: rgba(195, 165, 225) !important;
+  background-color: rgb(195, 165, 225) !important;
 }
 
 

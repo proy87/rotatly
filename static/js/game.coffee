@@ -47,7 +47,7 @@ get_cells_from_indices = (indices) ->
   for index in indices
     row = Math.floor(index / M)
     col = index % M
-    cells.push(document.getElementById("cell-#{row}-#{col}").querySelector('span'))
+    cells.push(document.getElementById("cell-#{row}-#{col}"))
   return cells
 
 get_source_indices = (node, direct)->
@@ -73,12 +73,12 @@ rotate = (node, direct)->
   for cell in get_source_cells(node, direct)
     htmls.push(cell.innerHTML)
     classes.push(cell.className)
-    values.push(cell.parentElement.getAttribute('data-value'))
+    values.push(cell.getAttribute('data-value'))
 
   for cell, i in get_target_cells(node, direct)
     cell.innerHTML = htmls[i]
     cell.className = classes[i]
-    cell.parentElement.setAttribute('data-value', values[i])
+    cell.setAttribute('data-value', values[i])
 
 check = ->
   for index in [0...N * M]
@@ -304,7 +304,7 @@ undo_button.addEventListener('click', ->
   )
 )
 restart_button.addEventListener('click', ->
-  [...document.getElementById("non-solve-text").parentElement.children].forEach((node)->
+  [...document.getElementById("non-solve-text").parentNode.children].forEach((node)->
     window.hide_element(node)
   )
   active_nodes_dom.forEach((node)-> window.show_element(node))

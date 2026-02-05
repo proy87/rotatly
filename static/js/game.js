@@ -78,7 +78,7 @@
       index = indices[j];
       row = Math.floor(index / M);
       col = index % M;
-      cells.push(document.getElementById(`cell-${row}-${col}`).querySelector('span'));
+      cells.push(document.getElementById(`cell-${row}-${col}`));
     }
     return cells;
   };
@@ -117,7 +117,7 @@
       cell = ref[j];
       htmls.push(cell.innerHTML);
       classes.push(cell.className);
-      values.push(cell.parentElement.getAttribute('data-value'));
+      values.push(cell.getAttribute('data-value'));
     }
     ref1 = get_target_cells(node, direct);
     results = [];
@@ -125,7 +125,7 @@
       cell = ref1[i];
       cell.innerHTML = htmls[i];
       cell.className = classes[i];
-      results.push(cell.parentElement.setAttribute('data-value', values[i]));
+      results.push(cell.setAttribute('data-value', values[i]));
     }
     return results;
   };
@@ -420,7 +420,7 @@
   });
 
   restart_button.addEventListener('click', function() {
-    [...document.getElementById("non-solve-text").parentElement.children].forEach(function(node) {
+    [...document.getElementById("non-solve-text").parentNode.children].forEach(function(node) {
       return window.hide_element(node);
     });
     active_nodes_dom.forEach(function(node) {
