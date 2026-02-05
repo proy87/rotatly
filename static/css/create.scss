@@ -42,6 +42,14 @@
   pointer-events: auto;
 }
 
+.tetramino .outline-grid div, .create .outline-grid div {
+  background-color: black;
+}
+
+.outline-container.create td{
+  border: 1px solid #a9a9a9;
+}
+
 .tetramino-container:last-child:nth-child(odd) {
   grid-column: 1 / -1;
   justify-self: center;

@@ -232,7 +232,7 @@ table td {
 
 #game-container {
   --cell-size: calc(var(--scale) * var(--base-board-cell-size));
-  --grid-thickness: 5px;
+  --grid-thickness: 7px;
 }
 
 .outline-container {
@@ -259,8 +259,8 @@ table td {
   position: absolute;
 }
 
-.outline-grid div:not(.grid-item-container) {
-  background-color: black;
+.outline-grid div {
+  background-color: #f4f6f8;
 }
 
 .animate {

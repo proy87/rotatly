@@ -7,22 +7,22 @@ class Cell:
     colors_dict = {i: c for i, c in enumerate(('red', 'green', 'blue', 'purple'), start=1)}
     names_dict = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 0: ''}
 
-    def __init__(self, row: int, col: int, outline: int | None, border_dict: dict, name: int = 0):
+    def __init__(self, row: int, col: int, for_outline: bool, border_dict: dict, name: int = 0):
         self.row = row
         self.col = col
         self.name = name
-        if outline is None:
+        if for_outline:
             self.display_name = ''
         else:
             self.display_name = self.names_dict[abs(name)]
         self.border_dict = border_dict
         self.cell_size = f'var(--cell-size)'
         self.thickness = 'round(down, var(--grid-thickness), 2px)'
-        self.outline = outline
+        self.for_outline = for_outline
 
     @property
     def color_class(self) -> str:
-        if self.outline is None:
+        if self.for_outline:
             return self.colors_dict[-self.name] if self.name < 0 else ''
         else:
             return '' if self.name == 0 else self.colors_dict[abs(self.name)]
@@ -54,12 +54,7 @@ class Cell:
                             width=length,
                             top=f'{offset_y} + {self.cell_size}',
                             left=offset_x))
-        if self.outline is not None:
-            color_class =  '' if self.outline == 0 else self.colors_dict[abs(self.outline)]
-        else:
-            color_class = self.color_class
-        color_class = f'background-color: var(--{color_class}-color);' if color_class else ''
-        return [''.join(f'{key}:calc({value});' for key, value in item.items()) + color_class for item in lst]
+        return [''.join(f'{key}:calc({value});' for key, value in item.items()) for item in lst]
 
 
 def init_borders(outline: Sequence[Any], board: Sequence[Any] | None = None) -> Sequence[Cell]:
@@ -81,11 +76,11 @@ def init_borders(outline: Sequence[Any], board: Sequence[Any] | None = None) -> 
                 except IndexError:
                     pass
                 else:
-                    cell_border[name] = name not in ('top', 'left') and outline[row_index][col_index] != neighbour
+                    cell_border[name] = outline[row_index][col_index] != neighbour
             current_row.append(
                 Cell(row_index, col_index,
                      name=digit,
-                     outline=None if board is None else outline[row_index][col_index],
+                     for_outline=board is None,
                      border_dict=cell_border))
         cells.append(current_row)
     return cells
@@ -202,7 +197,7 @@ def get_nodes(n: int, m: int, disabled_nodes: dict | None = None) -> Sequence[No
         if (i + 1) % m:
             nodes.append(_create_class(Rotate, (i, i + 1, i + m + 1, i + m), index))
             index += 1
-
+    return nodes
     shift = (m - 1) * (n - 1)
     # down and up
     for index in range(m):
