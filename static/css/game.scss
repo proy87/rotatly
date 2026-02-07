@@ -1,11 +1,11 @@
 @use "core";
 @use "misc";
 
-:root{
-  --red-color: rgba(175,85,85);
-  --green-color: rgba(95,160,125);
+:root {
+  --red-color: rgba(175, 85, 85);
+  --green-color: rgba(95, 160, 125);
   --blue-color: rgb(175, 155, 85);
-  --purple-color: rgba(150,110,185);
+  --purple-color: rgba(150, 110, 185);
 }
 
 table {
@@ -22,7 +22,8 @@ table td {
   background: white;
   position: relative;
 }
-.outline-container td{
+
+.outline-container td {
   border: none;
 }
 
@@ -56,7 +57,7 @@ table td {
   --grid-thickness: 2px;
 }
 
-#game-container table{
+#game-container table {
   overflow: hidden;
 }
 
@@ -75,8 +76,12 @@ table td {
   position: absolute;
 }
 
-.outline-grid div {
+.outline-container .outline-grid div {
   background-color: #f4f6f8;
+}
+
+#game-container .outline-grid div {
+  background-color: rgb(230, 230, 230);
 }
 
 .animate {
@@ -87,7 +92,7 @@ table td {
   transition: none;
 }
 
-.cell span{
+.cell span {
   display: inline-block;
   width: calc(var(--cell-width) * 0.9);
   z-index: 1000;
@@ -101,7 +106,7 @@ table td {
 .node {
   position: absolute;
   font-size: 12px;
-  background: rgba(95,130,185);
+  background: rgba(95, 130, 185);
   cursor: pointer;
   display: none;
   align-items: center;
