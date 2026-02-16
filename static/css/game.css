@@ -260,11 +260,11 @@ table td {
 }
 
 .outline-container .outline-grid div {
-  background-color: #f4f6f8;
+  background-color: black; /*#f4f6f8;*/
 }
 
 #game-container .outline-grid div {
-  background-color: #f4f6f8;
+  background-color: black; /*#f4f6f8;*/
 }
 
 .animate {
