@@ -77,11 +77,11 @@ table td {
 }
 
 .outline-container .outline-grid div {
-  background-color: black;/*#f4f6f8;*/
+  background-color: #f4f6f8;
 }
 
 #game-container .outline-grid div {
-  background-color: black;/*#f4f6f8;*/
+  background-color: #f4f6f8;
 }
 
 .animate {
@@ -106,7 +106,7 @@ table td {
 .node {
   position: absolute;
   font-size: 12px;
-  background: rgba(95, 130, 185);
+  background: darkorange;/*rgba(95, 130, 185);*/
   cursor: pointer;
   display: none;
   align-items: center;
