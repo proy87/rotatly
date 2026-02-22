@@ -106,7 +106,7 @@ table td {
 .node {
   position: absolute;
   font-size: 12px;
-  background: #f4a543;/*rgba(95, 130, 185);*/
+  background: rgba(95, 130, 185);
   cursor: pointer;
   display: none;
   align-items: center;
@@ -121,7 +121,7 @@ table td {
 }
 
 .node:hover {
-  background: #ed9633;/*rgb(150, 175, 225);*/
+  background: rgb(150, 175, 225);
 }
 
 .rotate {
