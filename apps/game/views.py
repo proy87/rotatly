@@ -195,7 +195,7 @@ class CreateView(TemplateView):
 
 
 def track(request):
-    if not settings.DEBUG:
+    if False and not settings.DEBUG:
         from django.core.mail import send_mail
         send_mail('Rotatly',
                   request.POST,
